@@ -19,8 +19,11 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Overview of key user metrics",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Usage-report totals. Accepted LOC and acceptance rates are not exported by Kiro.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -66,13 +69,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(DISTINCT user_id) AS \"Active Users\", SUM(chat_ai_code_lines) AS \"Accepted Lines (Chat)\", SUM(inline_ai_code_lines) AS \"Accepted Lines (Inline Suggestion)\", CAST(SUM(inline_acceptance_count) AS NUMERIC) / NULLIF(NULLIF(SUM(inline_suggestions_count), 0), 0) AS \"Acceptance Rate (Inline Suggestion)\", SUM(code_review_findings_count) AS \"Findings (Code Review)\", SUM(code_fix_accepted_lines) AS \"Accepted Lines (Code Fix)\", CAST(SUM(code_fix_acceptance_event_count) AS NUMERIC) / NULLIF(NULLIF(SUM(code_fix_generation_event_count), 0), 0) AS \"Acceptance Rate (Code Fix)\", SUM(transformation_lines_ingested) AS \"Ingested Lines (Java Transform)\", SUM(transformation_lines_generated) AS \"Generated Lines (Java Transform)\", SUM(inline_chat_accepted_line_additions) AS \"Accepted Lines (Inline Chat)\", CAST(SUM(inline_chat_acceptance_event_count) AS NUMERIC) / NULLIF(NULLIF(SUM(inline_chat_total_event_count), 0), 0) AS \"Acceptance Rate (Inline Chat)\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)",
+          "rawSql": "SELECT COUNT(DISTINCT user_id) AS \"Active Users\", ROUND(SUM(credits_used), 1) AS \"Credits Used\", SUM(total_messages) AS \"Messages\", SUM(chat_conversations) AS \"Conversations\" FROM _tool_kiro_user_report WHERE $__timeFilter(date)",
           "refId": "A",
           "select": [
             [
@@ -115,8 +121,11 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily AI code line changes across all users",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Daily Kiro usage volume from the user report.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -195,13 +204,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, SUM(chat_ai_code_lines) AS \"Chat Accepted Lines\", SUM(code_fix_accepted_lines) AS \"Code Fix Accepted Lines\", SUM(code_fix_generated_lines) AS \"Code Fix Generated Lines\", SUM(transformation_lines_ingested) AS \"Java Transform Ingested Lines\", SUM(transformation_lines_generated) AS \"Java Transform Generated Lines\", SUM(inline_ai_code_lines) AS \"Inline Suggestion Accepted Lines\", SUM(inline_chat_accepted_line_additions) AS \"Inline Chat Accepted Line Additions\", SUM(inline_chat_accepted_line_deletions) AS \"Inline Chat Accepted Line Deletions\", SUM(inline_chat_dismissed_line_additions) AS \"Inline Chat Dismissed Line Additions\", SUM(inline_chat_dismissed_line_deletions) AS \"Inline Chat Dismissed Line Deletions\", SUM(inline_chat_rejected_line_additions) AS \"Inline Chat Rejected Line Additions\", SUM(inline_chat_rejected_line_deletions) AS \"Inline Chat Rejected Line Deletions\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT CAST(date AS DATE) AS time, ROUND(SUM(credits_used), 1) AS \"Credits Used\", SUM(total_messages) AS \"Messages\", SUM(chat_conversations) AS \"Conversations\" FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) ORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -240,12 +252,15 @@
           ]
         }
       ],
-      "title": "Daily AI Code Line Changes",
+      "title": "Daily Credits, Messages & Conversations",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily AI interaction trends across all users",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Chat events split into user turns and agent continuations.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -324,13 +339,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, SUM(chat_messages_sent) AS \"Chat Messages Sent\", SUM(code_fix_acceptance_event_count) AS \"Code Fix Accepted Event Count\", SUM(code_fix_generation_event_count) AS \"Code Fix Generated Event Count\", SUM(transformation_event_count) AS \"Java Transform Event Count\", SUM(inline_acceptance_count) AS \"Inline Suggestion Accepted Suggestions\", SUM(inline_suggestions_count) AS \"Inline Suggestion Count\", SUM(inline_chat_total_event_count) AS \"Inline Chat Total Suggestions\", SUM(inline_chat_acceptance_event_count) AS \"Inline Chat Accepted Suggestions\", SUM(inline_chat_dismissal_event_count) AS \"Inline Chat Dismissed Suggestions\", SUM(inline_chat_rejection_event_count) AS \"Inline Chat Rejected Suggestions\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, COUNT(*) AS \"Chat Events\", SUM(CASE WHEN has_prompt = TRUE THEN 1 ELSE 0 END) AS \"User Turns\", SUM(CASE WHEN has_prompt = FALSE THEN 1 ELSE 0 END) AS \"Agent Continuations\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -369,12 +387,15 @@
           ]
         }
       ],
-      "title": "Daily AI Interactions",
+      "title": "Daily Chat Activity",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Code review metrics over time",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Authoritative per-model and routing-mode message counts.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -453,12 +474,15 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, SUM(code_fix_acceptance_event_count) AS \"Code Fix Accepted Event Count\", SUM(code_fix_generation_event_count) AS \"Code Fix Generated Event Count\", SUM(code_review_findings_count) AS \"Total Findings\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT CAST(date AS DATE) AS time, model_name AS metric, SUM(message_count) AS value FROM _tool_kiro_user_model_messages WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE), model_name ORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -497,12 +521,15 @@
           ]
         }
       ],
-      "title": "Code Review Metrics",
+      "title": "Daily Model / Route Messages",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily acceptance rate of AI suggestions",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Agent continuations divided by all chat events. This is not suggestion acceptance.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -581,13 +608,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, CAST(SUM(code_fix_acceptance_event_count) AS NUMERIC) / NULLIF(NULLIF(SUM(code_fix_generation_event_count), 0), 0) AS \"Code Fix\", CAST(SUM(inline_acceptance_count) AS NUMERIC) / NULLIF(NULLIF(SUM(inline_suggestions_count), 0), 0) AS \"Inline Suggestions\", CAST(SUM(inline_chat_acceptance_event_count) AS NUMERIC) / NULLIF(NULLIF(SUM(inline_chat_total_event_count), 0), 0) AS \"Inline Chat\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, CAST(SUM(CASE WHEN has_prompt = FALSE THEN 1 ELSE 0 END) AS NUMERIC) * 100.0 / NULLIF(COUNT(*), 0) AS \"Agent Continuation Rate\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -626,12 +656,15 @@
           ]
         }
       ],
-      "title": "Daily AI Suggestion Acceptance Rate",
+      "title": "Daily Agent Continuation Rate",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "User AI interaction metrics",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Per-user credits, messages, conversations, overage, and last activity.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -655,51 +688,7 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Acceptance Rate"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percentunit"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "gauge"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Inline Chat Accepted Events"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 239
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Acceptance Rate (Inline Suggestion)"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 172
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -724,13 +713,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(MAX(display_name), user_id) AS \"User\", SUM(chat_ai_code_lines) AS \"Accepted Lines (Chat)\", SUM(transformation_lines_ingested) AS \"Lines Ingested (Java Transform)\", SUM(transformation_lines_generated) AS \"Lines Generated (Java Transform)\", SUM(transformation_event_count) AS \"Event Count (Java Transform)\", SUM(code_review_findings_count) AS \"Findings (Code Review)\", SUM(code_fix_accepted_lines) AS \"Accepted Lines (Code Fix)\", SUM(code_fix_generated_lines) AS \"Generated Lines (Code Fix)\", SUM(code_fix_acceptance_event_count) AS \"Accepted Count (Code Fix)\", SUM(code_fix_generation_event_count) AS \"Generated Count (Code Fix)\", ROUND(CAST(SUM(code_fix_acceptance_event_count) AS NUMERIC) / NULLIF(NULLIF(SUM(code_fix_generation_event_count), 0), 0) * 100, 2) || '%' AS \"Acceptance Rate (Code Fix)\", SUM(inline_ai_code_lines) AS \"Accepted Lines (Inline Suggestion)\", SUM(inline_acceptance_count) AS \"Accepted Count (Inline Suggestion)\", SUM(inline_suggestions_count) AS \"Total Count (Inline Suggestion)\", ROUND(CAST(SUM(inline_acceptance_count) AS NUMERIC) / NULLIF(NULLIF(SUM(inline_suggestions_count), 0), 0) * 100, 2) || '%' AS \"Acceptance Rate (Inline Suggestion)\", SUM(inline_chat_accepted_line_additions) AS \"Accepted Line Additions (Inline Chat)\", SUM(inline_chat_accepted_line_deletions) AS \"Accepted Line Deletions (Inline Chat)\", SUM(inline_chat_acceptance_event_count) AS \"Accepted Events (Inline Chat)\", SUM(inline_chat_total_event_count) AS \"Total Events (Inline Chat)\", ROUND(CAST(SUM(inline_chat_acceptance_event_count) AS NUMERIC) / NULLIF(NULLIF(SUM(inline_chat_total_event_count), 0), 0) * 100, 2) || '%' AS \"Acceptance Rate (Inline Chat)\", SUM(doc_generation_event_count) AS \"Doc Gen Events\", SUM(test_generation_event_count) AS \"Test Gen Events\", SUM(dev_accepted_lines) AS \"Dev Accepted Lines\", MIN(date) AS \"First Activity\", MAX(date) AS \"Last Activity\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"user_id\" ORDER BY SUM(inline_ai_code_lines) DESC NULLS LAST",
+          "rawSql": "SELECT COALESCE(MAX(display_name), user_id) AS \"User\", MAX(subscription_tier) AS \"Tier\", ROUND(SUM(credits_used), 1) AS \"Credits Used\", SUM(total_messages) AS \"Messages\", SUM(chat_conversations) AS \"Conversations\", SUM(overage_credits_used) AS \"Overage Credits\", MAX(date) AS \"Last Activity\" FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY user_id ORDER BY SUM(credits_used) DESC",
           "refId": "A",
           "select": [
             [
@@ -769,12 +761,15 @@
           ]
         }
       ],
-      "title": "User Interactions",
+      "title": "Per-User Usage",
       "type": "table"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily doc generation events and accepted/rejected lines",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Messages by Kiro client type. Doc-generation metrics are not exported.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -853,13 +848,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, SUM(doc_generation_event_count) AS \"Doc Generation Events\", SUM(doc_generation_accepted_line_additions) AS \"Accepted Line Additions\", SUM(doc_generation_accepted_line_updates) AS \"Accepted Line Updates\", SUM(doc_generation_rejected_line_additions) AS \"Rejected Line Additions\", SUM(doc_generation_rejected_line_updates) AS \"Rejected Line Updates\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT CAST(date AS DATE) AS time, client_type AS metric, SUM(total_messages) AS value FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE), client_type ORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -898,12 +896,15 @@
           ]
         }
       ],
-      "title": "Doc Generation Metrics",
+      "title": "Daily Client Type Messages",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily test generation events and lines",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Completion requests, requests with returned suggestions, and returned lines. These are not acceptance events.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -982,13 +983,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, SUM(test_generation_event_count) AS \"Test Generation Events\", SUM(test_generation_accepted_tests) AS \"Accepted Tests\", SUM(test_generation_generated_tests) AS \"Generated Tests\", SUM(test_generation_accepted_lines) AS \"Accepted Lines\", SUM(test_generation_generated_lines) AS \"Generated Lines\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, COUNT(*) AS \"Completion Requests\", SUM(CASE WHEN completions_count > 0 THEN 1 ELSE 0 END) AS \"Requests with Results\", SUM(returned_line_count) AS \"Returned Lines\" FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -1027,12 +1031,15 @@
           ]
         }
       ],
-      "title": "Test Generation Metrics",
+      "title": "Daily Completion Activity",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily agentic dev events and lines",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Steering, spec-mode, and agent-continuation events. Kiro does not export accepted agentic LOC.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1111,13 +1118,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, SUM(dev_generation_event_count) AS \"Dev Generation Events\", SUM(dev_acceptance_event_count) AS \"Dev Acceptance Events\", SUM(dev_generated_lines) AS \"Dev Generated Lines\", SUM(dev_accepted_lines) AS \"Dev Accepted Lines\" FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS \"Steering\", SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS \"Spec Mode\", SUM(CASE WHEN has_prompt = FALSE THEN 1 ELSE 0 END) AS \"Agent Continuations\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -1156,7 +1166,7 @@
           ]
         }
       ],
-      "title": "Dev (Agentic) Metrics",
+      "title": "Daily Agentic Signals",
       "type": "timeseries"
     }
   ],
@@ -1164,7 +1174,7 @@
   "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
-    "q_dev",
+    "kiro",
     "user_data"
   ],
   "templating": {
@@ -1176,7 +1186,7 @@
   },
   "timepicker": {},
   "timezone": "utc",
-  "title": "Kiro Code Metrics Dashboard",
-  "uid": "qdev_user_data-pg",
+  "title": "Kiro Activity Detail Dashboard",
+  "uid": "kiro_user_data-pg",
   "version": 1
 }

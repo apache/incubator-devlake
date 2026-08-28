@@ -19,7 +19,10 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Overview of credits and usage metrics",
       "fieldConfig": {
         "defaults": {
@@ -66,11 +69,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(credits_used) AS \"Total Credits Used\", COUNT(DISTINCT user_id) AS \"Active Users\", SUM(total_messages) AS \"Total Messages\", SUM(chat_conversations) AS \"Total Conversations\" FROM lake._tool_q_dev_user_report WHERE $__timeFilter(date)",
+          "rawSql": "SELECT\n  SUM(credits_used) as 'Total Credits Used',\n  COUNT(DISTINCT user_id) as 'Active Users',\n  SUM(total_messages) as 'Total Messages',\n  SUM(chat_conversations) as 'Total Conversations'\nFROM lake._tool_kiro_user_report\nWHERE $__timeFilter(date)",
           "refId": "A"
         }
       ],
@@ -78,7 +84,10 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Daily credits consumed broken down by subscription tier",
       "fieldConfig": {
         "defaults": {
@@ -158,11 +167,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, subscription_tier AS metric, SUM(credits_used) AS value FROM lake._tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY \"date\", \"subscription_tier\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT\n  date as time,\n  subscription_tier as metric,\n  SUM(credits_used) as value\nFROM lake._tool_kiro_user_report\nWHERE $__timeFilter(date)\nGROUP BY date, subscription_tier\nORDER BY date",
           "refId": "A"
         }
       ],
@@ -170,8 +182,11 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Daily messages and conversations broken down by client type",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Daily messages by Kiro IDE, CLI, Web, and Plugin clients, plus conversations.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -250,11 +265,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT date AS time, SUM(CASE WHEN client_type = 'KIRO_IDE' THEN total_messages ELSE 0 END) AS \"Messages (IDE)\", SUM(CASE WHEN client_type = 'KIRO_CLI' THEN total_messages ELSE 0 END) AS \"Messages (CLI)\", SUM(CASE WHEN client_type = 'PLUGIN' THEN total_messages ELSE 0 END) AS \"Messages (Plugin)\", SUM(chat_conversations) AS \"Conversations\" FROM lake._tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY \"date\" ORDER BY date NULLS FIRST",
+          "rawSql": "SELECT date AS time, SUM(CASE WHEN client_type = 'KIRO_IDE' THEN total_messages ELSE 0 END) AS 'Messages (IDE)', SUM(CASE WHEN client_type = 'KIRO_CLI' THEN total_messages ELSE 0 END) AS 'Messages (CLI)', SUM(CASE WHEN client_type = 'KIRO_WEB' THEN total_messages ELSE 0 END) AS 'Messages (Web)', SUM(CASE WHEN client_type = 'PLUGIN' THEN total_messages ELSE 0 END) AS 'Messages (Plugin)', SUM(chat_conversations) AS 'Conversations' FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY date ORDER BY date",
           "refId": "A"
         }
       ],
@@ -262,7 +280,10 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Distribution of users across subscription tiers",
       "fieldConfig": {
         "defaults": {
@@ -318,11 +339,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT subscription_tier AS \"Tier\", COUNT(DISTINCT user_id) AS \"Users\" FROM lake._tool_q_dev_user_report WHERE $__timeFilter(date) AND NOT subscription_tier IS NULL AND subscription_tier <> '' GROUP BY \"subscription_tier\" ORDER BY COUNT(DISTINCT user_id) DESC NULLS LAST",
+          "rawSql": "SELECT\n  subscription_tier as 'Tier',\n  COUNT(DISTINCT user_id) as 'Users'\nFROM lake._tool_kiro_user_report\nWHERE $__timeFilter(date)\n  AND subscription_tier IS NOT NULL\n  AND subscription_tier != ''\nGROUP BY subscription_tier\nORDER BY COUNT(DISTINCT user_id) DESC",
           "refId": "A"
         }
       ],
@@ -330,7 +354,10 @@
       "type": "piechart"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Per-user credits, messages, and subscription details",
       "fieldConfig": {
         "defaults": {
@@ -429,11 +456,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COALESCE(MAX(display_name), user_id) AS \"User\", subscription_tier AS \"Tier\", client_type AS \"Client\", SUM(credits_used) AS \"Credits Used\", SUM(total_messages) AS \"Messages\", SUM(chat_conversations) AS \"Conversations\", SUM(overage_credits_used) AS \"Overage Credits\", CASE WHEN MAX(CAST(overage_enabled AS BIGINT)) = 1 THEN 'Yes' ELSE 'No' END AS \"Overage\", MIN(date) AS \"First Activity\", MAX(date) AS \"Last Activity\" FROM lake._tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY \"user_id\", \"subscription_tier\", \"client_type\" ORDER BY user_id DESC NULLS LAST",
+          "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) as 'User',\n  subscription_tier as 'Tier',\n  client_type as 'Client',\n  SUM(credits_used) as 'Credits Used',\n  SUM(total_messages) as 'Messages',\n  SUM(chat_conversations) as 'Conversations',\n  SUM(overage_credits_used) as 'Overage Credits',\n  CASE WHEN MAX(CAST(overage_enabled AS UNSIGNED)) = 1 THEN 'Yes' ELSE 'No' END as 'Overage',\n  MIN(date) as 'First Activity',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_kiro_user_report\nWHERE $__timeFilter(date)\nGROUP BY user_id, subscription_tier, client_type\nORDER BY user_id DESC",
           "refId": "A"
         }
       ],
@@ -445,9 +475,8 @@
   "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
-    "q_dev",
-    "user_report",
-    "kiro"
+    "kiro",
+    "user_report"
   ],
   "templating": {
     "list": []
@@ -459,6 +488,6 @@
   "timepicker": {},
   "timezone": "utc",
   "title": "Kiro Usage Dashboard",
-  "uid": "qdev_user_report-pg",
+  "uid": "kiro_user_report",
   "version": 1
 }

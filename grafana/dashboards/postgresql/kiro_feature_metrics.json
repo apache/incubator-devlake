@@ -19,8 +19,11 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "High-level summary of legacy feature-level activity metrics (from by_user_analytic CSV reports)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Kiro usage-report metrics. Legacy accepted LOC and feature counters are not exported.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -66,15 +69,18 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(DISTINCT user_id) as 'Active Users',\n  SUM(inline_suggestions_count) as 'Inline Suggestions',\n  SUM(inline_acceptance_count) as 'Inline Accepted',\n  SUM(chat_messages_sent) as 'Chat Messages',\n  SUM(chat_ai_code_lines) as 'Chat AI Lines',\n  SUM(code_review_findings_count) as 'Review Findings',\n  SUM(test_generation_event_count) as 'Test Gen Events',\n  SUM(dev_accepted_lines) as 'Agentic Lines'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)",
+          "rawSql": "SELECT COUNT(DISTINCT user_id) AS \"Active Users\", SUM(total_messages) AS \"Messages\", SUM(chat_conversations) AS \"Conversations\", ROUND(SUM(credits_used), 1) AS \"Credits Used\" FROM _tool_kiro_user_report WHERE $__timeFilter(date)",
           "refId": "A"
         }
       ],
-      "title": "Legacy Feature Metrics Overview",
+      "title": "Kiro Usage Overview",
       "type": "stat"
     },
     {
@@ -87,12 +93,15 @@
       },
       "id": 20,
       "panels": [],
-      "title": "Inline Suggestions",
+      "title": "Completions",
       "type": "row"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Daily inline suggestion and acceptance counts",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Returned suggestions are offers, not acceptance events.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -170,20 +179,26 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(inline_suggestions_count) as 'Suggestions',\n  SUM(inline_acceptance_count) as 'Accepted',\n  SUM(inline_ai_code_lines) as 'AI Code Lines'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, COUNT(*) AS \"Completion Requests\", SUM(CASE WHEN completions_count > 0 THEN 1 ELSE 0 END) AS \"Requests with Results\", SUM(returned_line_count) AS \"Returned Lines\" FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Inline Suggestions & Acceptance",
+      "title": "Completion Requests & Results",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Acceptance rates for inline suggestions, code fix, and inline chat over time",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Percentage of completion requests that returned at least one suggestion. Kiro does not export acceptance.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -261,15 +276,18 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) as 'Inline Suggestions',\n  SUM(code_fix_acceptance_event_count) / NULLIF(SUM(code_fix_generation_event_count), 0) as 'Code Fix',\n  SUM(inline_chat_acceptance_event_count) / NULLIF(SUM(inline_chat_total_event_count), 0) as 'Inline Chat'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, CAST(SUM(CASE WHEN completions_count > 0 THEN 1 ELSE 0 END) AS NUMERIC) * 100.0 / NULLIF(COUNT(*), 0) AS \"Suggestion Return Rate\" FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Acceptance Rate Trends",
+      "title": "Suggestion Return Rate",
       "type": "timeseries"
     },
     {
@@ -282,12 +300,15 @@
       },
       "id": 21,
       "panels": [],
-      "title": "Chat & Agentic (Dev)",
+      "title": "Chat & Agent Continuations",
       "type": "row"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Daily chat messages sent and AI-generated code lines from chat",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "User turns and agent self-continuations from chat logs.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -365,11 +386,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(chat_messages_sent) as 'Messages Sent',\n  SUM(chat_messages_interacted) as 'Messages Interacted',\n  SUM(chat_ai_code_lines) as 'AI Code Lines'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, COUNT(*) AS \"Chat Events\", SUM(CASE WHEN has_prompt = TRUE THEN 1 ELSE 0 END) AS \"User Turns\", SUM(CASE WHEN has_prompt = FALSE THEN 1 ELSE 0 END) AS \"Agent Continuations\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A"
         }
       ],
@@ -377,8 +401,11 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Agentic (Dev) code generation and acceptance metrics",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Agent continuations are empty-prompt records after tool calls; this measures autonomy, not accepted code.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -456,15 +483,18 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(dev_generation_event_count) as 'Generation Events',\n  SUM(dev_generated_lines) as 'Generated Lines',\n  SUM(dev_accepted_lines) as 'Accepted Lines',\n  SUM(dev_acceptance_event_count) as 'Acceptance Events'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, SUM(CASE WHEN has_prompt = TRUE THEN 1 ELSE 0 END) AS \"User Turns\", SUM(CASE WHEN has_prompt = FALSE THEN 1 ELSE 0 END) AS \"Agent Continuations\", CAST(SUM(CASE WHEN has_prompt = FALSE THEN 1 ELSE 0 END) AS NUMERIC) * 100.0 / NULLIF(COUNT(*), 0) AS \"Agent Continuation Rate\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Agentic (Dev) Activity",
+      "title": "Agent Continuation Activity",
       "type": "timeseries"
     },
     {
@@ -477,12 +507,15 @@
       },
       "id": 22,
       "panels": [],
-      "title": "Code Review, Test Gen & Transformations",
+      "title": "Models, Prompts & Clients",
       "type": "row"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Code review findings and test generation metrics over time",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Authoritative model and routing-mode message counts from daily reports.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -560,20 +593,26 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(code_review_findings_count) as 'Review Findings',\n  SUM(code_review_succeeded_event_count) as 'Reviews Succeeded',\n  SUM(code_review_failed_event_count) as 'Reviews Failed'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT CAST(date AS DATE) AS time, model_name AS metric, SUM(message_count) AS value FROM _tool_kiro_user_model_messages WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE), model_name ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Code Review Activity",
+      "title": "Model / Route Message Mix",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Test generation events and acceptance over time",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Daily average prompt and response lengths. Test-generation counts are not exported.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -651,20 +690,26 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(test_generation_event_count) as 'Test Gen Events',\n  SUM(test_generation_generated_tests) as 'Tests Generated',\n  SUM(test_generation_accepted_tests) as 'Tests Accepted',\n  SUM(test_generation_generated_lines) as 'Lines Generated',\n  SUM(test_generation_accepted_lines) as 'Lines Accepted'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT CAST(timestamp AS DATE) AS time, ROUND(AVG(prompt_length)) AS \"Avg Prompt Length\", ROUND(AVG(response_length)) AS \"Avg Response Length\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Test Generation Activity",
+      "title": "Prompt & Response Length",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Doc generation and code transformation events",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Messages by KIRO_IDE, KIRO_CLI, KIRO_WEB, and PLUGIN. Doc-generation metrics are not exported.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -742,20 +787,26 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date as time,\n  SUM(doc_generation_event_count) as 'Doc Gen Events',\n  SUM(doc_generation_accepted_line_additions) as 'Doc Lines Accepted',\n  SUM(transformation_event_count) as 'Transformation Events',\n  SUM(transformation_lines_generated) as 'Transform Lines Generated'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY date\nORDER BY date",
+          "rawSql": "SELECT CAST(date AS DATE) AS time, client_type AS metric, SUM(total_messages) AS value FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE), client_type ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Doc Generation & Transformations",
+      "title": "Client Type Message Mix",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Number of users who used each feature in the selected period",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Distinct users observed in chat, completion, steering, and spec-mode signals.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -838,11 +889,14 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT 'Chat' as Feature, COUNT(DISTINCT CASE WHEN chat_messages_sent > 0 THEN user_id END) as Users FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Inline Suggestions', COUNT(DISTINCT CASE WHEN inline_suggestions_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Code Fix', COUNT(DISTINCT CASE WHEN code_fix_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Code Review', COUNT(DISTINCT CASE WHEN code_review_succeeded_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Doc Generation', COUNT(DISTINCT CASE WHEN doc_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Test Generation', COUNT(DISTINCT CASE WHEN test_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Dev (Agentic)', COUNT(DISTINCT CASE WHEN dev_generation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)\nUNION ALL SELECT 'Transformation', COUNT(DISTINCT CASE WHEN transformation_event_count > 0 THEN user_id END) FROM lake._tool_q_dev_user_data WHERE $__timeFilter(date)",
+          "rawSql": "SELECT 'Chat' AS \"Feature\", COUNT(DISTINCT user_id) AS \"Users\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) UNION ALL SELECT 'Completion' AS \"Feature\", COUNT(DISTINCT user_id) AS \"Users\" FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) UNION ALL SELECT 'Steering' AS \"Feature\", COUNT(DISTINCT CASE WHEN has_steering = TRUE THEN user_id END) AS \"Users\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) UNION ALL SELECT 'Spec Mode' AS \"Feature\", COUNT(DISTINCT CASE WHEN is_spec_mode = TRUE THEN user_id END) AS \"Users\" FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
           "refId": "A"
         }
       ],
@@ -863,8 +917,11 @@
       "type": "row"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Per-user breakdown of legacy feature-level metrics",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Per-user chat, completion, autonomy, steering, and spec-mode activity.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -913,15 +970,18 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) as 'User',\n  SUM(inline_suggestions_count) as 'Suggestions',\n  SUM(inline_acceptance_count) as 'Accepted',\n  CONCAT(ROUND(SUM(inline_acceptance_count) / NULLIF(SUM(inline_suggestions_count), 0) * 100, 1), '%') as 'Accept %',\n  SUM(chat_messages_sent) as 'Chat Msgs',\n  SUM(chat_ai_code_lines) as 'Chat Lines',\n  SUM(dev_accepted_lines) as 'Agentic Lines',\n  SUM(code_review_findings_count) as 'Review Findings',\n  SUM(test_generation_accepted_tests) as 'Tests Accepted',\n  SUM(doc_generation_event_count) as 'Doc Gen',\n  SUM(transformation_event_count) as 'Transforms',\n  MIN(date) as 'First Active',\n  MAX(date) as 'Last Active'\nFROM lake._tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY user_id\nORDER BY SUM(inline_suggestions_count) DESC",
+          "rawSql": "WITH users AS (SELECT user_id FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) UNION SELECT user_id FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp)), chat AS (SELECT user_id, COUNT(*) AS chat_events, SUM(CASE WHEN has_prompt = TRUE THEN 1 ELSE 0 END) AS user_turns, SUM(CASE WHEN has_prompt = FALSE THEN 1 ELSE 0 END) AS agent_continuations, SUM(CASE WHEN has_steering = TRUE THEN 1 ELSE 0 END) AS steering, SUM(CASE WHEN is_spec_mode = TRUE THEN 1 ELSE 0 END) AS spec_mode FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY user_id), completion AS (SELECT user_id, COUNT(*) AS completion_requests, SUM(returned_line_count) AS returned_lines FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY user_id), names AS (SELECT user_id, MAX(display_name) AS display_name FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY user_id) SELECT COALESCE(n.display_name, u.user_id) AS \"User\", COALESCE(c.chat_events, 0) AS \"Chat Events\", COALESCE(c.user_turns, 0) AS \"User Turns\", COALESCE(c.agent_continuations, 0) AS \"Agent Continuations\", COALESCE(x.completion_requests, 0) AS \"Completion Requests\", COALESCE(x.returned_lines, 0) AS \"Returned Lines\", COALESCE(c.steering, 0) AS \"Steering\", COALESCE(c.spec_mode, 0) AS \"Spec Mode\" FROM users u LEFT JOIN chat c ON u.user_id = c.user_id LEFT JOIN completion x ON u.user_id = x.user_id LEFT JOIN names n ON u.user_id = n.user_id ORDER BY COALESCE(c.chat_events, 0) DESC",
           "refId": "A"
         }
       ],
-      "title": "Per-User Feature Metrics",
+      "title": "Per-User Kiro Activity",
       "type": "table"
     }
   ],
@@ -929,8 +989,6 @@
   "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
-    "q_dev",
-    "legacy",
     "kiro"
   ],
   "templating": {
@@ -942,7 +1000,7 @@
   },
   "timepicker": {},
   "timezone": "utc",
-  "title": "Kiro Legacy Feature Metrics",
-  "uid": "qdev_feature_metrics",
+  "title": "Kiro Feature Metrics",
+  "uid": "kiro_feature_metrics-pg",
   "version": 1
 }
