@@ -19,10 +19,11 @@ package services
 
 import (
 	"fmt"
-	"golang.org/x/exp/slices"
-	"golang.org/x/sync/errgroup"
 	"strings"
 	"time"
+
+	"golang.org/x/exp/slices"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -33,6 +34,11 @@ import (
 
 type ProjectService interface {
 	RenameProject(db dal.Transaction, oldProjectName, newProjectName string) errors.Error
+}
+
+// ProjectDeleteHook is an optional hook; kept separate from ProjectService so existing implementers aren't broken.
+type ProjectDeleteHook interface {
+	DeleteProject(db dal.Transaction, projectName string) errors.Error
 }
 
 var projectService ProjectService
@@ -379,6 +385,12 @@ func DeleteProject(name string) errors.Error {
 			}
 		}
 	}()
+	// let plugins validate/clean up their own state inside the same transaction before core rows are deleted
+	if hook, ok := projectService.(ProjectDeleteHook); ok {
+		if err = hook.DeleteProject(tx, name); err != nil {
+			return err
+		}
+	}
 	err = tx.Delete(&models.Project{}, dal.Where("name = ?", name))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting project")
