@@ -48,6 +48,7 @@ import (
 	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
 	linear "github.com/apache/incubator-devlake/plugins/linear/impl"
 	linker "github.com/apache/incubator-devlake/plugins/linker/impl"
+	monorepo "github.com/apache/incubator-devlake/plugins/monorepo/impl"
 	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
 	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
@@ -116,6 +117,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
 	checker.FeedIn("q_dev/models", q_dev.QDev{}.GetTablesInfo)
 	checker.FeedIn("gh-copilot/models", copilot.GhCopilot{}.GetTablesInfo)
+	checker.FeedIn("monorepo/models", monorepo.Monorepo{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)
