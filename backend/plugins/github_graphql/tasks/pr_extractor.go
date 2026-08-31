@@ -171,6 +171,7 @@ func convertGithubPullRequest(pull *GraphqlQueryPr, connId uint64, repoId int) (
 		GithubUpdatedAt: pull.UpdatedAt,
 		ClosedAt:        pull.ClosedAt,
 		MergedAt:        pull.MergedAt,
+		Merged:          pull.MergedAt != nil, // mergedAt is set exactly when a pull request is merged
 		Body:            pull.Body,
 		BaseRef:         pull.BaseRefName,
 		BaseCommitSha:   pull.BaseRefOid,
