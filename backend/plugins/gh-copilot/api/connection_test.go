@@ -18,12 +18,62 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
 )
+
+func decodeBody(t *testing.T, raw string) map[string]interface{} {
+	t.Helper()
+	var body map[string]interface{}
+	if err := json.Unmarshal([]byte(raw), &body); err != nil {
+		t.Fatalf("failed to unmarshal test payload: %v", err)
+	}
+	return body
+}
+
+func TestValidateConnection_EnterpriseSlugOnly_ViaDecode(t *testing.T) {
+	body := decodeBody(t, `{
+		"name": "my-copilot-conn",
+		"endpoint": "https://api.github.com",
+		"organization": "",
+		"enterprise": "my-company",
+		"token": "ghp_example",
+		"rateLimitPerHour": 5000
+	}`)
+
+	connection := &models.GhCopilotConnection{}
+	assert.NoError(t, helper.Decode(body, connection, vld))
+
+	connection.Normalize()
+	assert.Equal(t, "my-company", connection.Enterprise)
+	assert.True(t, connection.HasEnterprise())
+
+	err := validateConnection(connection)
+	assert.NoError(t, err)
+}
+
+func TestValidateConnection_EnterpriseSlugWithWhitespace_ViaDecode(t *testing.T) {
+	body := decodeBody(t, `{
+		"organization": "   ",
+		"enterprise": "  my-company  ",
+		"token": "ghp_example"
+	}`)
+
+	connection := &models.GhCopilotConnection{}
+	assert.NoError(t, helper.Decode(body, connection, vld))
+
+	connection.Normalize()
+	assert.Equal(t, "my-company", connection.Enterprise)
+	assert.Equal(t, "", connection.Organization)
+
+	err := validateConnection(connection)
+	assert.NoError(t, err)
+}
 
 func TestValidateConnection_Success(t *testing.T) {
 	connection := &models.GhCopilotConnection{

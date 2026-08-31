@@ -56,6 +56,7 @@ export const test = (
       | 'adminApiKey'
       | 'organization'
       | 'organizationId'
+      | 'enterprise'
       | 'customHeaders'
     >
   >,
@@ -79,6 +80,7 @@ export const testOld = (
     | 'adminApiKey'
     | 'organization'
     | 'organizationId'
+    | 'enterprise'
     | 'customHeaders'
   >,
 ): Promise<IConnectionOldTestResult> => request(`/plugins/${plugin}/test`, { method: 'post', data: payload });

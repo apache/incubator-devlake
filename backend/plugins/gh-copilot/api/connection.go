@@ -18,6 +18,8 @@ limitations under the License.
 package api
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -93,7 +95,7 @@ func validateConnection(connection *models.GhCopilotConnection) errors.Error {
 	if connection == nil {
 		return errors.BadInput.New("connection is required")
 	}
-	if connection.Organization == "" && !connection.HasEnterprise() {
+	if strings.TrimSpace(connection.Organization) == "" && !connection.HasEnterprise() {
 		return errors.BadInput.New("either enterprise or organization is required")
 	}
 	if connection.Token == "" {

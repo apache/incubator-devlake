@@ -118,4 +118,6 @@ func (connection *GhCopilotConnection) Normalize() {
 	if connection.RateLimitPerHour <= 0 {
 		connection.RateLimitPerHour = DefaultRateLimitPerHour
 	}
+	connection.Organization = strings.TrimSpace(connection.Organization)
+	connection.Enterprise = strings.TrimSpace(connection.Enterprise)
 }
