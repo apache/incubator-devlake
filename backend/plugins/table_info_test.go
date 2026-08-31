@@ -50,6 +50,7 @@ import (
 	kiro "github.com/apache/devlake/plugins/kiro/impl"
 	linear "github.com/apache/devlake/plugins/linear/impl"
 	linker "github.com/apache/devlake/plugins/linker/impl"
+	monorepo "github.com/apache/devlake/plugins/monorepo/impl"
 	opsgenie "github.com/apache/devlake/plugins/opsgenie/impl"
 	org "github.com/apache/devlake/plugins/org/impl"
 	pagerduty "github.com/apache/devlake/plugins/pagerduty/impl"
@@ -120,6 +121,7 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
 	checker.FeedIn("kiro/models", kiro.Kiro{}.GetTablesInfo)
 	checker.FeedIn("gh-copilot/models", copilot.GhCopilot{}.GetTablesInfo)
+	checker.FeedIn("monorepo/models", monorepo.Monorepo{}.GetTablesInfo)
 	err := checker.Verify()
 	if err != nil {
 		t.Error(err)
