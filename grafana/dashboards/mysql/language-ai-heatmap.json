@@ -19,25 +19,60 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Completion requests, avg context size, and completion rate per language",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green" }] }
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
-      "options": { "cellHeight": "sm", "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Requests" }] },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Requests"
+          }
+        ]
+      },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS 'Language',\n  COUNT(*) AS 'Requests',\n  ROUND(AVG(completions_count), 2) AS 'Avg Completions',\n  ROUND(AVG(left_context_length)) AS 'Avg Left Context',\n  ROUND(AVG(right_context_length)) AS 'Avg Right Context',\n  ROUND(AVG(left_context_length + right_context_length)) AS 'Avg Total Context',\n  COUNT(DISTINCT user_id) AS 'Users'\nFROM _tool_q_dev_completion_log\nWHERE $__timeFilter(timestamp)\nGROUP BY file_extension\nORDER BY COUNT(*) DESC",
+          "rawSql": "SELECT\n  CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS 'Language',\n  COUNT(*) AS 'Requests',\n  ROUND(AVG(completions_count), 2) AS 'Avg Completions',\n  ROUND(AVG(left_context_length)) AS 'Avg Left Context',\n  ROUND(AVG(right_context_length)) AS 'Avg Right Context',\n  ROUND(AVG(left_context_length + right_context_length)) AS 'Avg Total Context',\n  COUNT(DISTINCT user_id) AS 'Users'\nFROM _tool_kiro_completion_log\nWHERE $__timeFilter(timestamp)\nGROUP BY file_extension\nORDER BY COUNT(*) DESC",
           "refId": "A"
         }
       ],
@@ -45,31 +80,60 @@
       "type": "table"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Daily completion requests by language",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 1,
-            "stacking": { "mode": "normal" }, "thresholdsStyle": { "mode": "off" }
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
       "id": 2,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT DATE(timestamp) AS time,\n  CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS metric,\n  COUNT(*) AS value\nFROM _tool_q_dev_completion_log\nWHERE $__timeFilter(timestamp)\nGROUP BY DATE(timestamp), file_extension\nORDER BY time",
+          "rawSql": "SELECT DATE(timestamp) AS time,\n  CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS metric,\n  COUNT(*) AS value\nFROM _tool_kiro_completion_log\nWHERE $__timeFilter(timestamp)\nGROUP BY DATE(timestamp), file_extension\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -77,64 +141,134 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Which file types are most active during chat sessions",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Chat logs do not contain active file types. This uses completion-log file extensions and returned lines.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green" }] }
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 17
+      },
       "id": 3,
       "options": {
-        "displayLabels": ["name", "percent"],
-        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value", "percent"] },
+        "displayLabels": [
+          "name",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
         "pieType": "donut",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
-        "tooltip": { "mode": "single" }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CASE WHEN active_file_extension = '' OR active_file_extension IS NULL THEN '(no file)' ELSE active_file_extension END AS 'File Type',\n  COUNT(*) AS 'Chat Events'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY active_file_extension\nORDER BY COUNT(*) DESC\nLIMIT 10",
+          "rawSql": "SELECT CASE WHEN file_extension = '' THEN '(unknown)' ELSE file_extension END AS 'File Type', SUM(returned_line_count) AS 'Returned Lines' FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY file_extension ORDER BY SUM(returned_line_count) DESC",
           "refId": "A"
         }
       ],
-      "title": "Active File Types During Chat",
+      "title": "Returned Lines by File Type",
       "type": "piechart"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Context size trends for top languages",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
-            "showPoints": "never", "spanNulls": true,
-            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
       "id": 4,
       "options": {
-        "legend": { "calcs": ["mean"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT DATE(timestamp) AS time,\n  file_extension AS metric,\n  ROUND(AVG(left_context_length + right_context_length)) AS value\nFROM _tool_q_dev_completion_log\nWHERE $__timeFilter(timestamp)\n  AND file_extension IN (SELECT file_extension FROM _tool_q_dev_completion_log GROUP BY file_extension ORDER BY COUNT(*) DESC LIMIT 5)\nGROUP BY DATE(timestamp), file_extension\nORDER BY time",
+          "rawSql": "WITH top_extensions AS (SELECT file_extension FROM _tool_kiro_completion_log GROUP BY file_extension ORDER BY COUNT(*) DESC LIMIT 5) SELECT DATE(c.timestamp) AS time, c.file_extension AS metric, ROUND(AVG(c.left_context_length + c.right_context_length)) AS value FROM _tool_kiro_completion_log c INNER JOIN top_extensions t ON c.file_extension = t.file_extension WHERE $__timeFilter(c.timestamp) GROUP BY DATE(c.timestamp), c.file_extension ORDER BY time",
           "refId": "A"
         }
       ],
@@ -145,9 +279,18 @@
   "preload": false,
   "refresh": "5m",
   "schemaVersion": 41,
-  "tags": ["q_dev", "kiro", "language", "completions"],
-  "templating": { "list": [] },
-  "time": { "from": "now-90d", "to": "now" },
+  "tags": [
+    "kiro",
+    "language",
+    "completions"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "utc",
   "title": "Kiro Language AI Heatmap",

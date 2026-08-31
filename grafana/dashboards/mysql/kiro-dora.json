@@ -1,0 +1,1165 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "DORA Dashboard",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/qNo8_0M4z/dora"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Kiro Dashboard",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/kiro_user_data/kiro-user-data-dashboard"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Kiro + DORA Dashboard\nThis dashboard compares **Kiro usage** with **DORA** performance indicators at monthly aggregates.\n\n- **Kiro metrics**: active users, credits, messages, conversations, and credits per message\n- **DORA metrics**: lead time, deployment frequency, and change failure rate\n- **Semantic boundary**: Kiro does not export accepted LOC, suggestion acceptance, generated tests, or code-review findings; no proxy is presented as an equivalent measure",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.0.2",
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "panels": [],
+      "title": "Overview Statistics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Unique Kiro users in the selected period, from the daily usage report.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 4
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT user_id) AS 'Active Kiro Users' FROM _tool_kiro_user_report WHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Kiro Active Users",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro exports credits, not accepted lines of code. Accepted LOC has no equivalent field.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(credits_used), 1) AS 'Kiro Credits Used' FROM _tool_kiro_user_report WHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Kiro Credits",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro does not export suggestion acceptance. Credits per message is a usage-efficiency ratio, not an acceptance rate.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.3
+              },
+              {
+                "color": "green",
+                "value": 0.5
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(credits_used) / NULLIF(SUM(total_messages), 0) AS 'Credits per Message' FROM _tool_kiro_user_report WHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Credits per Message",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Number of production deployments in selected period",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT cdc.cicd_deployment_id) as 'Deployments'\nFROM cicd_deployment_commits cdc\nJOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\nWHERE pm.project_name IN (${project})\n  AND cdc.result = 'SUCCESS'\n  AND cdc.environment = 'PRODUCTION'\n  AND $__timeFilter(cdc.finished_date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Deployments",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Median lead time for changes in hours",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 24
+              },
+              {
+                "color": "red",
+                "value": 168
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 4
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH _pr_stats AS (\n  SELECT\n    distinct pr.id,\n    ppm.pr_cycle_time\n  FROM pull_requests pr\n  JOIN project_pr_metrics ppm ON ppm.id = pr.id\n  JOIN project_mapping pm ON pr.base_repo_id = pm.row_id AND pm.`table` = 'repos'\n  JOIN cicd_deployment_commits cdc ON ppm.deployment_commit_id = cdc.id\n  WHERE pm.project_name IN (${project})\n    AND pr.merged_date IS NOT NULL\n    AND ppm.pr_cycle_time IS NOT NULL\n    AND $__timeFilter(cdc.finished_date)\n),\n_median_ranks AS (\n  SELECT *, percent_rank() OVER(ORDER BY pr_cycle_time) AS ranks\n  FROM _pr_stats\n)\nSELECT ROUND(MAX(pr_cycle_time) / 60, 1) AS 'Lead Time (hours)'\nFROM _median_ranks\nWHERE ranks <= 0.5",
+          "refId": "A"
+        }
+      ],
+      "title": "Median Lead Time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Percentage of deployments that caused incidents",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.15
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 4
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH _deployments AS (\n  SELECT\n    cdc.cicd_deployment_id AS deployment_id,\n    MAX(cdc.finished_date) AS deployment_finished_date\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n  GROUP BY 1\n  HAVING $__timeFilter(MAX(cdc.finished_date))\n),\n_failure_caused AS (\n  SELECT\n    d.deployment_id,\n    COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n  FROM _deployments d\n  LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n  LEFT JOIN incidents i ON pim.id = i.id\n  GROUP BY 1\n)\nSELECT \n  CASE WHEN COUNT(deployment_id) = 0 THEN NULL \n       ELSE SUM(has_incident) / COUNT(deployment_id) \n  END AS 'Change Failure Rate'\nFROM _failure_caused",
+          "refId": "A"
+        }
+      ],
+      "title": "Change Failure Rate",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 9,
+      "panels": [],
+      "title": "Kiro Usage vs DORA Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro credits are compared with Lead Time. Kiro does not export accepted code lines.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Kiro Credits"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "AI Code Lines"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_monthly AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(credits_used) AS kiro_credits\n  FROM _tool_kiro_user_report\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\nlead_time_monthly AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m-01') AS month,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM pull_requests pr\n  JOIN project_pr_metrics ppm ON ppm.id = pr.id\n  JOIN project_mapping pm ON pr.base_repo_id = pm.row_id AND pm.`table` = 'repos'\n  JOIN cicd_deployment_commits cdc ON ppm.deployment_commit_id = cdc.id\n  WHERE pm.project_name IN (${project})\n    AND pr.merged_date IS NOT NULL\n    AND ppm.pr_cycle_time IS NOT NULL\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, lt.month), '%Y-%m-%d') AS time,\n  ai.kiro_credits AS 'Kiro Credits',\n  ROUND(lt.avg_lead_time, 1) AS 'Median Lead Time (hours)'\nFROM ai_monthly ai\nLEFT JOIN lead_time_monthly lt ON ai.month = lt.month\nWHERE ai.month IS NOT NULL OR lt.month IS NOT NULL\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Kiro Credits vs Lead Time Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Usage-efficiency ratio versus deployment frequency. This is not suggestion acceptance.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Credits per Message"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Credits per Message"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_acceptance AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(credits_used) / NULLIF(SUM(total_messages), 0) AS credits_per_message\n  FROM _tool_kiro_user_report\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\ndeployment_count AS (\n  SELECT \n    DATE_FORMAT(MAX(cdc.finished_date), '%Y-%m-01') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deploy_count\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, dc.month), '%Y-%m-%d') AS time,\n  ai.credits_per_message AS 'Credits per Message',\n  dc.deploy_count AS 'Deployment Count'\nFROM ai_acceptance ai\nLEFT JOIN deployment_count dc ON ai.month = dc.month\nWHERE ai.month IS NOT NULL OR dc.month IS NOT NULL\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Credits per Message vs Deployment Frequency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro does not export generated-test counts; total messages is the available activity-volume measure.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Kiro Messages"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Tests Generated"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_tests AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m-01') AS month,\n    SUM(total_messages) AS kiro_messages\n  FROM _tool_kiro_user_report\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m-01')\n),\ncfr_monthly AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m-01') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m-01')\n)\nSELECT \n  STR_TO_DATE(COALESCE(ai.month, cfr.month), '%Y-%m-%d') AS time,\n  ai.kiro_messages AS 'Kiro Messages',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_tests ai\nLEFT JOIN cfr_monthly cfr ON ai.month = cfr.month\nWHERE ai.month IS NOT NULL OR cfr.month IS NOT NULL\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Kiro Messages vs Change Failure Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro does not export code-review findings. Shows active users and credits by month.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Kiro Credits"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Findings"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT STR_TO_DATE(month_start, '%Y-%m-%d') AS time, active_users AS 'Active Users', kiro_credits AS 'Kiro Credits' FROM (SELECT DATE_FORMAT(date, '%Y-%m-01') AS month_start, COUNT(DISTINCT user_id) AS active_users, SUM(credits_used) AS kiro_credits FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY DATE_FORMAT(date, '%Y-%m-01')) monthly ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Kiro Users vs Credits",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 14,
+      "panels": [],
+      "title": "Monthly Comparison Table",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Monthly Kiro usage metrics beside DORA metrics. LOC, acceptance, generated tests, and review findings are not exported by Kiro.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Credits per Message"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "max",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 15,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Month"
+          }
+        ]
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH ai_metrics AS (\n  SELECT \n    DATE_FORMAT(date, '%Y-%m') AS month,\n    COUNT(DISTINCT user_id) AS active_users,\n    SUM(credits_used) AS credits,\n    SUM(credits_used) / NULLIF(SUM(total_messages), 0) AS credits_per_message,\n    SUM(total_messages) AS messages,\n    SUM(chat_conversations) AS conversations\n  FROM _tool_kiro_user_report\n  WHERE $__timeFilter(date)\n  GROUP BY DATE_FORMAT(date, '%Y-%m')\n),\ndora_metrics AS (\n  SELECT\n    DATE_FORMAT(cdc.finished_date, '%Y-%m') AS month,\n    COUNT(DISTINCT cdc.cicd_deployment_id) AS deployments,\n    AVG(ppm.pr_cycle_time) / 60 AS avg_lead_time\n  FROM cicd_deployment_commits cdc\n  JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n  LEFT JOIN cicd_deployment_commits cdc2 ON cdc.cicd_deployment_id = cdc2.cicd_deployment_id\n  LEFT JOIN project_pr_metrics ppm ON ppm.deployment_commit_id = cdc2.id\n  WHERE pm.project_name IN (${project})\n    AND cdc.result = 'SUCCESS'\n    AND cdc.environment = 'PRODUCTION'\n    AND $__timeFilter(cdc.finished_date)\n  GROUP BY DATE_FORMAT(cdc.finished_date, '%Y-%m')\n),\ncfr_metrics AS (\n  SELECT\n    DATE_FORMAT(deployment_finished_date, '%Y-%m') AS month,\n    SUM(has_incident) / NULLIF(COUNT(deployment_id), 0) AS cfr\n  FROM (\n    SELECT\n      d.deployment_id,\n      d.deployment_finished_date,\n      COUNT(DISTINCT CASE WHEN i.id IS NOT NULL THEN d.deployment_id ELSE NULL END) AS has_incident\n    FROM (\n      SELECT\n        cdc.cicd_deployment_id AS deployment_id,\n        MAX(cdc.finished_date) AS deployment_finished_date\n      FROM cicd_deployment_commits cdc\n      JOIN project_mapping pm ON cdc.cicd_scope_id = pm.row_id AND pm.`table` = 'cicd_scopes'\n      WHERE pm.project_name IN (${project})\n        AND cdc.result = 'SUCCESS'\n        AND cdc.environment = 'PRODUCTION'\n      GROUP BY 1\n      HAVING $__timeFilter(MAX(cdc.finished_date))\n    ) d\n    LEFT JOIN project_incident_deployment_relationships pim ON d.deployment_id = pim.deployment_id\n    LEFT JOIN incidents i ON pim.id = i.id\n    GROUP BY 1, 2\n  ) failure_data\n  GROUP BY DATE_FORMAT(deployment_finished_date, '%Y-%m')\n)\nSELECT \n  COALESCE(ai.month, dm.month, cfr.month) AS 'Month',\n  COALESCE(ai.active_users, 0) AS 'Kiro Users',\n  COALESCE(ai.credits, 0) AS 'Credits Used',\n  ai.credits_per_message AS 'Credits per Message',\n  COALESCE(ai.messages, 0) AS 'Messages',\n  COALESCE(ai.conversations, 0) AS 'Conversations',\n  COALESCE(dm.deployments, 0) AS 'Deployments',\n  ROUND(dm.avg_lead_time, 1) AS 'Lead Time (hours)',\n  cfr.cfr AS 'Change Failure Rate'\nFROM ai_metrics ai\nLEFT JOIN dora_metrics dm ON ai.month = dm.month\nLEFT JOIN cfr_metrics cfr ON ai.month = cfr.month\nORDER BY ai.month DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Kiro + DORA Metrics",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "5m",
+  "schemaVersion": 39,
+  "tags": [
+    "kiro",
+    "DORA",
+    "AI",
+    "correlation"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "mysql",
+          "uid": "devlake-mysql-api"
+        },
+        "definition": "SELECT DISTINCT name FROM projects",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Project",
+        "multi": true,
+        "name": "project",
+        "options": [],
+        "query": "SELECT DISTINCT name FROM projects",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Kiro + DORA Correlation",
+  "uid": "kiro_dora_correlation",
+  "version": 1
+}

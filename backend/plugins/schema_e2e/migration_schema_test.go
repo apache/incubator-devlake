@@ -56,7 +56,6 @@ import (
 	claudeCode "github.com/apache/incubator-devlake/plugins/claude_code/impl"
 	clickup "github.com/apache/incubator-devlake/plugins/clickup/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
-	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
 	feishu "github.com/apache/incubator-devlake/plugins/feishu/impl"
 	copilot "github.com/apache/incubator-devlake/plugins/gh-copilot/impl"
@@ -70,13 +69,13 @@ import (
 	issueTrace "github.com/apache/incubator-devlake/plugins/issue_trace/impl"
 	jenkins "github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
+	kiro "github.com/apache/incubator-devlake/plugins/kiro/impl"
 	linear "github.com/apache/incubator-devlake/plugins/linear/impl"
 	linker "github.com/apache/incubator-devlake/plugins/linker/impl"
 	monorepo "github.com/apache/incubator-devlake/plugins/monorepo/impl"
 	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
 	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
-	q_dev "github.com/apache/incubator-devlake/plugins/q_dev/impl"
 	refdiff "github.com/apache/incubator-devlake/plugins/refdiff/impl"
 	rootly "github.com/apache/incubator-devlake/plugins/rootly/impl"
 	slack "github.com/apache/incubator-devlake/plugins/slack/impl"
@@ -108,7 +107,6 @@ func allGoPlugins() []plugin.PluginMeta {
 		claudeCode.ClaudeCode{},
 		clickup.ClickUp{},
 		customize.Customize{},
-		dbt.Dbt{},
 		dora.Dora{},
 		feishu.Feishu{},
 		copilot.GhCopilot{},
@@ -122,13 +120,13 @@ func allGoPlugins() []plugin.PluginMeta {
 		issueTrace.IssueTrace{},
 		jenkins.Jenkins{},
 		jira.Jira{},
+		kiro.Kiro{},
 		linear.Linear{},
 		linker.Linker{},
 		monorepo.Monorepo{},
 		opsgenie.Opsgenie{},
 		org.Org{},
 		pagerduty.PagerDuty{},
-		q_dev.QDev{},
 		refdiff.RefDiff{},
 		rootly.Rootly{},
 		slack.Slack{},

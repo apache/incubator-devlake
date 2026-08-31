@@ -1,0 +1,821 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Usage (New)",
+      "tooltip": "Kiro Usage Dashboard - Credits & Messages (new format)",
+      "type": "link",
+      "url": "/d/kiro_user_report"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Feature Metrics",
+      "tooltip": "Kiro Feature Metrics",
+      "type": "link",
+      "url": "/d/kiro_feature_metrics"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Prompt Logging",
+      "tooltip": "Kiro AI Activity Insights - Prompt Logging",
+      "type": "link",
+      "url": "/d/kiro_logging"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "panels": [],
+      "title": "KPI Overview (cross-source)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Distinct users with chat activity in the last 7 days (from prompt logging)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT user_id) as 'WAU'\nFROM lake._tool_kiro_chat_log\nWHERE timestamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Active Users (logging)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Usage efficiency from Kiro reports. Accepted LOC is not exported.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(credits_used) / NULLIF(SUM(total_messages), 0), 2) AS 'Credits per Message' FROM _tool_kiro_user_report WHERE $__timeFilter(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Credits per Message",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Share of chat events generated by agent self-continuation. Suggestion acceptance is not exported.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(CASE WHEN has_prompt = 0 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 1) AS 'Agent Continuation %' FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent Continuation Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Percentage of users who used steering rules (from prompt logging)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(COUNT(DISTINCT CASE WHEN has_steering = 1 THEN user_id END) / NULLIF(COUNT(DISTINCT user_id), 0) * 100, 0) as 'Steering %'\nFROM lake._tool_kiro_chat_log\nWHERE $__timeFilter(timestamp)",
+          "refId": "A"
+        }
+      ],
+      "title": "Steering Adoption (logging)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 101,
+      "panels": [],
+      "title": "User Engagement",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Weekly active user count over time (from prompt logging)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  STR_TO_DATE(CONCAT(yw, ' Monday'), '%X%V %W') as time,\n  COUNT(DISTINCT user_id) as 'Active Users'\nFROM (\n  SELECT user_id, YEARWEEK(timestamp, 1) as yw\n  FROM lake._tool_kiro_chat_log\n  WHERE $__timeFilter(timestamp)\n) t\nGROUP BY yw\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Weekly Active Users Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "New users use the native is_new_user flag; early rows without that field are reported as existing/unknown.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time, COUNT(DISTINCT CASE WHEN is_new_user = 1 THEN user_id END) AS 'New Users', COUNT(DISTINCT CASE WHEN is_new_user = 0 OR is_new_user IS NULL THEN user_id END) AS 'Existing/Unknown Users' FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "New vs Existing/Unknown Users (Weekly)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 102,
+      "panels": [],
+      "title": "Credits & Subscription",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Cumulative credits this month vs projected total (from new user_report)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 17
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  date as time,\n  SUM(SUM(credits_used)) OVER (ORDER BY date) as 'Cumulative Credits',\n  (SELECT SUM(credits_used) / COUNT(DISTINCT date) * DAY(LAST_DAY(CURDATE()))\n   FROM lake._tool_kiro_user_report\n   WHERE YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())) as 'Projected Monthly'\nFROM lake._tool_kiro_user_report\nWHERE YEAR(date) = YEAR(CURDATE()) AND MONTH(date) = MONTH(CURDATE())\nGROUP BY date\nORDER BY date",
+          "refId": "A"
+        }
+      ],
+      "title": "Credits Pace vs Projected (This Month)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Power tier users with no activity in the last 14 days (from new user_report)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(MAX(display_name), user_id) as 'User',\n  MAX(subscription_tier) as 'Tier',\n  ROUND(SUM(credits_used), 1) as 'Total Credits Used',\n  MAX(date) as 'Last Activity'\nFROM lake._tool_kiro_user_report\nWHERE $__timeFilter(date)\n  AND subscription_tier = 'POWER'\nGROUP BY user_id\nHAVING MAX(date) < DATE_SUB(NOW(), INTERVAL 14 DAY)\nORDER BY MAX(date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Idle Power Users (No Activity in 14 Days)",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 103,
+      "panels": [],
+      "title": "Per-User Usage & Efficiency",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Credits, messages, conversations, and credits per message. Accepted LOC is not exported.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(MAX(display_name), user_id) AS 'User', MAX(subscription_tier) AS 'Tier', ROUND(SUM(credits_used), 1) AS 'Credits Used', SUM(total_messages) AS 'Messages', SUM(chat_conversations) AS 'Conversations', ROUND(SUM(credits_used) / NULLIF(SUM(total_messages), 0), 3) AS 'Credits per Message', MAX(date) AS 'Last Activity' FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY user_id ORDER BY SUM(credits_used) DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Per-User Usage & Efficiency",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "5m",
+  "schemaVersion": 41,
+  "tags": [
+    "kiro",
+    "executive"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Kiro Executive Dashboard",
+  "uid": "kiro_executive",
+  "version": 1
+}
