@@ -18,8 +18,6 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -119,10 +117,17 @@ func backfillPrSubProjects(db dal.Dal) errors.Error {
 }
 
 func backfillDeploymentSubProjects(db dal.Dal) errors.Error {
-	now := time.Now()
+	// created_at/updated_at are set via CURRENT_TIMESTAMP rather than a bound
+	// time.Time parameter: when a parameter appears only in a bare SELECT list
+	// (not compared against a typed column), Postgres's extended query protocol
+	// can't infer its type and defaults it to text, which then fails to insert
+	// into the timestamptz column with "column is of type timestamp with time
+	// zone but expression is of type text". CURRENT_TIMESTAMP is standard SQL
+	// supported identically by MySQL and Postgres, so it sidesteps the
+	// parameter-typing issue entirely without needing a dialect branch.
 	if err := db.Exec(`
 		INSERT INTO cicd_deployment_subprojects (project_name, cicd_deployment_id, sub_project, created_at, updated_at)
-		SELECT DISTINCT d.project_name, d.cicd_deployment_id, d.sub_project, ?, ?
+		SELECT DISTINCT d.project_name, d.cicd_deployment_id, d.sub_project, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 		FROM monorepo_subproject_deployments d
 		WHERE NOT EXISTS (
 			SELECT 1 FROM cicd_deployment_subprojects x
@@ -130,7 +135,7 @@ func backfillDeploymentSubProjects(db dal.Dal) errors.Error {
 			  AND x.cicd_deployment_id = d.cicd_deployment_id
 			  AND x.sub_project = d.sub_project
 		)
-	`, now, now); err != nil {
+	`); err != nil {
 		return errors.Default.Wrap(err, "error backfilling cicd_deployment_subprojects")
 	}
 	return nil
