@@ -54,7 +54,7 @@ func (plan PipelinePlan) IsEmpty() bool {
 type Pipeline struct {
 	common.Model
 	Name          string       `json:"name" gorm:"index"`
-	BlueprintId   uint64       `json:"blueprintId"`
+	BlueprintId   uint64       `json:"blueprintId" gorm:"index"`
 	Plan          PipelinePlan `json:"plan" gorm:"serializer:encdec"`
 	TotalTasks    int          `json:"totalTasks"`
 	FinishedTasks int          `json:"finishedTasks"`

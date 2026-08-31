@@ -27,7 +27,7 @@ PYTHON_DIR ?= "./python"
 all: build
 
 go-dep:
-	go install github.com/vektra/mockery/v3@v3.7.2
+	go install github.com/vektra/mockery/v3@v3.7.4
 	go install github.com/swaggo/swag/cmd/swag@v1.16.6
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
 

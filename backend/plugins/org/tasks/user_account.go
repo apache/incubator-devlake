@@ -43,9 +43,10 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	// Email addresses are compared case-insensitively: a corporate git config and a provider
-	// profile routinely record the same address with different capitalisation, and matching them
-	// exactly silently drops links that should be made.
+	// Email addresses, display names and provider logins are all compared case-insensitively: a
+	// corporate git config and a provider profile routinely record the same address or name with
+	// different capitalisation, and provider logins are themselves case-insensitive, so matching
+	// them exactly silently drops links that should be made.
 	emails := make(map[string]string)
 	names := make(map[string]string)
 	for _, user := range users {
@@ -53,7 +54,7 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 			emails[strings.ToLower(user.Email)] = user.Id
 		}
 		if user.Name != "" {
-			names[user.Name] = user.Id
+			names[strings.ToLower(user.Name)] = user.Id
 		}
 	}
 	clauses := []dal.Clause{
@@ -88,7 +89,7 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 					},
 				}, nil
 			}
-			if userId, ok := names[account.FullName]; account.FullName != "" && ok {
+			if userId, ok := names[strings.ToLower(account.FullName)]; account.FullName != "" && ok {
 				return []interface{}{
 					&crossdomain.UserAccount{
 						UserId:    userId,
@@ -96,7 +97,7 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 					},
 				}, nil
 			}
-			if userId, ok := names[account.UserName]; account.UserName != "" && ok {
+			if userId, ok := names[strings.ToLower(account.UserName)]; account.UserName != "" && ok {
 				return []interface{}{
 					&crossdomain.UserAccount{
 						UserId:    userId,

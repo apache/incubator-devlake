@@ -26,7 +26,7 @@
       "targetBlank": true,
       "title": "Kiro Usage",
       "type": "link",
-      "url": "/d/qdev_user_report"
+      "url": "/d/kiro_user_report"
     },
     {
       "asDropdown": false,
@@ -59,7 +59,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "## Multi-AI Tool Comparison: Copilot vs Kiro\nCompare GitHub Copilot and Kiro (Amazon Q Developer) adoption and usage side by side.\n\n**Note:** Copilot metrics come from `_tool_copilot_enterprise_daily_metrics` (enterprise-level aggregates). Kiro metrics come from `_tool_q_dev_user_report` and `_tool_q_dev_user_data`. Select the Copilot connection and scope using the dropdowns above.",
+        "content": "## Multi-AI Tool Comparison: Copilot vs Kiro\nCompare GitHub Copilot and Kiro adoption and activity side by side.\n\n**Semantic boundary:** Copilot exports code-generation and acceptance events. Kiro exports usage reports and completion responses, but no acceptance event. Returned Kiro lines and Copilot LOC added are displayed with explicit labels and must not be treated as equivalent productivity measures.",
         "mode": "markdown"
       },
       "title": "About",
@@ -79,7 +79,10 @@
       "type": "row"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
       "description": "Weekly active users for both tools",
       "fieldConfig": {
         "defaults": {
@@ -131,14 +134,20 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' AS time, COUNT(DISTINCT user_id) AS \"Kiro Active Users\" FROM _tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
+          "rawSql": "SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' AS time, COUNT(DISTINCT user_id) AS \"Kiro Active Users\" FROM _tool_kiro_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
           "refId": "A"
         },
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day' AS time, MAX(daily_active_users) AS \"Copilot Active Users\" FROM _tool_copilot_enterprise_daily_metrics WHERE ('${copilot_connection_id}' = '' OR connection_id::text = '${copilot_connection_id}') AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day) GROUP BY CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
@@ -158,12 +167,15 @@
       },
       "id": 10,
       "panels": [],
-      "title": "Code Generation",
+      "title": "Assistant Activity",
       "type": "row"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Weekly code generation and acceptance events",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Kiro completion requests and requests returning suggestions. Returned does not mean accepted.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -214,18 +226,24 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' AS time, SUM(inline_suggestions_count) AS \"Kiro: Suggestions\", SUM(inline_acceptance_count) AS \"Kiro: Accepted\" FROM _tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
+          "rawSql": "SELECT CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' AS time, COUNT(*) AS \"Kiro: Completion Requests\", SUM(CASE WHEN completions_count > 0 THEN 1 ELSE 0 END) AS \"Kiro: Requests with Results\" FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Kiro: Code Suggestions & Acceptance",
+      "title": "Kiro Completion Requests & Results",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
       "description": "Weekly Copilot code generation and acceptance events",
       "fieldConfig": {
         "defaults": {
@@ -277,7 +295,10 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day' AS time, SUM(code_generation_activity_count) AS \"Copilot: Suggestions\", SUM(code_acceptance_activity_count) AS \"Copilot: Accepted\" FROM _tool_copilot_enterprise_daily_metrics WHERE ('${copilot_connection_id}' = '' OR connection_id::text = '${copilot_connection_id}') AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day) GROUP BY CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
@@ -297,12 +318,15 @@
       },
       "id": 20,
       "panels": [],
-      "title": "Lines of Code & Acceptance Rate",
+      "title": "Returned Lines & Acceptance Availability",
       "type": "row"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Weekly AI-generated lines of code accepted",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Different semantics: Kiro counts lines returned to the IDE; Copilot counts LOC added. Do not interpret as an acceptance comparison.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -353,19 +377,25 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT time, SUM(kiro_loc) AS \"Kiro LOC Accepted\", SUM(copilot_loc) AS \"Copilot LOC Added\" FROM (SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' AS time, SUM(inline_ai_code_lines + chat_ai_code_lines) AS kiro_loc, 0 AS copilot_loc FROM _tool_q_dev_user_data WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM CAST(date AS DATE)) - 1) * INTERVAL '1 day' UNION ALL SELECT CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day' AS time, 0 AS kiro_loc, SUM(loc_added_sum) AS copilot_loc FROM _tool_copilot_enterprise_daily_metrics WHERE ('${copilot_connection_id}' = '' OR connection_id::text = '${copilot_connection_id}') AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day) GROUP BY CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day') AS combined GROUP BY time ORDER BY time NULLS FIRST",
+          "rawSql": "SELECT time, SUM(kiro_lines) AS \"Kiro Returned Lines\", SUM(copilot_loc) AS \"Copilot LOC Added\" FROM (SELECT CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' AS time, SUM(returned_line_count) AS kiro_lines, 0 AS copilot_loc FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY CAST(timestamp AS DATE) - (EXTRACT(ISODOW FROM CAST(timestamp AS DATE)) - 1) * INTERVAL '1 day' UNION ALL SELECT CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day' AS time, 0 AS kiro_lines, SUM(loc_added_sum) AS copilot_loc FROM _tool_copilot_enterprise_daily_metrics WHERE ('${copilot_connection_id}' = '' OR connection_id::text = '${copilot_connection_id}') AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day) GROUP BY CAST(day AS DATE) - (EXTRACT(ISODOW FROM CAST(day AS DATE)) - 1) * INTERVAL '1 day') combined GROUP BY time ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "LOC Accepted: Kiro vs Copilot",
+      "title": "Kiro Returned Lines vs Copilot LOC Added",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
-      "description": "Overall acceptance rates for both tools",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "devlake-postgres-api"
+      },
+      "description": "Kiro exports no suggestion-acceptance event, so its value is NULL. Copilot acceptance remains available.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -404,14 +434,17 @@
       },
       "targets": [
         {
-          "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "devlake-postgres-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT 'Kiro' AS \"Tool\", ROUND(CAST(SUM(inline_acceptance_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(inline_suggestions_count), 0), 0), 1) AS \"Acceptance Rate\" FROM _tool_q_dev_user_data WHERE $__timeFilter(date) UNION ALL SELECT 'Copilot' AS \"Tool\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(NULLIF(SUM(code_generation_activity_count), 0), 0), 1) FROM _tool_copilot_enterprise_daily_metrics WHERE ('${copilot_connection_id}' = '' OR connection_id::text = '${copilot_connection_id}') AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day)",
+          "rawSql": "SELECT 'Kiro (not exported)' AS \"Tool\", CAST(NULL AS NUMERIC) AS \"Acceptance Rate\" UNION ALL SELECT 'Copilot' AS \"Tool\", ROUND(CAST(SUM(code_acceptance_activity_count) * 100.0 AS NUMERIC) / NULLIF(SUM(code_generation_activity_count), 0), 1) AS \"Acceptance Rate\" FROM _tool_copilot_enterprise_daily_metrics WHERE ('${copilot_connection_id}' = '' OR connection_id::text = '${copilot_connection_id}') AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day)",
           "refId": "A"
         }
       ],
-      "title": "Acceptance Rate Comparison",
+      "title": "Acceptance Rate Availability",
       "type": "bargauge"
     }
   ],
@@ -419,16 +452,18 @@
   "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
-    "q_dev",
-    "copilot",
     "kiro",
+    "copilot",
     "comparison"
   ],
   "templating": {
     "list": [
       {
         "current": {},
-        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "devlake-postgres-api"
+        },
         "definition": "SELECT DISTINCT connection_id FROM _tool_copilot_scopes ORDER BY connection_id DESC NULLS LAST",
         "hide": 0,
         "label": "Copilot Connection",
@@ -440,7 +475,10 @@
       },
       {
         "current": {},
-        "datasource": {"type": "grafana-postgresql-datasource", "uid": "devlake-postgres-api"},
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "devlake-postgres-api"
+        },
         "definition": "SELECT DISTINCT id FROM _tool_copilot_scopes WHERE connection_id = CAST('${copilot_connection_id}' AS BIGINT)",
         "hide": 0,
         "label": "Copilot Scope",

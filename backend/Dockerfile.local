@@ -47,7 +47,7 @@ RUN mkdir -p /tmp/build && cd /tmp/build && \
     make -j$(nproc) install && \
     ldconfig
 
-RUN go install github.com/vektra/mockery/v3@v3.7.2
+RUN go install github.com/vektra/mockery/v3@v3.7.4
 RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
 WORKDIR /app
@@ -73,6 +73,12 @@ RUN apt-get update && apt-get install -y \
     libssh2-1 \
     libssl3 \
     ca-certificates \
+    # gitextractor shells out to the git CLI unless
+    # USE_GO_GIT_IN_GIT_EXTRACTOR is set, so the binary must be present or every
+    # clone fails with "git: executable file not found in $PATH".
+    # debian:bookworm-slim does not ship it; the official image inherits it from
+    # its python base.
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy libgit2

@@ -2,6 +2,7 @@ account_id,user_id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remar
 a1,U111,,,,
 a10,U010,,,0,
 a11,U006,,,0,
+a12,U007,,,0,
 a2,U112,,,,
 a3,U113,,,,
 a4,U004,,,0,

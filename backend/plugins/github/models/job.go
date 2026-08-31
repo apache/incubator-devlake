@@ -39,15 +39,15 @@ type GithubJob struct {
 	Conclusion    string         `json:"conclusion" gorm:"type:varchar(255)"`
 	StartedAt     *time.Time     `json:"started_at"`
 	CompletedAt   *time.Time     `json:"completed_at"`
-	Name          string         `json:"name" gorm:"type:varchar(255)"`
+	Name          string         `json:"name" gorm:"type:text"`
 	Steps         datatypes.JSON `json:"steps"`
 	CheckRunURL   string         `json:"check_run_url" gorm:"type:varchar(255)"`
 	Labels        datatypes.JSON `json:"labels"`
 	RunnerID      int            `json:"runner_id"`
-	RunnerName    string         `json:"runner_name" gorm:"type:varchar(255)"`
+	RunnerName    string         `json:"runner_name" gorm:"type:text"`
 	RunnerGroupID int            `json:"runner_group_id"`
 	Type          string         `json:"type" gorm:"type:varchar(255)"`
-	Environment   string         `gorm:"type:varchar(255)"`
+	Environment   string         `gorm:"type:text"`
 }
 
 func (GithubJob) TableName() string {

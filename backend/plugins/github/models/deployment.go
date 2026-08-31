@@ -32,15 +32,15 @@ type GithubDeployment struct {
 	Url               string
 	DatabaseId        uint       `json:"database_id"`
 	CommitOid         string     `json:"commit_oid" gorm:"type:varchar(255)"`
-	Description       string     `json:"description" gorm:"type:varchar(255)"`
-	Environment       string     `json:"environment" gorm:"type:varchar(255)"`
+	Description       string     `json:"description" gorm:"type:text"`
+	Environment       string     `json:"environment" gorm:"type:text"`
 	State             string     `json:"state" gorm:"type:varchar(255)"`
 	LatestStatusState string     `json:"latest_status_state" gorm:"type:varchar(255)"`
 	LatestUpdatedDate *time.Time `json:"latest_status_update_date"`
 	RepositoryID      string     `json:"repository_id" gorm:"type:varchar(255)"`
 	RepositoryName    string     `json:"repository_name" gorm:"type:varchar(255)"`
 	RepositoryUrl     string     `json:"repository_url" gorm:"type:varchar(255)"`
-	RefName           string     `json:"ref_name" gorm:"type:varchar(255)"`
+	RefName           string     `json:"ref_name" gorm:"type:text"`
 	Payload           string     `json:"payload" gorm:"type:text"`
 	FinishedDate      *time.Time `json:"finished_at"`
 	CreatedDate       time.Time  `json:"created_at"`

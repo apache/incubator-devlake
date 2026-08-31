@@ -26,7 +26,7 @@
       "targetBlank": true,
       "title": "Kiro Usage Dashboard",
       "type": "link",
-      "url": "/d/qdev_user_report"
+      "url": "/d/kiro_user_report"
     }
   ],
   "panels": [
@@ -87,7 +87,7 @@
           "datasource": "postgresql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(SUM(credits_used)) AS \"Total Credits\" FROM _tool_q_dev_user_report WHERE $__timeFilter(date)",
+          "rawSql": "SELECT ROUND(SUM(credits_used)) AS 'Total Credits'\nFROM _tool_kiro_user_report WHERE $__timeFilter(date)",
           "refId": "A"
         }
       ],
@@ -138,7 +138,7 @@
           "datasource": "postgresql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(CAST(SUM(r.credits_used) AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT pr.id), 0), 0), 1) AS \"Credits / PR\" FROM _tool_q_dev_user_report AS r CROSS JOIN (SELECT DISTINCT id FROM pull_requests WHERE NOT merged_date IS NULL AND $__timeFilter(merged_date)) AS pr WHERE $__timeFilter(r.date)",
+          "rawSql": "SELECT ROUND(SUM(r.credits_used) / NULLIF(COUNT(DISTINCT pr.id), 0), 1) AS 'Credits / PR'\nFROM _tool_kiro_user_report r\nCROSS JOIN (\n  SELECT DISTINCT id FROM pull_requests\n  WHERE merged_date IS NOT NULL AND $__timeFilter(merged_date)\n) pr\nWHERE $__timeFilter(r.date)",
           "refId": "A"
         }
       ],
@@ -189,7 +189,7 @@
           "datasource": "postgresql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(CAST(SUM(r.credits_used) AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT cdc.cicd_deployment_id), 0), 0), 1) AS \"Credits / Deploy\" FROM _tool_q_dev_user_report AS r CROSS JOIN (SELECT DISTINCT cicd_deployment_id FROM cicd_deployment_commits WHERE result = 'SUCCESS' AND environment = 'PRODUCTION' AND $__timeFilter(finished_date)) AS cdc WHERE $__timeFilter(r.date)",
+          "rawSql": "SELECT ROUND(SUM(r.credits_used) / NULLIF(COUNT(DISTINCT cdc.cicd_deployment_id), 0), 1) AS 'Credits / Deploy'\nFROM _tool_kiro_user_report r\nCROSS JOIN (\n  SELECT DISTINCT cicd_deployment_id\n  FROM cicd_deployment_commits\n  WHERE result = 'SUCCESS' AND environment = 'PRODUCTION'\n    AND $__timeFilter(finished_date)\n) cdc\nWHERE $__timeFilter(r.date)",
           "refId": "A"
         }
       ],
@@ -240,7 +240,7 @@
           "datasource": "postgresql",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ROUND(CAST(SUM(r.credits_used) AS NUMERIC) / NULLIF(NULLIF(COUNT(DISTINCT i.id), 0), 0), 1) AS \"Credits / Issue\" FROM _tool_q_dev_user_report AS r CROSS JOIN (SELECT DISTINCT id FROM issues WHERE NOT resolution_date IS NULL AND type <> 'INCIDENT' AND $__timeFilter(resolution_date)) AS i WHERE $__timeFilter(r.date)",
+          "rawSql": "SELECT ROUND(SUM(r.credits_used) / NULLIF(COUNT(DISTINCT i.id), 0), 1) AS 'Credits / Issue'\nFROM _tool_kiro_user_report r\nCROSS JOIN (\n  SELECT DISTINCT id FROM issues\n  WHERE resolution_date IS NOT NULL AND type != 'INCIDENT'\n    AND $__timeFilter(resolution_date)\n) i\nWHERE $__timeFilter(r.date)",
           "refId": "A"
         }
       ],
@@ -316,7 +316,7 @@
           "datasource": "postgresql",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH _credits AS (SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day' AS week_start, SUM(credits_used) AS credits FROM _tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day'), _prs AS (SELECT CAST(merged_date AS DATE) - (EXTRACT(ISODOW FROM merged_date) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS prs FROM pull_requests WHERE NOT merged_date IS NULL AND $__timeFilter(merged_date) GROUP BY CAST(merged_date AS DATE) - (EXTRACT(ISODOW FROM merged_date) - 1) * INTERVAL '1 day') SELECT c.week_start AS time, ROUND(CAST(c.credits AS NUMERIC) / NULLIF(NULLIF(p.prs, 0), 0), 1) AS \"Credits per PR\" FROM _credits AS c LEFT JOIN _prs AS p ON c.week_start = p.week_start ORDER BY time NULLS FIRST",
+          "rawSql": "WITH _credits AS (\n  SELECT DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS week_start,\n    SUM(credits_used) AS credits\n  FROM _tool_kiro_user_report WHERE $__timeFilter(date)\n  GROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\n),\n_prs AS (\n  SELECT DATE_SUB(DATE(merged_date), INTERVAL WEEKDAY(DATE(merged_date)) DAY) AS week_start,\n    COUNT(*) AS prs\n  FROM pull_requests\n  WHERE merged_date IS NOT NULL AND $__timeFilter(merged_date)\n  GROUP BY DATE_SUB(DATE(merged_date), INTERVAL WEEKDAY(DATE(merged_date)) DAY)\n)\nSELECT c.week_start AS time,\n  ROUND(c.credits / NULLIF(p.prs, 0), 1) AS 'Credits per PR'\nFROM _credits c\nLEFT JOIN _prs p ON c.week_start = p.week_start\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -379,7 +379,7 @@
           "datasource": "postgresql",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH _credits AS (SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day' AS week_start, SUM(credits_used) AS credits FROM _tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day'), _deploys AS (SELECT CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM finished_date) - 1) * INTERVAL '1 day' AS week_start, COUNT(DISTINCT cicd_deployment_id) AS deploys FROM cicd_deployment_commits WHERE result = 'SUCCESS' AND environment = 'PRODUCTION' AND $__timeFilter(finished_date) GROUP BY CAST(finished_date AS DATE) - (EXTRACT(ISODOW FROM finished_date) - 1) * INTERVAL '1 day') SELECT c.week_start AS time, ROUND(CAST(c.credits AS NUMERIC) / NULLIF(NULLIF(d.deploys, 0), 0), 1) AS \"Credits per Deploy\" FROM _credits AS c LEFT JOIN _deploys AS d ON c.week_start = d.week_start ORDER BY time NULLS FIRST",
+          "rawSql": "WITH _credits AS (\n  SELECT DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS week_start,\n    SUM(credits_used) AS credits\n  FROM _tool_kiro_user_report WHERE $__timeFilter(date)\n  GROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\n),\n_deploys AS (\n  SELECT DATE_SUB(DATE(finished_date), INTERVAL WEEKDAY(DATE(finished_date)) DAY) AS week_start,\n    COUNT(DISTINCT cicd_deployment_id) AS deploys\n  FROM cicd_deployment_commits\n  WHERE result = 'SUCCESS' AND environment = 'PRODUCTION'\n    AND $__timeFilter(finished_date)\n  GROUP BY DATE_SUB(DATE(finished_date), INTERVAL WEEKDAY(DATE(finished_date)) DAY)\n)\nSELECT c.week_start AS time,\n  ROUND(c.credits / NULLIF(d.deploys, 0), 1) AS 'Credits per Deploy'\nFROM _credits c\nLEFT JOIN _deploys d ON c.week_start = d.week_start\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -442,7 +442,7 @@
           "datasource": "postgresql",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "WITH _credits AS (SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day' AS week_start, SUM(credits_used) AS credits FROM _tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day'), _issues AS (SELECT CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM resolution_date) - 1) * INTERVAL '1 day' AS week_start, COUNT(*) AS resolved FROM issues WHERE NOT resolution_date IS NULL AND type <> 'INCIDENT' AND $__timeFilter(resolution_date) GROUP BY CAST(resolution_date AS DATE) - (EXTRACT(ISODOW FROM resolution_date) - 1) * INTERVAL '1 day') SELECT c.week_start AS time, ROUND(CAST(c.credits AS NUMERIC) / NULLIF(NULLIF(i.resolved, 0), 0), 1) AS \"Credits per Issue\" FROM _credits AS c LEFT JOIN _issues AS i ON c.week_start = i.week_start ORDER BY time NULLS FIRST",
+          "rawSql": "WITH _credits AS (\n  SELECT DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS week_start,\n    SUM(credits_used) AS credits\n  FROM _tool_kiro_user_report WHERE $__timeFilter(date)\n  GROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\n),\n_issues AS (\n  SELECT DATE_SUB(DATE(resolution_date), INTERVAL WEEKDAY(DATE(resolution_date)) DAY) AS week_start,\n    COUNT(*) AS resolved\n  FROM issues\n  WHERE resolution_date IS NOT NULL AND type != 'INCIDENT'\n    AND $__timeFilter(resolution_date)\n  GROUP BY DATE_SUB(DATE(resolution_date), INTERVAL WEEKDAY(DATE(resolution_date)) DAY)\n)\nSELECT c.week_start AS time,\n  ROUND(c.credits / NULLIF(i.resolved, 0), 1) AS 'Credits per Issue'\nFROM _credits c\nLEFT JOIN _issues i ON c.week_start = i.week_start\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -505,7 +505,7 @@
           "datasource": "postgresql",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day' AS time, SUM(credits_used) AS \"Credits\", SUM(total_messages) AS \"Messages\", SUM(chat_conversations) AS \"Conversations\" FROM _tool_q_dev_user_report WHERE $__timeFilter(date) GROUP BY CAST(date AS DATE) - (EXTRACT(ISODOW FROM date) - 1) * INTERVAL '1 day' ORDER BY time NULLS FIRST",
+          "rawSql": "SELECT\n  DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n  SUM(credits_used) AS 'Credits',\n  SUM(total_messages) AS 'Messages',\n  SUM(chat_conversations) AS 'Conversations'\nFROM _tool_kiro_user_report\nWHERE $__timeFilter(date)\nGROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\nORDER BY time",
           "refId": "A"
         }
       ],
@@ -517,7 +517,6 @@
   "refresh": "5m",
   "schemaVersion": 41,
   "tags": [
-    "q_dev",
     "kiro",
     "cost",
     "efficiency"
@@ -531,7 +530,7 @@
   },
   "timepicker": {},
   "timezone": "utc",
-  "title": "AI Cost-Efficiency (PostgreSQL)",
-  "uid": "ai_cost_efficiency-pg",
+  "title": "AI Model ROI",
+  "uid": "ai_model_roi",
   "version": 1
 }

@@ -46,7 +46,7 @@ type Incident struct {
 	Priority                string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`
 	Urgency                 string `gorm:"type:varchar(255)"`
-	Component               string `gorm:"type:varchar(255)"`
+	Component               string `gorm:"type:text"`
 	OriginalProject         string `gorm:"type:varchar(255)"`
 	Table                   string `gorm:"index:idx_table_scope_id;type:varchar(255)"`
 	ScopeId                 string `gorm:"index:idx_table_scope_id;type:varchar(255)"`
