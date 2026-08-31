@@ -29,7 +29,14 @@ func (script *changeCursorRequestsCostsToFloat) Up(basicRes context.BasicRes) er
 	if !db.HasTable("_tool_cursor_usage_events") {
 		return nil
 	}
-	return db.Exec("ALTER TABLE _tool_cursor_usage_events MODIFY COLUMN requests_costs DOUBLE")
+	switch db.Dialect() {
+	case "postgres":
+		return db.Exec("ALTER TABLE _tool_cursor_usage_events ALTER COLUMN requests_costs TYPE double precision")
+	case "mysql":
+		return db.Exec("ALTER TABLE _tool_cursor_usage_events MODIFY COLUMN requests_costs DOUBLE")
+	default:
+		return nil
+	}
 }
 
 func (*changeCursorRequestsCostsToFloat) Version() uint64 { return 20260710120000 }
