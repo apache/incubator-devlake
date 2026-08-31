@@ -24,3 +24,16 @@ export const DialogBody = styled.div`
   display: flex;
   align-items: center;
 `;
+
+export const SubProjectList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+`;

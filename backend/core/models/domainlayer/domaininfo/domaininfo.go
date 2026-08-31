@@ -75,6 +75,7 @@ func GetDomainTablesInfo() []dal.Tabler {
 		&devops.CICDPipeline{},
 		&devops.CICDTask{},
 		&devops.CicdDeploymentCommit{},
+		&devops.CicdDeploymentSubproject{},
 		&devops.CiCDPipelineCommit{},
 		&devops.CicdScope{},
 		&devops.CICDDeployment{},

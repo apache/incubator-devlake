@@ -1,0 +1,7 @@
+project_name,pull_request_id,sub_project,coding_time,pickup_time,review_time,deploy_time,cycle_time,deployment_id,pr_created_date,pr_merged_date,deployed_date
+monorepo,pr1,serviceA,100,20,30,60,220,pipeline1,2026-08-01T08:00:00.000+00:00,2026-08-01T09:00:00.000+00:00,2026-08-01T10:00:00.000+00:00
+monorepo,pr2,serviceB,200,40,60,180,440,pipeline2,2026-08-01T08:00:00.000+00:00,2026-08-01T09:00:00.000+00:00,2026-08-01T12:00:00.000+00:00
+monorepo,pr3,serviceA,300,60,90,1470,1830,pipeline3,2026-08-01T08:30:00.000+00:00,2026-08-01T09:30:00.000+00:00,2026-08-02T10:00:00.000+00:00
+monorepo,pr4,unattributed,400,80,120,,460,,2026-08-01T08:00:00.000+00:00,2026-08-01T09:00:00.000+00:00,
+monorepo,pr5,serviceA,500,100,150,,560,,2026-08-03T08:00:00.000+00:00,2026-08-03T09:00:00.000+00:00,
+monorepo,pr8,serviceA,150,15,25,190,390,pipeline2,2026-08-01T08:00:00.000+00:00,2026-08-01T08:50:00.000+00:00,2026-08-01T12:00:00.000+00:00

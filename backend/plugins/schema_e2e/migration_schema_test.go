@@ -72,6 +72,7 @@ import (
 	kiro "github.com/apache/incubator-devlake/plugins/kiro/impl"
 	linear "github.com/apache/incubator-devlake/plugins/linear/impl"
 	linker "github.com/apache/incubator-devlake/plugins/linker/impl"
+	monorepo "github.com/apache/incubator-devlake/plugins/monorepo/impl"
 	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
 	org "github.com/apache/incubator-devlake/plugins/org/impl"
 	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
@@ -122,6 +123,7 @@ func allGoPlugins() []plugin.PluginMeta {
 		kiro.Kiro{},
 		linear.Linear{},
 		linker.Linker{},
+		monorepo.Monorepo{},
 		opsgenie.Opsgenie{},
 		org.Org{},
 		pagerduty.PagerDuty{},
