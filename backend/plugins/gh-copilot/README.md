@@ -18,7 +18,7 @@ limitations under the License.
 
 This plugin ingests GitHub Copilot **organization-level adoption metrics** (daily usage and seat assignments) and provides a Grafana dashboard for adoption trends.
 
-It follows the same structure/patterns as other DevLake data-source plugins (notably `backend/plugins/q_dev`).
+It follows the same structure/patterns as other DevLake data-source plugins (for example `backend/plugins/kiro`).
 
 ## What it collects
 

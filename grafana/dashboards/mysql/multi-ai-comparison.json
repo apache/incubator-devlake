@@ -26,7 +26,7 @@
       "targetBlank": true,
       "title": "Kiro Usage",
       "type": "link",
-      "url": "/d/qdev_user_report"
+      "url": "/d/kiro_user_report"
     },
     {
       "asDropdown": false,
@@ -46,11 +46,20 @@
         "type": "datasource",
         "uid": "grafana"
       },
-      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "options": {
-        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
-        "content": "## Multi-AI Tool Comparison: Copilot vs Kiro\nCompare GitHub Copilot and Kiro (Amazon Q Developer) adoption and usage side by side.\n\n**Note:** Copilot metrics come from `_tool_copilot_enterprise_daily_metrics` (enterprise-level aggregates). Kiro metrics come from `_tool_q_dev_user_report` and `_tool_q_dev_user_data`. Select the Copilot connection and scope using the dropdowns above.",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Multi-AI Tool Comparison: Copilot vs Kiro\nCompare GitHub Copilot and Kiro adoption and activity side by side.\n\n**Semantic boundary:** Copilot exports code-generation and acceptance events. Kiro exports usage reports and completion responses, but no acceptance event. Returned Kiro lines and Copilot LOC added are displayed with explicit labels and must not be treated as equivalent productivity measures.",
         "mode": "markdown"
       },
       "title": "About",
@@ -58,44 +67,87 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 3 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
       "id": 2,
       "panels": [],
       "title": "Active Users",
       "type": "row"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Weekly active users for both tools",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto",
-            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
-            "pointSize": 5, "showPoints": "never", "spanNulls": true,
-            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+            "axisBorderShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
       "id": 3,
       "options": {
-        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n  COUNT(DISTINCT user_id) AS 'Kiro Active Users'\nFROM _tool_q_dev_user_report\nWHERE $__timeFilter(date)\nGROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\nORDER BY time",
+          "rawSql": "SELECT\n  DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n  COUNT(DISTINCT user_id) AS 'Kiro Active Users'\nFROM _tool_kiro_user_report\nWHERE $__timeFilter(date)\nGROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\nORDER BY time",
           "refId": "A"
         },
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY) AS time,\n  MAX(daily_active_users) AS 'Copilot Active Users'\nFROM _tool_copilot_enterprise_daily_metrics\nWHERE connection_id = ${copilot_connection_id}\n  AND scope_id = '${copilot_scope_id}'\n  AND $__timeFilter(day)\nGROUP BY DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY)\nORDER BY time",
@@ -107,71 +159,146 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 12 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
       "id": 10,
       "panels": [],
-      "title": "Code Generation",
+      "title": "Assistant Activity",
       "type": "row"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Weekly code generation and acceptance events",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro completion requests and requests returning suggestions. Returned does not mean accepted.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto",
-            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
-            "pointSize": 5, "showPoints": "never", "spanNulls": true,
-            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+            "axisBorderShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
       "id": 11,
       "options": {
-        "legend": { "calcs": ["mean", "sum"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "mean",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n  SUM(inline_suggestions_count) AS 'Kiro: Suggestions',\n  SUM(inline_acceptance_count) AS 'Kiro: Accepted'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)\nGROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\nORDER BY time",
+          "rawSql": "SELECT DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY) AS time, COUNT(*) AS 'Kiro: Completion Requests', SUM(CASE WHEN completions_count > 0 THEN 1 ELSE 0 END) AS 'Kiro: Requests with Results' FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY) ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "Kiro: Code Suggestions & Acceptance",
+      "title": "Kiro Completion Requests & Results",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Weekly Copilot code generation and acceptance events",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto",
-            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
-            "pointSize": 5, "showPoints": "never", "spanNulls": true,
-            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+            "axisBorderShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
       "id": 12,
       "options": {
-        "legend": { "calcs": ["mean", "sum"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "mean",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
           "rawSql": "SELECT\n  DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY) AS time,\n  SUM(code_generation_activity_count) AS 'Copilot: Suggestions',\n  SUM(code_acceptance_activity_count) AS 'Copilot: Accepted'\nFROM _tool_copilot_enterprise_daily_metrics\nWHERE connection_id = ${copilot_connection_id}\n  AND scope_id = '${copilot_scope_id}'\n  AND $__timeFilter(day)\nGROUP BY DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY)\nORDER BY time",
@@ -183,59 +310,117 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
       "id": 20,
       "panels": [],
-      "title": "Lines of Code & Acceptance Rate",
+      "title": "Returned Lines & Acceptance Availability",
       "type": "row"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Weekly AI-generated lines of code accepted",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Different semantics: Kiro counts lines returned to the IDE; Copilot counts LOC added. Do not interpret as an acceptance comparison.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto",
-            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
-            "pointSize": 5, "showPoints": "never", "spanNulls": true,
-            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+            "axisBorderShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
       "id": 21,
       "options": {
-        "legend": { "calcs": ["mean", "sum"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "mean",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT time, SUM(kiro_loc) AS 'Kiro LOC Accepted', SUM(copilot_loc) AS 'Copilot LOC Added'\nFROM (\n  SELECT DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY) AS time,\n    SUM(inline_ai_code_lines + chat_ai_code_lines) AS kiro_loc, 0 AS copilot_loc\n  FROM _tool_q_dev_user_data WHERE $__timeFilter(date)\n  GROUP BY DATE_SUB(DATE(date), INTERVAL WEEKDAY(DATE(date)) DAY)\n  UNION ALL\n  SELECT DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY) AS time,\n    0 AS kiro_loc, SUM(loc_added_sum) AS copilot_loc\n  FROM _tool_copilot_enterprise_daily_metrics\n  WHERE connection_id = ${copilot_connection_id}\n    AND scope_id = '${copilot_scope_id}'\n    AND $__timeFilter(day)\n  GROUP BY DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY)\n) combined\nGROUP BY time ORDER BY time",
+          "rawSql": "SELECT time, SUM(kiro_lines) AS 'Kiro Returned Lines', SUM(copilot_loc) AS 'Copilot LOC Added' FROM (SELECT DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY) AS time, SUM(returned_line_count) AS kiro_lines, 0 AS copilot_loc FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY DATE_SUB(DATE(timestamp), INTERVAL WEEKDAY(DATE(timestamp)) DAY) UNION ALL SELECT DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY) AS time, 0 AS kiro_lines, SUM(loc_added_sum) AS copilot_loc FROM _tool_copilot_enterprise_daily_metrics WHERE connection_id = ${copilot_connection_id} AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day) GROUP BY DATE_SUB(DATE(day), INTERVAL WEEKDAY(DATE(day)) DAY)) combined GROUP BY time ORDER BY time",
           "refId": "A"
         }
       ],
-      "title": "LOC Accepted: Kiro vs Copilot",
+      "title": "Kiro Returned Lines vs Copilot LOC Added",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
-      "description": "Overall acceptance rates for both tools",
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
+      "description": "Kiro exports no suggestion-acceptance event, so its value is NULL. Copilot acceptance remains available.",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "mappings": [],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "percent"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
       "id": 22,
       "options": {
         "barRadius": 0.1,
@@ -243,30 +428,42 @@
         "orientation": "horizontal",
         "showValue": "auto",
         "stacking": "none",
-        "tooltip": { "mode": "single" }
+        "tooltip": {
+          "mode": "single"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT 'Kiro' AS Tool,\n  ROUND(SUM(inline_acceptance_count) * 100.0 / NULLIF(SUM(inline_suggestions_count), 0), 1) AS 'Acceptance Rate'\nFROM _tool_q_dev_user_data\nWHERE $__timeFilter(date)\nUNION ALL\nSELECT 'Copilot' AS Tool,\n  ROUND(SUM(code_acceptance_activity_count) * 100.0 / NULLIF(SUM(code_generation_activity_count), 0), 1)\nFROM _tool_copilot_enterprise_daily_metrics\nWHERE connection_id = ${copilot_connection_id}\n  AND scope_id = '${copilot_scope_id}'\n  AND $__timeFilter(day)",
+          "rawSql": "SELECT 'Kiro (not exported)' AS 'Tool', CAST(NULL AS DECIMAL(10,2)) AS 'Acceptance Rate' UNION ALL SELECT 'Copilot' AS 'Tool', ROUND(SUM(code_acceptance_activity_count) * 100.0 / NULLIF(SUM(code_generation_activity_count), 0), 1) AS 'Acceptance Rate' FROM _tool_copilot_enterprise_daily_metrics WHERE connection_id = ${copilot_connection_id} AND scope_id = '${copilot_scope_id}' AND $__timeFilter(day)",
           "refId": "A"
         }
       ],
-      "title": "Acceptance Rate Comparison",
+      "title": "Acceptance Rate Availability",
       "type": "bargauge"
     }
   ],
   "preload": false,
   "refresh": "5m",
   "schemaVersion": 41,
-  "tags": ["q_dev", "copilot", "kiro", "comparison"],
+  "tags": [
+    "kiro",
+    "copilot",
+    "comparison"
+  ],
   "templating": {
     "list": [
       {
         "current": {},
-        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+        "datasource": {
+          "type": "mysql",
+          "uid": "devlake-mysql-api"
+        },
         "definition": "SELECT DISTINCT connection_id FROM _tool_copilot_scopes ORDER BY connection_id DESC",
         "hide": 0,
         "label": "Copilot Connection",
@@ -278,7 +475,10 @@
       },
       {
         "current": {},
-        "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+        "datasource": {
+          "type": "mysql",
+          "uid": "devlake-mysql-api"
+        },
         "definition": "SELECT DISTINCT id FROM _tool_copilot_scopes WHERE connection_id = CAST('${copilot_connection_id}' AS UNSIGNED)",
         "hide": 0,
         "label": "Copilot Scope",
@@ -290,7 +490,10 @@
       }
     ]
   },
-  "time": { "from": "now-90d", "to": "now" },
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "utc",
   "title": "Multi-AI Tool Comparison",

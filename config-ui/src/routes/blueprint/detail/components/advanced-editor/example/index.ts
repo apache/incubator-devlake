@@ -17,7 +17,6 @@
  */
 
 import customize from './customize';
-import dbt from './dbt';
 import feishu from './feishu';
 import general from './general';
 import gitextractor from './gitextractor';
@@ -70,11 +69,6 @@ export const EXAMPLE_CONFIG = [
     id: 'feishu',
     name: 'Load Feishu Configuration',
     config: feishu,
-  },
-  {
-    id: 'dbt',
-    name: 'Load DBT Configuration',
-    config: dbt,
   },
   {
     id: 'tapd',
