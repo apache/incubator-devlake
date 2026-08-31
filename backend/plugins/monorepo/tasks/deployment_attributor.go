@@ -123,7 +123,9 @@ func AttributeDeployments(taskCtx plugin.SubTaskContext) errors.Error {
 					CicdDeploymentId: row.CicdDeploymentId,
 					SubProject:       subProject,
 				})
-				results = append(results, &models.SubProjectDeployment{
+				// SubProjectDeployment is deprecated but this plugin still owns and
+				// populates it during the compat window.
+				results = append(results, &models.SubProjectDeployment{ //nolint:staticcheck // SA1019
 					ProjectName:      data.Options.ProjectName,
 					SubProject:       subProject,
 					CicdDeploymentId: row.CicdDeploymentId,

@@ -196,7 +196,9 @@ func backfillSubProjectPrMetrics(taskCtx plugin.SubTaskContext, db dal.Dal, proj
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			row := inputRow.(*prMetricSubProjectRow)
-			return []interface{}{&models.SubProjectPrMetric{
+			// SubProjectPrMetric is deprecated but this plugin still owns and
+			// populates it during the compat window.
+			return []interface{}{&models.SubProjectPrMetric{ //nolint:staticcheck // SA1019
 				ProjectName:   projectName,
 				PullRequestId: row.PullRequestId,
 				SubProject:    row.SubProject,
