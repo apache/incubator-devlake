@@ -20,23 +20,35 @@ package migrationscripts
 import (
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 var _ plugin.MigrationScript = (*addCicdDeploymentSubprojects)(nil)
 
+// cicdDeploymentSubproject20260810 is a version-frozen snapshot of
+// devops.CicdDeploymentSubproject as it looked when this migration was written.
+// Migration scripts must not import live model packages (see core/migration/linter),
+// so the shape is duplicated here on purpose rather than imported from the domain layer.
+type cicdDeploymentSubproject20260810 struct {
+	archived.NoPKModel
+	ProjectName      string `gorm:"primaryKey;type:varchar(100)"`
+	CicdDeploymentId string `gorm:"primaryKey;type:varchar(255);index:idx_cds_deployment"`
+	SubProject       string `gorm:"primaryKey;type:varchar(100)"`
+}
+
+func (cicdDeploymentSubproject20260810) TableName() string {
+	return "cicd_deployment_subprojects"
+}
+
 type addCicdDeploymentSubprojects struct{}
 
-// Up creates the new cicd_deployment_subprojects mapping table. This is a brand new
-// table (not an existing one gaining a column), so it is migrated straight from the live
-// domain model, matching the precedent set by the monorepo plugin's own
-// 20260809_add_init_tables.go rather than a versioned snapshot struct.
+// Up creates the new cicd_deployment_subprojects mapping table.
 func (script *addCicdDeploymentSubprojects) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		&devops.CicdDeploymentSubproject{},
+		&cicdDeploymentSubproject20260810{},
 	)
 }
 
