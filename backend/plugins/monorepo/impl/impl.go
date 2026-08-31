@@ -75,8 +75,11 @@ func (p Monorepo) RequiredDataEntities() (data []map[string]interface{}, err err
 
 func (p Monorepo) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
-		&models.SubProjectDeployment{},
-		&models.SubProjectPrMetric{},
+		// These deprecated tables are still owned and populated by this plugin
+		// during the compat window; they must remain registered here so
+		// migrations/deletion tooling can find them.
+		&models.SubProjectDeployment{}, //nolint:staticcheck // SA1019
+		&models.SubProjectPrMetric{},   //nolint:staticcheck // SA1019
 	}
 }
 
