@@ -104,7 +104,37 @@ func ExtractApiMergeRequestsCommits(subtaskCtx plugin.SubTaskContext) errors.Err
 		return err
 	}
 
-	return extractor.Execute()
+	if err := extractor.Execute(); err != nil {
+		return err
+	}
+
+	return updateMrCommitUpdatedAt(subtaskCtx)
+}
+
+// updateMrCommitUpdatedAt refreshes `_tool_gitlab_merge_requests.commit_updated_at` with the
+// latest authored date of the MR's commits. GitLab does not always bump the MR's own
+// `updated_at` when commits are pushed (e.g. force-pushes), so subtasks collecting
+// MR sub-entities incrementally would otherwise skip those MRs.
+func updateMrCommitUpdatedAt(subtaskCtx plugin.SubTaskContext) errors.Error {
+	data := subtaskCtx.GetData().(*GitlabTaskData)
+	return subtaskCtx.GetDal().Exec(`
+		UPDATE _tool_gitlab_merge_requests AS gmr
+		SET commit_updated_at = (
+			SELECT MAX(gmc.commit_authored_date)
+			FROM _tool_gitlab_mr_commits gmc
+			WHERE gmc.connection_id = gmr.connection_id
+			  AND gmc.merge_request_id = gmr.gitlab_id
+		)
+		WHERE gmr.connection_id = ?
+		  AND gmr.project_id = ?
+		  AND EXISTS (
+			SELECT 1
+			FROM _tool_gitlab_mr_commits gmc
+			WHERE gmc.connection_id = gmr.connection_id
+			  AND gmc.merge_request_id = gmr.gitlab_id
+		  )`,
+		data.Options.ConnectionId, data.Options.ProjectId,
+	)
 }
 
 // Convert the API response to our DB model instance

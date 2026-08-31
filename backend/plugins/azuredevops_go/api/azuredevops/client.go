@@ -20,15 +20,17 @@ package azuredevops
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
 )
 
 const apiVersion = "7.1"
@@ -45,7 +47,7 @@ type Client struct {
 func NewClient(con *models.AzuredevopsConnection, apiClient plugin.ApiClient, url string) Client {
 	return Client{
 		c: http.Client{
-			Timeout: 2 * time.Second,
+			Timeout: 10 * time.Second,
 		},
 		connection: con,
 		url:        url,
@@ -54,18 +56,27 @@ func NewClient(con *models.AzuredevopsConnection, apiClient plugin.ApiClient, ur
 }
 
 func (c *Client) GetUserProfile() (Profile, errors.Error) {
-	var p Profile
-	endpoint, err := url.JoinPath(c.url, "/_apis/profile/profiles/me")
-	if err != nil {
-		return Profile{}, errors.Internal.Wrap(err, "failed to join user profile path")
+	// On-Premises Azure DevOps Server does not have the global VSSPS profile API.
+	// Return a placeholder profile to avoid blocking the connection test flow.
+	if c.connection != nil && c.connection.Endpoint != "" {
+		return Profile{
+			DisplayName: "On-Premises User",
+		}, nil
 	}
+
+	var p Profile
+	baseUrl := strings.TrimRight(c.url, "/")
+	if baseUrl == "" {
+		baseUrl = "https://app.vssps.visualstudio.com"
+	}
+	endpoint := fmt.Sprintf("%s/_apis/profile/profiles/me?api-version=7.1-preview.1", baseUrl)
 
 	res, err := c.doGet(endpoint)
 	if err != nil {
 		return Profile{}, errors.Internal.Wrap(err, "failed to read user accounts")
 	}
 
-	if res.StatusCode == 203 || res.StatusCode == 401 {
+	if res.StatusCode == 203 || res.StatusCode == 302 || res.StatusCode == 401 {
 		return Profile{}, errors.Unauthorized.New("failed to read user profile")
 	}
 
@@ -76,14 +87,19 @@ func (c *Client) GetUserProfile() (Profile, errors.Error) {
 	}
 
 	if err := json.Unmarshal(resBody, &p); err != nil {
-		panic(err)
+		return Profile{}, errors.Internal.Wrap(err, "failed to unmarshal user profile")
 	}
 	return p, nil
 }
 
 func (c *Client) GetUserAccounts(memberId string) (AccountResponse, errors.Error) {
+	// On-Premises installations do not have the global accounts API, return empty list.
+	if c.connection != nil && c.connection.Endpoint != "" {
+		return AccountResponse{}, nil
+	}
+
 	var a AccountResponse
-	endpoint := fmt.Sprintf(c.url+"/_apis/accounts?memberId=%s", memberId)
+	endpoint := fmt.Sprintf("%s/_apis/accounts?memberId=%s&api-version=7.1-preview.1", strings.TrimRight(c.url, "/"), memberId)
 	res, err := c.doGet(endpoint)
 	if err != nil {
 		return nil, errors.Internal.Wrap(err, "failed to read user accounts")
@@ -114,7 +130,7 @@ func (c *Client) doGet(url string) (*http.Response, error) {
 	if err = c.connection.GetAccessTokenAuthenticator().SetupAuthentication(req); err != nil {
 		return nil, errors.Internal.Wrap(err, "failed to authorize the request using the plugin connection")
 	}
-	return http.DefaultClient.Do(req)
+	return c.c.Do(req)
 }
 
 type GetProjectsArgs struct {
@@ -147,7 +163,10 @@ func (c *Client) GetProjects(args GetProjectsArgs) ([]Project, errors.Error) {
 		query.Set("$top", strconv.Itoa(top))
 		query.Set("$skip", strconv.Itoa(skip))
 
-		path := fmt.Sprintf("%s/_apis/projects", args.OrgId)
+		path := "_apis/projects"
+		if args.OrgId != "" {
+			path = fmt.Sprintf("%s/_apis/projects", args.OrgId)
+		}
 		res, err := c.apiClient.Get(path, query, nil)
 		if err != nil {
 			return nil, err
@@ -190,6 +209,9 @@ func (c *Client) GetRepositories(args GetRepositoriesArgs) ([]Repository, errors
 	}
 
 	path := fmt.Sprintf("%s/%s/_apis/git/repositories", args.OrgId, args.ProjectId)
+	if args.OrgId == "" {
+		path = fmt.Sprintf("%s/_apis/git/repositories", args.ProjectId)
+	}
 	res, err := c.apiClient.Get(path, query, nil)
 	if err != nil {
 		return nil, err

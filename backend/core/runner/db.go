@@ -145,13 +145,13 @@ func MakeDbConnection(dbUrl string, conf *gorm.Config) (*gorm.DB, error) {
 			if err != nil {
 				return nil, err
 			}
-			gormDB, err := gorm.Open(mysql.New(mysql.Config{
+			gormDB, err := gorm.Open(wrapMysqlDialector(mysql.New(mysql.Config{
 				Conn: db,
-			}), &gorm.Config{})
+			})), &gorm.Config{})
 
 			return gormDB, err
 		}
-		return gorm.Open(mysql.Open(dbUrl), conf)
+		return gorm.Open(wrapMysqlDialector(mysql.Open(dbUrl)), conf)
 	case "postgresql", "postgres", "pg":
 		return gorm.Open(postgres.Open(dbUrl), conf)
 	default:

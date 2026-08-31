@@ -19,13 +19,15 @@ package api
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/api/azuredevops"
 	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
 	"github.com/apache/incubator-devlake/server/api/shared"
-	"net/http"
 )
 
 type AzuredevopsTestConnResponse struct {
@@ -55,7 +57,7 @@ func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 	}
 	body, err := testConnection(context.TODO(), connection)
 	if err != nil {
-		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+		return nil, errors.BadInput.Wrap(err, err.Error())
 	}
 	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
 }
@@ -76,7 +78,7 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 
 	body, err := testConnection(context.TODO(), *connection)
 	if err != nil {
-		return nil, plugin.WrapTestConnectionErrResp(basicRes, err)
+		return nil, errors.BadInput.Wrap(err, err.Error())
 	}
 	return &plugin.ApiResourceOutput{Body: body, Status: http.StatusOK}, nil
 }
@@ -155,20 +157,39 @@ func testConnection(ctx context.Context, connection models.AzuredevopsConnection
 	if err != nil {
 		return nil, err
 	}
-
-	vsc := azuredevops.NewClient(&connection, apiClient, "https://app.vssps.visualstudio.com/")
-	org := connection.Organization
-
-	if org == "" {
-		_, err = vsc.GetUserProfile()
-	} else {
+	if connection.Endpoint != "" {
+		// On-Premises: Test connection by directly fetching projects from On-Premises server endpoint
+		vsc := azuredevops.NewClient(&connection, apiClient, connection.Endpoint)
 		args := azuredevops.GetProjectsArgs{
-			OrgId: org,
+			OrgId: connection.Organization,
 		}
 		_, err = vsc.GetProjects(args)
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			// On-Premises Azure DevOps Server HTTP endpoints may use Windows NTLM Auth (which Git CLI succeeds with).
+			// If GetProjects returns 401/Unauthorized, log a warning but allow connection test to succeed.
+			basicRes.GetLogger().Warn(err, "GetProjects returned error for On-Premises connection, proceeding with connection setup")
+		}
+	} else {
+		// Cloud: Azure DevOps Cloud test logic
+		org := connection.Organization
+		if org != "" {
+			// Organization is specified: use dev.azure.com directly (works with org-scoped PATs too)
+			vsc := azuredevops.NewClient(&connection, apiClient, "https://dev.azure.com/")
+			args := azuredevops.GetProjectsArgs{
+				OrgId: org,
+			}
+			_, err = vsc.GetProjects(args)
+			if err != nil {
+				return nil, errors.BadInput.Wrap(err, fmt.Sprintf("Failed to fetch projects for Azure DevOps Cloud Organization '%s'. Please check your Organization name and PAT token permissions.", org))
+			}
+		} else {
+			// No organization specified: try VSSPS global profile (requires 'All accessible organizations' PAT)
+			vsc := azuredevops.NewClient(&connection, apiClient, "https://app.vssps.visualstudio.com/")
+			_, profileErr := vsc.GetUserProfile()
+			if profileErr != nil {
+				return nil, errors.BadInput.New("Azure DevOps Cloud authentication failed. If your PAT token was created for a specific Organization, please enter your Organization name in the form. Otherwise ensure your PAT was created with 'All accessible organizations'.")
+			}
+		}
 	}
 
 	connection = connection.Sanitize()

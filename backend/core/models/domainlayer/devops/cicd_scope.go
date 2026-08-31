@@ -28,7 +28,7 @@ var _ plugin.Scope = (*CicdScope)(nil)
 
 type CicdScope struct {
 	domainlayer.DomainEntity
-	Name        string `gorm:"type:varchar(255)"`
+	Name        string `gorm:"type:text"`
 	Description string
 	Url         string `gorm:"type:varchar(255)"`
 	CreatedDate *time.Time

@@ -25,7 +25,6 @@ import (
 	bamboo "github.com/apache/incubator-devlake/plugins/bamboo/impl"
 	bitbucket "github.com/apache/incubator-devlake/plugins/bitbucket/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
-	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
 	feishu "github.com/apache/incubator-devlake/plugins/feishu/impl"
 	gitee "github.com/apache/incubator-devlake/plugins/gitee/impl"
@@ -66,7 +65,6 @@ func loadGoPlugins() []plugin.PluginMeta {
 		bamboo.Bamboo{},
 		bitbucket.Bitbucket{},
 		customize.Customize{},
-		dbt.Dbt{},
 		dora.Dora{},
 		feishu.Feishu{},
 		gitee.Gitee{},

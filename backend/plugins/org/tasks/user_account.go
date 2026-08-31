@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"reflect"
+	"strings"
 )
 
 var ConnectUserAccountsExactMeta = plugin.SubTaskMeta{
@@ -42,14 +43,18 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// Email addresses, display names and provider logins are all compared case-insensitively: a
+	// corporate git config and a provider profile routinely record the same address or name with
+	// different capitalisation, and provider logins are themselves case-insensitive, so matching
+	// them exactly silently drops links that should be made.
 	emails := make(map[string]string)
 	names := make(map[string]string)
 	for _, user := range users {
 		if user.Email != "" {
-			emails[user.Email] = user.Id
+			emails[strings.ToLower(user.Email)] = user.Id
 		}
 		if user.Name != "" {
-			names[user.Name] = user.Id
+			names[strings.ToLower(user.Name)] = user.Id
 		}
 	}
 	clauses := []dal.Clause{
@@ -76,7 +81,7 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			account := inputRow.(*crossdomain.Account)
-			if userId, ok := emails[account.Email]; account.Email != "" && ok {
+			if userId, ok := emails[strings.ToLower(account.Email)]; account.Email != "" && ok {
 				return []interface{}{
 					&crossdomain.UserAccount{
 						UserId:    userId,
@@ -84,7 +89,7 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 					},
 				}, nil
 			}
-			if userId, ok := names[account.FullName]; account.FullName != "" && ok {
+			if userId, ok := names[strings.ToLower(account.FullName)]; account.FullName != "" && ok {
 				return []interface{}{
 					&crossdomain.UserAccount{
 						UserId:    userId,
@@ -92,7 +97,7 @@ func ConnectUserAccountsExact(taskCtx plugin.SubTaskContext) errors.Error {
 					},
 				}, nil
 			}
-			if userId, ok := names[account.UserName]; account.UserName != "" && ok {
+			if userId, ok := names[strings.ToLower(account.UserName)]; account.UserName != "" && ok {
 				return []interface{}{
 					&crossdomain.UserAccount{
 						UserId:    userId,

@@ -19,31 +19,60 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Chat and completion events by hour of day",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 1,
-            "stacking": { "mode": "normal" }, "thresholdsStyle": { "mode": "off" }
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT LPAD(CAST(hr AS CHAR), 2, '0') AS 'Hour',\n  SUM(chat) AS 'Chat Events', SUM(comp) AS 'Completion Events'\nFROM (\n  SELECT HOUR(timestamp) AS hr, COUNT(*) AS chat, 0 AS comp\n  FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n  UNION ALL\n  SELECT HOUR(timestamp) AS hr, 0 AS chat, COUNT(*) AS comp\n  FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n) t GROUP BY hr ORDER BY hr",
+          "rawSql": "SELECT LPAD(CAST(hr AS CHAR), 2, '0') AS 'Hour',\n  SUM(chat) AS 'Chat Events', SUM(comp) AS 'Completion Events'\nFROM (\n  SELECT HOUR(timestamp) AS hr, COUNT(*) AS chat, 0 AS comp\n  FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n  UNION ALL\n  SELECT HOUR(timestamp) AS hr, 0 AS chat, COUNT(*) AS comp\n  FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp)\n  GROUP BY HOUR(timestamp)\n) t GROUP BY hr ORDER BY hr",
           "refId": "A"
         }
       ],
@@ -51,32 +80,64 @@
       "type": "barchart"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Average prompt complexity and response richness by hour",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
-            "showPoints": "auto", "spanNulls": true,
-            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
       "id": 2,
       "options": {
-        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT LPAD(CAST(HOUR(timestamp) AS CHAR), 2, '0') AS 'Hour',\n  ROUND(AVG(prompt_length)) AS 'Avg Prompt Length',\n  ROUND(AVG(response_length)) AS 'Avg Response Length'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY HOUR(timestamp)\nORDER BY HOUR(timestamp)",
+          "rawSql": "SELECT LPAD(CAST(hr AS CHAR), 2, '0') AS 'Hour', ROUND(avg_prompt) AS 'Avg Prompt Length', ROUND(avg_response) AS 'Avg Response Length' FROM (SELECT HOUR(timestamp) AS hr, AVG(prompt_length) AS avg_prompt, AVG(response_length) AS avg_response FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY HOUR(timestamp)) hourly ORDER BY hr",
           "refId": "A"
         }
       ],
@@ -84,31 +145,60 @@
       "type": "barchart"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Steering and spec mode usage concentration by hour",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 1,
-            "stacking": { "mode": "normal" }, "thresholdsStyle": { "mode": "off" }
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
       "id": 3,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT LPAD(CAST(HOUR(timestamp) AS CHAR), 2, '0') AS 'Hour',\n  SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) AS 'Steering',\n  SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) AS 'Spec Mode',\n  SUM(CASE WHEN has_steering = 0 AND is_spec_mode = 0 THEN 1 ELSE 0 END) AS 'Plain Chat'\nFROM _tool_q_dev_chat_log\nWHERE $__timeFilter(timestamp)\nGROUP BY HOUR(timestamp)\nORDER BY HOUR(timestamp)",
+          "rawSql": "SELECT LPAD(CAST(hr AS CHAR), 2, '0') AS 'Hour', steering AS 'Steering', spec_mode AS 'Spec Mode', plain_chat AS 'Plain Chat' FROM (SELECT HOUR(timestamp) AS hr, SUM(CASE WHEN has_steering = 1 THEN 1 ELSE 0 END) AS steering, SUM(CASE WHEN is_spec_mode = 1 THEN 1 ELSE 0 END) AS spec_mode, SUM(CASE WHEN has_steering = 0 AND is_spec_mode = 0 THEN 1 ELSE 0 END) AS plain_chat FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY HOUR(timestamp)) hourly ORDER BY hr",
           "refId": "A"
         }
       ],
@@ -116,31 +206,60 @@
       "type": "barchart"
     },
     {
-      "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+      "datasource": {
+        "type": "mysql",
+        "uid": "devlake-mysql-api"
+      },
       "description": "Day-of-week activity pattern",
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
-            "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 1,
-            "stacking": { "mode": "normal" }, "thresholdsStyle": { "mode": "off" }
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
       "id": 4,
       "options": {
-        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi" }
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "mysql", "uid": "devlake-mysql-api"},
+          "datasource": {
+            "type": "mysql",
+            "uid": "devlake-mysql-api"
+          },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  CASE DAYOFWEEK(timestamp)\n    WHEN 1 THEN 'Sun' WHEN 2 THEN 'Mon' WHEN 3 THEN 'Tue'\n    WHEN 4 THEN 'Wed' WHEN 5 THEN 'Thu' WHEN 6 THEN 'Fri' WHEN 7 THEN 'Sat'\n  END AS 'Day',\n  SUM(chat) AS 'Chat Events', SUM(comp) AS 'Completions'\nFROM (\n  SELECT timestamp, COUNT(*) AS chat, 0 AS comp FROM _tool_q_dev_chat_log WHERE $__timeFilter(timestamp) GROUP BY timestamp\n  UNION ALL\n  SELECT timestamp, 0, COUNT(*) FROM _tool_q_dev_completion_log WHERE $__timeFilter(timestamp) GROUP BY timestamp\n) t\nGROUP BY DAYOFWEEK(timestamp)\nORDER BY DAYOFWEEK(timestamp)",
+          "rawSql": "SELECT CASE weekday_num WHEN 1 THEN 'Sun' WHEN 2 THEN 'Mon' WHEN 3 THEN 'Tue' WHEN 4 THEN 'Wed' WHEN 5 THEN 'Thu' WHEN 6 THEN 'Fri' WHEN 7 THEN 'Sat' END AS 'Day', SUM(chat) AS 'Chat Events', SUM(comp) AS 'Completions' FROM (SELECT DAYOFWEEK(timestamp) AS weekday_num, COUNT(*) AS chat, 0 AS comp FROM _tool_kiro_chat_log WHERE $__timeFilter(timestamp) GROUP BY DAYOFWEEK(timestamp) UNION ALL SELECT DAYOFWEEK(timestamp) AS weekday_num, 0 AS chat, COUNT(*) AS comp FROM _tool_kiro_completion_log WHERE $__timeFilter(timestamp) GROUP BY DAYOFWEEK(timestamp)) activity GROUP BY weekday_num ORDER BY weekday_num",
           "refId": "A"
         }
       ],
@@ -151,9 +270,18 @@
   "preload": false,
   "refresh": "5m",
   "schemaVersion": 41,
-  "tags": ["q_dev", "kiro", "productivity", "hours"],
-  "templating": { "list": [] },
-  "time": { "from": "now-90d", "to": "now" },
+  "tags": [
+    "kiro",
+    "productivity",
+    "hours"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "utc",
   "title": "Developer AI Productivity Hours",

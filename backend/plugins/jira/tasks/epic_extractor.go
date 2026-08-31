@@ -103,8 +103,11 @@ func getIssueFieldMap(db dal.Dal, connectionId uint64, logger log.Logger) (map[s
 	}
 	issueFieldMap := make(map[string]models.JiraIssueField)
 	for _, v := range allIssueFields {
-		if _, ok := issueFieldMap[v.Name]; ok {
-			logger.Warn(nil, "filed name %s is duplicated", v.Name)
+		if existing, ok := issueFieldMap[v.Name]; ok {
+			// Same field can appear on multiple boards; only warn on a real name collision.
+			if existing.ID != v.ID {
+				logger.Warn(nil, "field name %s is duplicated (IDs: %s, %s)", v.Name, existing.ID, v.ID)
+			}
 			if v.SchemaType == "user" {
 				issueFieldMap[v.Name] = v
 			}

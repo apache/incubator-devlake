@@ -43,6 +43,11 @@ func CollectAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, rawUserTable)
 	logger := taskCtx.GetLogger()
 
+	if data.Options.OrganizationId == "" {
+		logger.Info("OrganizationId is empty or On-Premises mode, skipping Cloud Graph user collection")
+		return nil
+	}
+
 	collector, err := api.NewApiCollector(api.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,

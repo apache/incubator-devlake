@@ -18,6 +18,8 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/core/context"
 	"github.com/apache/incubator-devlake/core/dal"
 	"github.com/apache/incubator-devlake/core/errors"
@@ -39,7 +41,13 @@ func (*encryptConnectionToken) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	encKey := basicRes.GetConfig(plugin.EncodeKeyEnvStr)
 	if encKey == "" {
-		return errors.BadInput.New("asana invalid encKey")
+		return errors.BadInput.New(
+			"ENCRYPTION_SECRET is not set — this is required to encrypt existing Asana connection " +
+				"tokens as part of this migration. Please set the ENCRYPTION_SECRET environment " +
+				"variable to the value of ENCODE_KEY from your previous deployment's .env file, " +
+				"then retry the migration. See https://devlake.apache.org/docs/GettingStarted/Upgrade/ " +
+				"for details.",
+		)
 	}
 
 	cursor, err := db.Cursor(dal.From(&asanaConnectionTokenPlain{}))
@@ -56,9 +64,22 @@ func (*encryptConnectionToken) Up(basicRes context.BasicRes) errors.Error {
 		if row.Token == "" {
 			continue
 		}
+
+		// Skip tokens already encrypted, so retries don't double-encrypt them.
+		if _, decryptErr := plugin.Decrypt(encKey, row.Token); decryptErr == nil {
+			continue
+		}
+
 		encryptedToken, err := plugin.Encrypt(encKey, row.Token)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err,
+				fmt.Sprintf(
+					"failed to encrypt token for asana connection id=%d — this usually means "+
+						"ENCRYPTION_SECRET does not match the ENCODE_KEY used to originally store "+
+						"this connection's token",
+					row.ID,
+				),
+			)
 		}
 		err = db.UpdateColumns(
 			row.TableName(),

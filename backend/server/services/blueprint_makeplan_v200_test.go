@@ -29,6 +29,7 @@ import (
 	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
 	"github.com/apache/incubator-devlake/plugins/org/tasks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestMakePlanV200(t *testing.T) {
@@ -100,4 +101,66 @@ func TestMakePlanV200(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedPlan, plan)
+}
+
+func TestGeneratePlanJsonV200_InjectsProjectName(t *testing.T) {
+	const projectName = "TestInjectsProjectName-project"
+	const pluginName = "TestInjectsProjectName-datasource"
+
+	connId := uint64(42)
+	scopes := []*coreModels.BlueprintScope{
+		{ScopeId: "datasource:Board:42:1"},
+	}
+
+	// The data-source plugin returns a single task with boardId but no projectName.
+	// GeneratePlanJsonV200 must inject projectName into the task options.
+	pluginOutputPlan := coreModels.PipelinePlan{
+		{
+			{Plugin: pluginName, Options: map[string]interface{}{"boardId": float64(1)}},
+		},
+	}
+	pluginOutputScopes := []plugin.Scope{}
+
+	ds := new(mockplugin.CompositeDataSourcePluginBlueprintV200)
+	ds.On("MakeDataSourcePipelinePlanV200", connId, scopes).Return(pluginOutputPlan, pluginOutputScopes, nil)
+
+	// Re-register "org" with a permissive mock because GeneratePlanJsonV200
+	// calls org.MapProject whenever projectName is non-empty.
+	org := new(mockplugin.CompositeProjectMapper)
+	org.On("MapProject", mock.Anything, mock.Anything).Return(coreModels.PipelinePlan{}, nil)
+
+	plugin.RegisterPlugin(pluginName, ds)
+	plugin.RegisterPlugin("org", org)
+
+	connections := []*coreModels.BlueprintConnection{
+		{PluginName: pluginName, ConnectionId: connId, Scopes: scopes},
+	}
+
+	plan, err := GeneratePlanJsonV200(projectName, connections, map[string]json.RawMessage{}, false)
+	assert.Nil(t, err)
+
+	// The produced plan contains at least one stage with the data-source task.
+	// Find the first task that belongs to our data-source plugin and verify its options.
+	var dsTask *coreModels.PipelineTask
+	for _, stage := range plan {
+		for _, task := range stage {
+			if task.Plugin == pluginName {
+				dsTask = task
+				break
+			}
+		}
+		if dsTask != nil {
+			break
+		}
+	}
+
+	assert.NotNil(t, dsTask, "expected to find a task for plugin %q in the plan", pluginName)
+	if dsTask != nil {
+		// projectName must have been injected
+		assert.Equal(t, projectName, dsTask.Options["projectName"],
+			"GeneratePlanJsonV200 should inject projectName into task options")
+		// original options must be preserved
+		assert.Equal(t, float64(1), dsTask.Options["boardId"],
+			"original task options (boardId) must be preserved alongside the injected key")
+	}
 }

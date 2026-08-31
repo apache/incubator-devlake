@@ -18,8 +18,9 @@ limitations under the License.
 package crossdomain
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/core/models/domainlayer"
 )
 
 type Account struct {
@@ -31,6 +32,7 @@ type Account struct {
 	Organization string `gorm:"type:varchar(255)"`
 	CreatedDate  *time.Time
 	Status       int
+	IsBot        bool `gorm:"default:false"`
 }
 
 func (Account) TableName() string {
