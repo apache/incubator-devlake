@@ -68,7 +68,7 @@ type GraphqlQueryIssue struct {
 	StateReason  string
 	Title        string
 	Body         string
-	Author       *GraphqlInlineAccountQuery
+	Author       *GraphqlInlineActorQuery
 	Url          string
 	ClosedAt     *time.Time
 	CreatedAt    time.Time
