@@ -1,0 +1,2 @@
+id,params,data,url,input,created_at
+1,"{""ConnectionId"":1,""ScopeId"":""team"",""Endpoint"":""https://api.cursor.com""}","{""subscriptionCycleStart"":1781472188000,""collectedAt"":""2026-07-10T17:31:24.141244Z"",""member"":{""userId"":""user_example123"",""spendCents"":3224,""includedSpendCents"":1984,""fastPremiumRequests"":496,""name"":""Example User"",""email"":""user@example.com"",""profilePictureUrl"":null,""role"":""member"",""monthlyLimitDollars"":null,""hardLimitOverrideDollars"":0}}",https://api.cursor.com/teams/spend,null,2026-07-10 17:31:24.000

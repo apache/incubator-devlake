@@ -65,6 +65,22 @@ fi
 
 
 PIDS=""
+# Cap concurrent CGO plugin builds. Unbounded nproc OOMs Docker Desktop / small VMs.
+# Override with DEVLAKE_PLUGIN_PARALLELISM=N (default: min(4, nproc)).
+if [ -n "$DEVLAKE_PLUGIN_PARALLELISM" ]; then
+    PARALLELISM="$DEVLAKE_PLUGIN_PARALLELISM"
+else
+    PARALLELISM=4
+    if command -v nproc >/dev/null 2>&1; then
+        PARALLELISM=$(nproc)
+    elif command -v sysctl >/dev/null 2>&1; then
+        PARALLELISM=$(sysctl -n hw.ncpu)
+    fi
+    if [ "$PARALLELISM" -gt 4 ]; then
+        PARALLELISM=4
+    fi
+fi
+echo "Plugin build parallelism: $PARALLELISM"
 for PLUG in $PLUGINS; do
     NAME=$(basename $PLUG)
     echo "Building plugin $NAME to bin/plugins/$NAME/$NAME.so with args: $*  --gcflags="$GCFLAGS""
@@ -72,12 +88,6 @@ for PLUG in $PLUGINS; do
     PIDS="$PIDS $!"
     # avoid too many processes causing signal killed
     COUNT=$(echo "$PIDS" | wc -w)
-    PARALLELISM=4
-    if command -v nproc >/dev/null 2>&1; then
-        PARALLELISM=$(nproc)
-    elif command -v sysctl >/dev/null 2>&1; then
-        PARALLELISM=$(sysctl -n hw.ncpu)
-    fi
     if [ "$COUNT" -ge "$PARALLELISM" ]; then
         for PID in $PIDS; do
             wait $PID
