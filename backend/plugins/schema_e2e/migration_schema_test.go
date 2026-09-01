@@ -55,8 +55,8 @@ import (
 	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
 	claudeCode "github.com/apache/incubator-devlake/plugins/claude_code/impl"
 	clickup "github.com/apache/incubator-devlake/plugins/clickup/impl"
+	cursor "github.com/apache/incubator-devlake/plugins/cursor/impl"
 	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
-	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
 	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
 	feishu "github.com/apache/incubator-devlake/plugins/feishu/impl"
 	copilot "github.com/apache/incubator-devlake/plugins/gh-copilot/impl"
@@ -106,8 +106,8 @@ func allGoPlugins() []plugin.PluginMeta {
 		circleci.Circleci{},
 		claudeCode.ClaudeCode{},
 		clickup.ClickUp{},
+		cursor.Cursor{},
 		customize.Customize{},
-		dbt.Dbt{},
 		dora.Dora{},
 		feishu.Feishu{},
 		copilot.GhCopilot{},

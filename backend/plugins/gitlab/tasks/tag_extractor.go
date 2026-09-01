@@ -18,8 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
@@ -51,27 +49,17 @@ var ExtractTagMeta = plugin.SubTaskMeta{
 }
 
 func ExtractApiTag(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_TAG_TABLE)
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			// need to extract 1 kind of entities here
-			results := make([]interface{}, 0, 1)
-
-			gitlabApiTag := &GitlabApiTag{}
-			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiTag))
-			if err != nil {
-				return nil, err
-			}
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[GitlabApiTag]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(gitlabApiTag *GitlabApiTag, _ *api.RawData) ([]interface{}, errors.Error) {
 			gitlabTag, err := convertTag(gitlabApiTag)
 			if err != nil {
 				return nil, err
 			}
 			gitlabTag.ConnectionId = data.Options.ConnectionId
-			results = append(results, gitlabTag)
-
-			return results, nil
+			return []interface{}{gitlabTag}, nil
 		},
 	})
 

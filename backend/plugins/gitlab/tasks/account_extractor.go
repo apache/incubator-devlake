@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"strings"
 
 	"github.com/apache/incubator-devlake/core/errors"
@@ -41,52 +40,23 @@ var ExtractAccountsMeta = plugin.SubTaskMeta{
 }
 
 func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
+	subtaskCommonArgs, data := CreateSubtaskCommonArgs(taskCtx, RAW_USER_TABLE)
 
 	// Do not extract createdUserAt if we are not using /users API
-	var skipCreatedUserAt = strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com")
+	skipCreatedUserAt := strings.HasPrefix(data.ApiClient.GetEndpoint(), "https://gitlab.com")
+	subtaskCommonArgs.SubtaskConfig = map[string]any{
+		"skipCreatedUserAt": skipCreatedUserAt,
+	}
 
-	extractor, err := api.NewApiExtractor(api.ApiExtractorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *api.RawData) ([]interface{}, errors.Error) {
-			var userRes models.GitlabAccount
-			err := errors.Convert(json.Unmarshal(row.Data, &userRes))
-			if err != nil {
-				return nil, err
-			}
-
-			results := make([]interface{}, 0)
-			var GitlabAccount *models.GitlabAccount
+	extractor, err := api.NewStatefulApiExtractor(&api.StatefulApiExtractorArgs[models.GitlabAccount]{
+		SubtaskCommonArgs: subtaskCommonArgs,
+		Extract: func(userRes *models.GitlabAccount, _ *api.RawData) ([]interface{}, errors.Error) {
+			account := *userRes
+			account.ConnectionId = data.Options.ConnectionId
 			if skipCreatedUserAt {
-				GitlabAccount = &models.GitlabAccount{
-					ConnectionId:    data.Options.ConnectionId,
-					GitlabId:        userRes.GitlabId,
-					Username:        userRes.Username,
-					Name:            userRes.Name,
-					State:           userRes.State,
-					MembershipState: userRes.MembershipState,
-					AvatarUrl:       userRes.AvatarUrl,
-					WebUrl:          userRes.WebUrl,
-					Email:           userRes.Email,
-				}
-			} else {
-				GitlabAccount = &models.GitlabAccount{
-					ConnectionId:    data.Options.ConnectionId,
-					GitlabId:        userRes.GitlabId,
-					Username:        userRes.Username,
-					Name:            userRes.Name,
-					State:           userRes.State,
-					MembershipState: userRes.MembershipState,
-					AvatarUrl:       userRes.AvatarUrl,
-					WebUrl:          userRes.WebUrl,
-					Email:           userRes.Email,
-					CreatedUserAt:   userRes.CreatedUserAt,
-				}
+				account.CreatedUserAt = nil
 			}
-
-			results = append(results, GitlabAccount)
-
-			return results, nil
+			return []interface{}{&account}, nil
 		},
 	})
 
@@ -94,10 +64,5 @@ func ExtractAccounts(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 
-	err = extractor.Execute()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return extractor.Execute()
 }

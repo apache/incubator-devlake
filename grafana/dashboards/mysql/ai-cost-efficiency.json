@@ -27,6 +27,17 @@
       "title": "Kiro Usage Dashboard",
       "type": "link",
       "url": "/d/kiro_user_report"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Cursor Usage & Cost",
+      "type": "link",
+      "url": "/d/cursor_usage"
     }
   ],
   "panels": [
@@ -559,6 +570,206 @@
       ],
       "title": "Weekly AI Activity Volume",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+      "id": 30,
+      "panels": [],
+      "title": "Cursor Cost Efficiency",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 2,
+          "unit": "currencyUSD",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 25 },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(charged_cents) / 100 AS 'Total Spend'\nFROM _tool_cursor_usage_events\nWHERE connection_id = ${cursor_connection_id}\n  AND scope_id = '${cursor_scope_id}'\n  AND $__timeFilter(event_time)",
+          "refId": "A"
+        }
+      ],
+      "title": "Cursor Total Spend",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 2,
+          "unit": "currencyUSD",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 25 },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(e.charged_cents) / 100 / NULLIF(COUNT(DISTINCT pr.id), 0), 2) AS '$ / PR'\nFROM _tool_cursor_usage_events e\nCROSS JOIN (\n  SELECT DISTINCT id FROM pull_requests\n  WHERE merged_date IS NOT NULL AND $__timeFilter(merged_date)\n) pr\nWHERE e.connection_id = ${cursor_connection_id}\n  AND e.scope_id = '${cursor_scope_id}'\n  AND $__timeFilter(e.event_time)",
+          "refId": "A"
+        }
+      ],
+      "title": "Cursor $ per PR",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 2,
+          "unit": "currencyUSD",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 25 },
+      "id": 33,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(e.charged_cents) / 100 / NULLIF(COUNT(DISTINCT cdc.cicd_deployment_id), 0), 2) AS '$ / Deploy'\nFROM _tool_cursor_usage_events e\nCROSS JOIN (\n  SELECT DISTINCT cicd_deployment_id\n  FROM cicd_deployment_commits\n  WHERE result = 'SUCCESS' AND environment = 'PRODUCTION'\n    AND $__timeFilter(finished_date)\n) cdc\nWHERE e.connection_id = ${cursor_connection_id}\n  AND e.scope_id = '${cursor_scope_id}'\n  AND $__timeFilter(e.event_time)",
+          "refId": "A"
+        }
+      ],
+      "title": "Cursor $ per Deployment",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 2,
+          "unit": "currencyUSD",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 25 },
+      "id": 34,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(e.charged_cents) / 100 / NULLIF(COUNT(DISTINCT i.id), 0), 2) AS '$ / Issue'\nFROM _tool_cursor_usage_events e\nCROSS JOIN (\n  SELECT DISTINCT id FROM issues\n  WHERE resolution_date IS NOT NULL AND type != 'INCIDENT'\n    AND $__timeFilter(resolution_date)\n) i\nWHERE e.connection_id = ${cursor_connection_id}\n  AND e.scope_id = '${cursor_scope_id}'\n  AND $__timeFilter(e.event_time)",
+          "refId": "A"
+        }
+      ],
+      "title": "Cursor $ per Issue Resolved",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Weekly Cursor spend per merged PR",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto",
+            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
+            "pointSize": 5, "showPoints": "never", "spanNulls": true,
+            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 31 },
+      "id": 35,
+      "options": {
+        "legend": { "calcs": ["mean", "min"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH _spend AS (\n  SELECT DATE_SUB(DATE(event_time), INTERVAL WEEKDAY(DATE(event_time)) DAY) AS week_start,\n    SUM(charged_cents) / 100 AS spend_usd\n  FROM _tool_cursor_usage_events\n  WHERE connection_id = ${cursor_connection_id}\n    AND scope_id = '${cursor_scope_id}'\n    AND $__timeFilter(event_time)\n  GROUP BY DATE_SUB(DATE(event_time), INTERVAL WEEKDAY(DATE(event_time)) DAY)\n),\n_prs AS (\n  SELECT DATE_SUB(DATE(merged_date), INTERVAL WEEKDAY(DATE(merged_date)) DAY) AS week_start,\n    COUNT(*) AS prs\n  FROM pull_requests\n  WHERE merged_date IS NOT NULL AND $__timeFilter(merged_date)\n  GROUP BY DATE_SUB(DATE(merged_date), INTERVAL WEEKDAY(DATE(merged_date)) DAY)\n)\nSELECT s.week_start AS time,\n  ROUND(s.spend_usd / NULLIF(p.prs, 0), 2) AS '$ per PR'\nFROM _spend s\nLEFT JOIN _prs p ON s.week_start = p.week_start\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Cursor $ per Merged PR (Weekly)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "Weekly Cursor spend per production deployment",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto",
+            "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2,
+            "pointSize": 5, "showPoints": "never", "spanNulls": true,
+            "stacking": { "mode": "none" }, "thresholdsStyle": { "mode": "off" }
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 31 },
+      "id": 36,
+      "options": {
+        "legend": { "calcs": ["mean", "min"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": "mysql",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "WITH _spend AS (\n  SELECT DATE_SUB(DATE(event_time), INTERVAL WEEKDAY(DATE(event_time)) DAY) AS week_start,\n    SUM(charged_cents) / 100 AS spend_usd\n  FROM _tool_cursor_usage_events\n  WHERE connection_id = ${cursor_connection_id}\n    AND scope_id = '${cursor_scope_id}'\n    AND $__timeFilter(event_time)\n  GROUP BY DATE_SUB(DATE(event_time), INTERVAL WEEKDAY(DATE(event_time)) DAY)\n),\n_deploys AS (\n  SELECT DATE_SUB(DATE(finished_date), INTERVAL WEEKDAY(DATE(finished_date)) DAY) AS week_start,\n    COUNT(DISTINCT cicd_deployment_id) AS deploys\n  FROM cicd_deployment_commits\n  WHERE result = 'SUCCESS' AND environment = 'PRODUCTION'\n    AND $__timeFilter(finished_date)\n  GROUP BY DATE_SUB(DATE(finished_date), INTERVAL WEEKDAY(DATE(finished_date)) DAY)\n)\nSELECT s.week_start AS time,\n  ROUND(s.spend_usd / NULLIF(d.deploys, 0), 2) AS '$ per Deploy'\nFROM _spend s\nLEFT JOIN _deploys d ON s.week_start = d.week_start\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Cursor $ per Deployment (Weekly)",
+      "type": "timeseries"
     }
   ],
   "preload": false,
@@ -566,11 +777,37 @@
   "schemaVersion": 41,
   "tags": [
     "kiro",
+    "cursor",
     "cost",
     "efficiency"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {},
+        "datasource": "mysql",
+        "definition": "SELECT DISTINCT connection_id FROM _tool_cursor_scopes ORDER BY connection_id DESC",
+        "hide": 0,
+        "label": "Cursor Connection",
+        "name": "cursor_connection_id",
+        "options": [],
+        "query": "SELECT DISTINCT connection_id FROM _tool_cursor_scopes ORDER BY connection_id DESC",
+        "refresh": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": "mysql",
+        "definition": "SELECT DISTINCT id FROM _tool_cursor_scopes WHERE connection_id = CAST('${cursor_connection_id}' AS UNSIGNED)",
+        "hide": 0,
+        "label": "Cursor Scope",
+        "name": "cursor_scope_id",
+        "options": [],
+        "query": "SELECT DISTINCT id FROM _tool_cursor_scopes WHERE connection_id = CAST('${cursor_connection_id}' AS UNSIGNED)",
+        "refresh": 1,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-90d",
@@ -580,5 +817,5 @@
   "timezone": "utc",
   "title": "AI Cost-Efficiency",
   "uid": "ai_cost_efficiency",
-  "version": 1
+  "version": 2
 }
