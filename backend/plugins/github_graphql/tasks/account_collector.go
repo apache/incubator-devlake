@@ -75,10 +75,17 @@ func CollectAccount(taskCtx plugin.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
+	// `user(login:)` resolves Users only, a bot login always comes back as
+	// "Could not resolve to a User", so bots are left out of this lookup. They are
+	// still converted to accounts: ConvertAccounts reads _tool_github_repo_accounts
+	// and only enriches it from _tool_github_accounts when a row is there.
 	cursor, err := db.Cursor(
 		dal.Select("login"),
 		dal.From(models.GithubRepoAccount{}.TableName()),
-		dal.Where("repo_github_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
+		dal.Where(
+			"repo_github_id = ? and connection_id = ? and login not like ?",
+			data.Options.GithubId, data.Options.ConnectionId, "%"+botLoginSuffix,
+		),
 	)
 	if err != nil {
 		return err

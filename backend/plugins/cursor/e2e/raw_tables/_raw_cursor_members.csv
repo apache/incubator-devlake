@@ -1,0 +1,2 @@
+id,params,data,url,input,created_at
+1,"{""ConnectionId"":1,""ScopeId"":""team"",""Endpoint"":""https://api.cursor.com""}","{""name"":""Example User"",""email"":""user@example.com"",""id"":""user_example123"",""role"":""member"",""isRemoved"":false}",https://api.cursor.com/teams/members,null,2026-07-09 17:14:19.000

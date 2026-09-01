@@ -1,0 +1,244 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package service
+
+import (
+	stdctx "context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
+
+	corectx "github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/cursor/models"
+)
+
+const (
+	membersEndpoint     = "teams/members"
+	spendEndpoint       = "teams/spend"
+	usageEventsEndpoint = "teams/filtered-usage-events"
+)
+
+// AdminApiPermissions reports which Cursor Admin API endpoints the key can access.
+type AdminApiPermissions struct {
+	Members     bool `json:"members"`
+	Spend       bool `json:"spend"`
+	UsageEvents bool `json:"usageEvents"`
+}
+
+// TestConnectionResult represents the payload returned by the connection test endpoints.
+type TestConnectionResult struct {
+	Success                bool                `json:"success"`
+	Message                string              `json:"message"`
+	MemberCount            int                 `json:"memberCount,omitempty"`
+	Permissions            AdminApiPermissions `json:"permissions,omitempty"`
+	HasEnterpriseAnalytics bool                `json:"hasEnterpriseAnalytics,omitempty"`
+}
+
+// TestConnection exercises the Cursor Admin API to validate credentials and permissions.
+func TestConnection(ctx stdctx.Context, br corectx.BasicRes, connection *models.CursorConnection) (*TestConnectionResult, errors.Error) {
+	if connection == nil {
+		return nil, errors.BadInput.New("connection is required")
+	}
+
+	connection.Normalize()
+	if strings.TrimSpace(connection.Token) == "" {
+		return nil, errors.BadInput.New("token is required")
+	}
+
+	apiClient, err := helper.NewApiClientFromConnection(ctx, br, connection)
+	if err != nil {
+		return nil, err
+	}
+	apiClient.SetHeaders(map[string]string{
+		"Accept":       "application/json",
+		"Content-Type": "application/json",
+	})
+
+	if userKeyErr := detectUserApiKey(apiClient); userKeyErr != nil {
+		return &TestConnectionResult{
+			Success: false,
+			Message: userKeyErr.Error(),
+		}, nil
+	}
+
+	permissions := AdminApiPermissions{}
+	var failures []string
+
+	memberCount, membersErr := probeMembers(apiClient)
+	permissions.Members = membersErr == nil
+	if membersErr != nil {
+		failures = append(failures, membersErr.Error())
+	}
+
+	if spendErr := probeSpend(apiClient); spendErr != nil {
+		permissions.Spend = false
+		failures = append(failures, spendErr.Error())
+	} else {
+		permissions.Spend = true
+	}
+
+	if usageErr := probeUsageEvents(apiClient); usageErr != nil {
+		permissions.UsageEvents = false
+		failures = append(failures, usageErr.Error())
+	} else {
+		permissions.UsageEvents = true
+	}
+
+	if len(failures) > 0 {
+		return &TestConnectionResult{
+			Success:     false,
+			Message:     buildPermissionFailureMessage(failures),
+			MemberCount: memberCount,
+			Permissions: permissions,
+		}, nil
+	}
+
+	hasEnterpriseAnalytics := probeEnterpriseAnalytics(apiClient)
+
+	return &TestConnectionResult{
+		Success:                true,
+		Message:                "Team Admin API key validated. Members, spend, and usage events are accessible.",
+		MemberCount:            memberCount,
+		Permissions:            permissions,
+		HasEnterpriseAnalytics: hasEnterpriseAnalytics,
+	}, nil
+}
+
+func probeMembers(apiClient *helper.ApiClient) (int, errors.Error) {
+	res, err := apiClient.Get(membersEndpoint, nil, nil)
+	if err != nil {
+		return 0, errors.Default.Wrap(err, "failed to reach Cursor Admin API")
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return 0, buildAdminApiError(membersEndpoint, "list team members", res)
+	}
+
+	body, readErr := io.ReadAll(res.Body)
+	if readErr != nil {
+		return 0, errors.Default.Wrap(readErr, "failed to read members response")
+	}
+
+	var response struct {
+		TeamMembers []json.RawMessage `json:"teamMembers"`
+	}
+	if jsonErr := json.Unmarshal(body, &response); jsonErr != nil {
+		return 0, errors.Default.Wrap(errors.Convert(jsonErr), "failed to parse members response")
+	}
+
+	return len(response.TeamMembers), nil
+}
+
+func probeSpend(apiClient *helper.ApiClient) errors.Error {
+	res, err := apiClient.Post(spendEndpoint, nil, map[string]interface{}{
+		"page":     1,
+		"pageSize": 1,
+	}, nil)
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to reach Cursor spend API")
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return buildAdminApiError(spendEndpoint, "read team billing spend", res)
+	}
+	return nil
+}
+
+func probeUsageEvents(apiClient *helper.ApiClient) errors.Error {
+	endMs := time.Now().UTC().UnixMilli()
+	startMs := endMs - int64(7*24*time.Hour/time.Millisecond)
+
+	res, err := apiClient.Post(usageEventsEndpoint, nil, map[string]interface{}{
+		"startDate": startMs,
+		"endDate":   endMs,
+		"page":      1,
+		"pageSize":  1,
+	}, nil)
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to reach Cursor usage events API")
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return buildAdminApiError(usageEventsEndpoint, "read filtered usage events", res)
+	}
+	return nil
+}
+
+func buildAdminApiError(endpoint, action string, res *http.Response) errors.Error {
+	body, _ := io.ReadAll(res.Body)
+	detail := strings.TrimSpace(string(body))
+	if detail != "" && len(detail) > 200 {
+		detail = detail[:200] + "..."
+	}
+
+	switch res.StatusCode {
+	case http.StatusUnauthorized:
+		return errors.BadInput.New(fmt.Sprintf(
+			"Cannot %s (%s): unauthorized. Use a Team Admin API key from Dashboard → API Keys (admin:* scope), not a User API key from Settings → Integrations.",
+			action, endpoint,
+		))
+	case http.StatusForbidden:
+		msg := fmt.Sprintf("Cannot %s (%s): forbidden. The key may lack admin permissions for this team.", action, endpoint)
+		if detail != "" {
+			msg = fmt.Sprintf("%s Details: %s", msg, detail)
+		}
+		return errors.BadInput.New(msg)
+	default:
+		msg := fmt.Sprintf("Cannot %s (%s): unexpected status %d", action, endpoint, res.StatusCode)
+		if detail != "" {
+			msg = fmt.Sprintf("%s. Details: %s", msg, detail)
+		}
+		return errors.BadInput.New(msg)
+	}
+}
+
+func buildPermissionFailureMessage(failures []string) string {
+	if len(failures) == 1 {
+		return failures[0]
+	}
+	return "Team Admin API key is missing required permissions:\n- " + strings.Join(failures, "\n- ")
+}
+
+func detectUserApiKey(apiClient *helper.ApiClient) errors.Error {
+	res, err := apiClient.Get("v1/me", nil, nil)
+	if err != nil || res == nil {
+		return nil
+	}
+	defer res.Body.Close()
+	if res.StatusCode == http.StatusOK {
+		return errors.BadInput.New("this is a User API key. Create a Team Admin key in Dashboard → API Keys (admin:* scope)")
+	}
+	return nil
+}
+
+func probeEnterpriseAnalytics(apiClient *helper.ApiClient) bool {
+	res, err := apiClient.Get("analytics/team/dau?startDate=7d&endDate=today", nil, nil)
+	if err != nil || res == nil {
+		return false
+	}
+	defer res.Body.Close()
+	return res.StatusCode == http.StatusOK
+}
