@@ -20,12 +20,12 @@ package api
 import (
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helperapi "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/apache/incubator-devlake/helpers/utils"
-	"github.com/apache/incubator-devlake/plugins/cursor/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helperapi "github.com/apache/devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/devlake/helpers/utils"
+	"github.com/apache/devlake/plugins/cursor/models"
 )
 
 // CursorRemotePagination is a placeholder for remote scope pagination.

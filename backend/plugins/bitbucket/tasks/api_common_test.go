@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 	"github.com/stretchr/testify/assert"
 )
 

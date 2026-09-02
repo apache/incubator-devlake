@@ -21,17 +21,17 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/jira/api"
+	"github.com/apache/devlake/plugins/jira/models"
+	"github.com/apache/devlake/plugins/jira/models/migrationscripts"
+	"github.com/apache/devlake/plugins/jira/tasks"
+	"github.com/apache/devlake/plugins/jira/tasks/apiv2models"
 )
 
 var _ interface {
@@ -269,7 +269,7 @@ func (p Jira) MakeDataSourcePipelinePlanV200(
 }
 
 func (p Jira) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/jira"
+	return "github.com/apache/devlake/plugins/jira"
 }
 
 func (p Jira) MigrationScripts() []plugin.MigrationScript {

@@ -21,8 +21,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	"github.com/apache/devlake/core/dal"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

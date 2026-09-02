@@ -17,7 +17,7 @@ limitations under the License.
 
 package tasks
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import "github.com/apache/devlake/core/plugin"
 
 type Options struct {
 	ConnectionId    uint64           `json:"connectionId"`

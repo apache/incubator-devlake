@@ -17,7 +17,7 @@ limitations under the License.
 
 package impl
 
-import "github.com/apache/incubator-devlake/plugins/cursor/models"
+import "github.com/apache/devlake/plugins/cursor/models"
 
 // NormalizeConnection ensures required defaults are set before use.
 func NormalizeConnection(connection *models.CursorConnection) {

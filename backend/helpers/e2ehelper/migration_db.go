@@ -23,11 +23,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/impls/dalgorm"
+	"github.com/apache/devlake/impls/logruslog"
 	"gorm.io/gorm"
 )
 

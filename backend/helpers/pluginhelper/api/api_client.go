@@ -35,12 +35,12 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/plugin"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/utils"
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored

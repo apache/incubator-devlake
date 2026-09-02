@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/incidentio/tasks"
+	"github.com/apache/devlake/plugins/incidentio/tasks"
 )
 
 type IncidentioTaskOptions tasks.IncidentioOptions

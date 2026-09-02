@@ -27,9 +27,9 @@ import (
 	"testing/quick"
 	"time"
 
-	"github.com/apache/incubator-devlake/helpers/unithelper"
-	mocklog "github.com/apache/incubator-devlake/mocks/core/log"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/helpers/unithelper"
+	mocklog "github.com/apache/devlake/mocks/core/log"
+	"github.com/apache/devlake/plugins/jira/models"
 	"github.com/stretchr/testify/mock"
 )
 

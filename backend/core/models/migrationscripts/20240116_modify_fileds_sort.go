@@ -20,8 +20,8 @@ package migrationscripts
 import (
 	"net/url"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
 )
 
 type modfiyFieldsSort struct{}

@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 // Known column names in the user activity report. Only the first eleven are

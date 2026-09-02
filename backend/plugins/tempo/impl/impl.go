@@ -20,17 +20,17 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
 
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/tempo/api"
-	"github.com/apache/incubator-devlake/plugins/tempo/models"
-	"github.com/apache/incubator-devlake/plugins/tempo/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/tempo/tasks"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/tempo/api"
+	"github.com/apache/devlake/plugins/tempo/models"
+	"github.com/apache/devlake/plugins/tempo/models/migrationscripts"
+	"github.com/apache/devlake/plugins/tempo/tasks"
 )
 
 var _ interface {
@@ -137,7 +137,7 @@ func (p Tempo) MakeDataSourcePipelinePlanV200(
 }
 
 func (p Tempo) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/tempo"
+	return "github.com/apache/devlake/plugins/tempo"
 }
 
 func (p Tempo) MigrationScripts() []plugin.MigrationScript {

@@ -20,9 +20,9 @@ package services
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
 )
 
 func GetStore(storeKey string) (*models.Store, errors.Error) {

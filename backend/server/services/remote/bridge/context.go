@@ -20,12 +20,12 @@ package bridge
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/core/config"
-	ctx "github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/devlake/core/config"
+	ctx "github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/impls/logruslog"
 	"github.com/spf13/viper"
 )
 

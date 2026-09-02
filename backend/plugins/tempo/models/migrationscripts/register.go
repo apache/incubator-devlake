@@ -18,7 +18,7 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/plugin"
 )
 
 // All returns all the migration scripts

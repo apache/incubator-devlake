@@ -20,8 +20,8 @@ package store
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer/code"
 	"os"
 	"path/filepath"
 	"reflect"

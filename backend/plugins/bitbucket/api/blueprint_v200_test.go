@@ -20,19 +20,19 @@ package api
 import (
 	"testing"
 
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/srvhelper"
+	"github.com/apache/devlake/plugins/bitbucket/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func mockBitbucketPlugin(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket")
+	mockMeta.On("RootPkgPath").Return("github.com/apache/devlake/plugins/bitbucket")
 	mockMeta.On("Name").Return("dummy").Maybe()
 	err := plugin.RegisterPlugin("bitbucket", mockMeta)
 	assert.Equal(t, err, nil)

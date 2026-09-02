@@ -18,13 +18,13 @@ limitations under the License.
 package domaininfo
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/qa"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/models/domainlayer/codequality"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/models/domainlayer/qa"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
 )
 
 func GetDomainTablesInfo() []dal.Tabler {

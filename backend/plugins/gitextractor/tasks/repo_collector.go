@@ -18,9 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/gitextractor/parser"
 )
 
 func CollectGitCommits(subTaskCtx plugin.SubTaskContext) errors.Error {

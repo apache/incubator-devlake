@@ -20,8 +20,8 @@ package api
 import (
 	"strconv"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
 )
 
 // PutScopes create or update argocd applications

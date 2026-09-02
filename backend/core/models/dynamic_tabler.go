@@ -21,9 +21,9 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 
-	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/devlake/core/dal"
 )
 
 // DynamicTabler is a core.Tabler that wraps a runtime (anonymously) generated data-model. Due to limitations of

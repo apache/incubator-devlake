@@ -24,8 +24,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
 
 	"github.com/panjf2000/ants/v2"
 )

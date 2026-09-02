@@ -21,12 +21,12 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/linker/impl"
-	"github.com/apache/incubator-devlake/plugins/linker/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/linker/impl"
+	"github.com/apache/devlake/plugins/linker/tasks"
 )
 
 func TestLinkPrToIssueWithSharedRepo(t *testing.T) {

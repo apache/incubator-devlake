@@ -20,15 +20,15 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"github.com/apache/incubator-devlake/plugins/zentao/impl"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/impls/dalgorm"
+	"github.com/apache/devlake/plugins/zentao/impl"
+	"github.com/apache/devlake/plugins/zentao/models"
+	"github.com/apache/devlake/plugins/zentao/tasks"
 	"github.com/spf13/viper"
 )
 

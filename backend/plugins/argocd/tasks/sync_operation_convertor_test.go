@@ -20,9 +20,9 @@ package tasks
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/argocd/models"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/argocd/models"
 	"github.com/stretchr/testify/assert"
 )
 

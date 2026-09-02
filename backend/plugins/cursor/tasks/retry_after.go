@@ -22,8 +22,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
 )
 
 func handleCursorRetryAfter(res *http.Response, logger log.Logger, now nowFunc, sleep sleepFunc) errors.Error {

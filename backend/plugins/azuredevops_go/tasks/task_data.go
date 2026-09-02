@@ -20,10 +20,10 @@ package tasks
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/azuredevops_go/models"
 )
 
 type AzuredevopsOptions struct {

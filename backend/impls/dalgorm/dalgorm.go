@@ -24,10 +24,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/utils"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

@@ -21,11 +21,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/impls/logruslog"
-	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/impls/logruslog"
+	"github.com/apache/devlake/server/api/shared"
+	"github.com/apache/devlake/server/services"
 	"github.com/gin-gonic/gin"
 )
 

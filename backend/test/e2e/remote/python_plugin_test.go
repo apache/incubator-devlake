@@ -21,9 +21,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/test/helper"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/test/helper"
 	"github.com/stretchr/testify/require"
 )
 

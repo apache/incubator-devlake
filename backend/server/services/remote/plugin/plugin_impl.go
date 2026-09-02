@@ -20,16 +20,16 @@ package plugin
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/server/services/remote/bridge"
-	"github.com/apache/incubator-devlake/server/services/remote/models"
-	"github.com/apache/incubator-devlake/server/services/remote/models/migrationscripts"
-	"github.com/apache/incubator-devlake/server/services/remote/plugin/doc"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/server/services/remote/bridge"
+	"github.com/apache/devlake/server/services/remote/models"
+	"github.com/apache/devlake/server/services/remote/models/migrationscripts"
+	"github.com/apache/devlake/server/services/remote/plugin/doc"
 )
 
 type (
@@ -223,7 +223,7 @@ func (p *remotePluginImpl) RootPkgPath() string {
 	// Indeed, DomainIdGenerator uses FindPluginNameBySubPkgPath that returns the name of the first plugin
 	// whose RootPkgPath is a prefix of the type package path.
 	// So we forge a fake package path that is not a prefix of any go plugin package path.
-	return "github.com/apache/incubator-devlake/services/remote/fakepackages/" + p.name
+	return "github.com/apache/devlake/services/remote/fakepackages/" + p.name
 }
 
 func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

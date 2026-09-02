@@ -18,8 +18,8 @@ limitations under the License.
 package unithelper
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
+	"github.com/apache/devlake/core/dal"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
 	"github.com/stretchr/testify/mock"
 )
 

@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/trello/tasks"
+	"github.com/apache/devlake/plugins/trello/tasks"
 )
 
 type TrelloTaskOptions tasks.TrelloOptions

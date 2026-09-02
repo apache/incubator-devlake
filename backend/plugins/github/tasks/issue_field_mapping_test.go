@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/devlake/plugins/github/models"
 	"github.com/stretchr/testify/assert"
 )
 

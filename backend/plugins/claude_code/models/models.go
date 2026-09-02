@@ -17,7 +17,7 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/core/dal"
+import "github.com/apache/devlake/core/dal"
 
 // GetTablesInfo returns the list of tool-layer tables managed by the Claude Code plugin.
 func GetTablesInfo() []dal.Tabler {

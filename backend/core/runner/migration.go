@@ -18,10 +18,10 @@ limitations under the License.
 package runner
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/migration"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/migration"
+	"github.com/apache/devlake/core/plugin"
 	"sync"
 )
 

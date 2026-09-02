@@ -23,9 +23,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/plugins/clickup/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/plugins/clickup/models"
 )
 
 // parseClickUpTime parses a ClickUp millisecond-epoch timestamp. ClickUp encodes

@@ -21,13 +21,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/impl"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/models"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/opsgenie/impl"
+	"github.com/apache/devlake/plugins/opsgenie/models"
+	"github.com/apache/devlake/plugins/opsgenie/tasks"
 	"github.com/stretchr/testify/require"
 )
 

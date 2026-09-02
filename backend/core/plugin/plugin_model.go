@@ -17,7 +17,7 @@ limitations under the License.
 
 package plugin
 
-import "github.com/apache/incubator-devlake/core/dal"
+import "github.com/apache/devlake/core/dal"
 
 type PluginModel interface {
 	// This method returns all models of the current plugin

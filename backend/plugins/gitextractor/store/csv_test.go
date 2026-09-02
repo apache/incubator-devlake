@@ -18,7 +18,7 @@ limitations under the License.
 package store
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/models/domainlayer/code"
 	"io/ioutil"
 	"os"
 	"path/filepath"

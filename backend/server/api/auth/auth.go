@@ -39,12 +39,12 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 
-	corectx "github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/helpers/oidchelper"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	corectx "github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/helpers/oidchelper"
+	"github.com/apache/devlake/server/api/shared"
 )
 
 // Auth-related route paths, defined in one place so router registration and

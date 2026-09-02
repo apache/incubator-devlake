@@ -20,8 +20,8 @@ package devops
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/models/domainlayer"
+	plugin "github.com/apache/devlake/core/plugin"
 )
 
 var _ plugin.Scope = (*CicdScope)(nil)

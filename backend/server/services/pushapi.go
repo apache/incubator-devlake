@@ -18,9 +18,9 @@ limitations under the License.
 package services
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/server/services/pushapiaccess"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/server/services/pushapiaccess"
 )
 
 // InsertRow FIXME ...

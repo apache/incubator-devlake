@@ -20,7 +20,7 @@ package tasks
 import (
 	"strings"
 
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/devlake/plugins/github/models"
 )
 
 // botLoginSuffix is how the REST API reports a bot login: `dependabot[bot]`.

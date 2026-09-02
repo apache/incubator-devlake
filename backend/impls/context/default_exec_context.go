@@ -19,8 +19,8 @@ package context
 
 import (
 	gocontext "context"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/plugin"
 	"sync"
 	"sync/atomic"
 )

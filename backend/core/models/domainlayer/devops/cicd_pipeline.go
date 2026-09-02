@@ -22,7 +22,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer"
 )
 
 type CICDPipeline struct {

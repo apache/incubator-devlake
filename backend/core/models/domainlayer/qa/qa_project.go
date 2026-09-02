@@ -18,7 +18,7 @@ limitations under the License.
 package qa
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer"
 )
 
 // QaProject represents a QA project in the domain layer

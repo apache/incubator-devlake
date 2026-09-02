@@ -20,12 +20,12 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
 
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/bitbucket/impl"
+	"github.com/apache/devlake/plugins/bitbucket/models"
+	"github.com/apache/devlake/plugins/bitbucket/tasks"
 )
 
 func TestDeloymentsDataFlow(t *testing.T) {

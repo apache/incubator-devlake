@@ -17,7 +17,7 @@ limitations under the License.
 
 package tasks
 
-import "github.com/apache/incubator-devlake/plugins/cursor/models"
+import "github.com/apache/devlake/plugins/cursor/models"
 
 // CursorTaskData stores runtime dependencies for subtasks.
 type CursorTaskData struct {

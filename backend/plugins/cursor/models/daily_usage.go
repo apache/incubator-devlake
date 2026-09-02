@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // CursorDailyUsage stores per-user per-day adoption metrics from POST /teams/daily-usage-data.

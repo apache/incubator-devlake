@@ -19,11 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
+	"github.com/apache/devlake/plugins/tapd/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"io/ioutil"
@@ -239,7 +239,7 @@ func TestGenerateDomainAccountIdForUsers(t *testing.T) {
 		{"", ""},
 	}
 	mockMeta := mockplugin.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/tapd")
+	mockMeta.On("RootPkgPath").Return("github.com/apache/devlake/plugins/tapd")
 	mockMeta.On("Name").Return("tapd").Maybe()
 	err := plugin.RegisterPlugin("tapd", mockMeta)
 	assert.Nil(t, err)

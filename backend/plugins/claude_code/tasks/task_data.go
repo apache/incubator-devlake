@@ -17,7 +17,7 @@ limitations under the License.
 
 package tasks
 
-import "github.com/apache/incubator-devlake/plugins/claude_code/models"
+import "github.com/apache/devlake/plugins/claude_code/models"
 
 // ClaudeCodeTaskData stores runtime dependencies for subtasks.
 type ClaudeCodeTaskData struct {

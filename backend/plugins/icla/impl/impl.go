@@ -19,14 +19,14 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/icla/models"
-	"github.com/apache/incubator-devlake/plugins/icla/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/icla/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/icla/models"
+	"github.com/apache/devlake/plugins/icla/models/migrationscripts"
+	"github.com/apache/devlake/plugins/icla/tasks"
 )
 
 // make sure interface is implemented
@@ -84,7 +84,7 @@ func (p Icla) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]int
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p Icla) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/icla"
+	return "github.com/apache/devlake/plugins/icla"
 }
 
 func (p Icla) Name() string {

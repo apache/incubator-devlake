@@ -21,13 +21,13 @@ import (
 	"encoding/json"
 	"testing"
 
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/core/plugin"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/org/tasks"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/plugin"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
+	"github.com/apache/devlake/plugins/org/tasks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -43,17 +43,17 @@ func TestMakePlanV200(t *testing.T) {
 	}
 	githubOutputPlan := coreModels.PipelinePlan{
 		{
-			{Plugin: githubName, Options: map[string]interface{}{"name": "apache/incubator-devlake"}},
-			{Plugin: "gitextractor", Options: map[string]interface{}{"url": "http://gihub.com/apache/incubator-devlake.git"}},
+			{Plugin: githubName, Options: map[string]interface{}{"name": "apache/devlake"}},
+			{Plugin: "gitextractor", Options: map[string]interface{}{"url": "http://gihub.com/apache/devlake.git"}},
 		},
 		{
-			{Plugin: githubName, Options: map[string]interface{}{"name": "apache/incubator-devlake-website"}},
-			{Plugin: "gitextractor", Options: map[string]interface{}{"url": "http://gihub.com/apache/incubator-devlake-website.git"}},
+			{Plugin: githubName, Options: map[string]interface{}{"name": "apache/devlake-website"}},
+			{Plugin: "gitextractor", Options: map[string]interface{}{"url": "http://gihub.com/apache/devlake-website.git"}},
 		},
 	}
 	githubOutputScopes := []plugin.Scope{
-		&code.Repo{DomainEntity: domainlayer.DomainEntity{Id: "github:GithubRepo:1:123"}, Name: "apache/incubator-devlake"},
-		&ticket.Board{DomainEntity: domainlayer.DomainEntity{Id: "github:GithubRepo:1:123"}, Name: "apache/incubator-devlake"},
+		&code.Repo{DomainEntity: domainlayer.DomainEntity{Id: "github:GithubRepo:1:123"}, Name: "apache/devlake"},
+		&ticket.Board{DomainEntity: domainlayer.DomainEntity{Id: "github:GithubRepo:1:123"}, Name: "apache/devlake"},
 	}
 	github := new(mockplugin.CompositeDataSourcePluginBlueprintV200)
 	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes).Return(githubOutputPlan, githubOutputScopes, nil)

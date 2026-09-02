@@ -20,9 +20,9 @@ package sorter
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/plugin"
 )
 
 type DependencySorter struct {

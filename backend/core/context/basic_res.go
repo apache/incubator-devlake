@@ -18,9 +18,9 @@ limitations under the License.
 package context
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
 )
 
 // BasicRes defines a set of fundamental resources that needed pretty much everywhere in our system

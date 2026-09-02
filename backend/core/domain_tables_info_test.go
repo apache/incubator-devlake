@@ -20,8 +20,8 @@ package core
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
+	"github.com/apache/devlake/core/models/domainlayer/domaininfo"
+	"github.com/apache/devlake/helpers/unithelper"
 )
 
 func Test_GetDomainTablesInfo(t *testing.T) {

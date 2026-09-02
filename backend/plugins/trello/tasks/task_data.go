@@ -18,8 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/trello/models"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/trello/models"
 )
 
 type TrelloOptions struct {

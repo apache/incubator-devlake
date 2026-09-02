@@ -20,11 +20,11 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/asana/impl"
-	"github.com/apache/incubator-devlake/plugins/asana/models"
-	"github.com/apache/incubator-devlake/plugins/asana/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/asana/impl"
+	"github.com/apache/devlake/plugins/asana/models"
+	"github.com/apache/devlake/plugins/asana/tasks"
 )
 
 func TestAsanaTaskDataFlow(t *testing.T) {

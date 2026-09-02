@@ -22,13 +22,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/circleci/impl"
-	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"github.com/apache/incubator-devlake/plugins/circleci/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/circleci/impl"
+	"github.com/apache/devlake/plugins/circleci/models"
+	"github.com/apache/devlake/plugins/circleci/tasks"
 	"github.com/stretchr/testify/assert"
 )
 

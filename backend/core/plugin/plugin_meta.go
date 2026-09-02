@@ -17,7 +17,7 @@ limitations under the License.
 
 package plugin
 
-import "github.com/apache/incubator-devlake/core/dal"
+import "github.com/apache/devlake/core/dal"
 
 // PluginMeta is the Minimal features a plugin should comply, should be implemented by all plugins
 type PluginMeta interface {

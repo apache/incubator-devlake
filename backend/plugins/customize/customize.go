@@ -18,9 +18,9 @@ limitations under the License.
 package main // must be main for plugin entry point
 
 import (
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/customize/impl"
-	"github.com/apache/incubator-devlake/plugins/customize/tasks"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/plugins/customize/impl"
+	"github.com/apache/devlake/plugins/customize/tasks"
 	"github.com/spf13/cobra"
 )
 

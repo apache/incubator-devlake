@@ -20,7 +20,7 @@ package models
 import (
 	"testing"
 
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 func TestValidateUserTokenPrefix(t *testing.T) {

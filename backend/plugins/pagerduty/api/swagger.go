@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
+	"github.com/apache/devlake/plugins/pagerduty/tasks"
 )
 
 type PagerDutyTaskOptions tasks.PagerDutyOptions

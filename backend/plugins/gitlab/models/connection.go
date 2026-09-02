@@ -19,12 +19,12 @@ package models
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/utils"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // GitlabConn holds the essential information to connect to the Gitlab API

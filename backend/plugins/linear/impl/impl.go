@@ -21,16 +21,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/linear/api"
-	"github.com/apache/incubator-devlake/plugins/linear/models"
-	"github.com/apache/incubator-devlake/plugins/linear/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/linear/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/linear/api"
+	"github.com/apache/devlake/plugins/linear/models"
+	"github.com/apache/devlake/plugins/linear/models/migrationscripts"
+	"github.com/apache/devlake/plugins/linear/tasks"
 )
 
 var _ interface {
@@ -61,7 +61,7 @@ func (p Linear) Name() string {
 }
 
 func (p Linear) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/linear"
+	return "github.com/apache/devlake/plugins/linear"
 }
 
 func (p Linear) Connection() dal.Tabler {

@@ -18,15 +18,15 @@ limitations under the License.
 package impl
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/argocd/api"
-	"github.com/apache/incubator-devlake/plugins/argocd/models"
-	"github.com/apache/incubator-devlake/plugins/argocd/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/argocd/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/argocd/api"
+	"github.com/apache/devlake/plugins/argocd/models"
+	"github.com/apache/devlake/plugins/argocd/models/migrationscripts"
+	"github.com/apache/devlake/plugins/argocd/tasks"
 )
 
 var _ interface {
@@ -64,7 +64,7 @@ func (p ArgoCD) Name() string {
 }
 
 func (p ArgoCD) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/argocd"
+	return "github.com/apache/devlake/plugins/argocd"
 }
 
 func (p ArgoCD) Init(basicRes context.BasicRes) errors.Error {

@@ -1,7 +1,7 @@
 issue_id,repo_url,commit_sha,host,namespace,repo_name
 jira:JiraIssue:1:10063,https://example.com/bitbucket/projects/PROJECTNAME/repos/ui_jira/commits/8748a066cbaf67b15e86f2c636f9931347e987cf,8748a066cbaf67b15e86f2c636f9931347e987cf,example.com,PROJECTNAME,ui_jira
-jira:JiraIssue:1:10064,https://bitbucket.org/mynamespace/incubator-devlake/commits/abc0892edaee00dd7ee268dbee71620407a29bca,abc0892edaee00dd7ee268dbee71620407a29bca,bitbucket.org,mynamespace,incubator-devlake
-jira:JiraIssue:1:10064,https://github.com/apache/incubator-devlake/commit/e6bde456807818c5c78d7b265964d6d48b653af6,e6bde456807818c5c78d7b265964d6d48b653af6,github.com,apache,incubator-devlake
+jira:JiraIssue:1:10064,https://bitbucket.org/mynamespace/devlake/commits/abc0892edaee00dd7ee268dbee71620407a29bca,abc0892edaee00dd7ee268dbee71620407a29bca,bitbucket.org,mynamespace,devlake
+jira:JiraIssue:1:10064,https://github.com/apache/devlake/commit/e6bde456807818c5c78d7b265964d6d48b653af6,e6bde456807818c5c78d7b265964d6d48b653af6,github.com,apache,devlake
 jira:JiraIssue:1:10065,https://gitlab.com/namespace1/namespace2/myrepo/-/commit/8f91020bcf684c6ad07adfafa3d8a2f826686c42,8f91020bcf684c6ad07adfafa3d8a2f826686c42,gitlab.com,namespace1/namespace2,murepo
 jira:JiraIssue:1:10066,https://gitlab.com/meri.co/vdev.co/-/commit/0dfe2e9ed88ad4e27f825d9b67d4d56ac983c5ef,0dfe2e9ed88ad4e27f825d9b67d4d56ac983c5ef,gitlab.com,meri.co,vdev.co
 jira:JiraIssue:1:10139,https://example.com/bitbucket/projects/PROJECTNAME/repos/ui_jira/commits/8993c04249e9d549e8950daec86717548c53c423,8993c04249e9d549e8950daec86717548c53c423,example.com,PROJECTNAME,ui_jira

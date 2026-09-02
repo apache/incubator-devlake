@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/api"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/models"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/opsgenie/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/opsgenie/api"
+	"github.com/apache/devlake/plugins/opsgenie/models"
+	"github.com/apache/devlake/plugins/opsgenie/models/migrationscripts"
+	"github.com/apache/devlake/plugins/opsgenie/tasks"
 )
 
 // make sure interface is implemented
@@ -60,7 +60,7 @@ func (p Opsgenie) Description() string {
 
 // PkgPath information lost when compiled as plugin(.so)
 func (p Opsgenie) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/opsgenie"
+	return "github.com/apache/devlake/plugins/opsgenie"
 }
 
 func (p Opsgenie) Name() string {

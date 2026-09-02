@@ -17,7 +17,7 @@ limitations under the License.
 
 package tasks
 
-import "github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+import "github.com/apache/devlake/plugins/gh-copilot/models"
 
 // GhCopilotTaskData stores runtime dependencies for subtasks.
 type GhCopilotTaskData struct {

@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/models/migrationscripts/archived"
 )
 
 type BitbucketServerPullRequest struct {

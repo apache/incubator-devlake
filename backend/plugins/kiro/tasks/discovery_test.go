@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
+	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 // prefixMockS3 answers listings from a canned prefix tree, and records the

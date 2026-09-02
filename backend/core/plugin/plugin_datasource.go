@@ -23,9 +23,9 @@ import (
 
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/devlake/core/dal"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 	"github.com/go-playground/validator/v10"
 )
 

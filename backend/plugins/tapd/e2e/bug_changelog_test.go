@@ -20,11 +20,11 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/tapd/impl"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/tapd/impl"
+	"github.com/apache/devlake/plugins/tapd/models"
+	"github.com/apache/devlake/plugins/tapd/tasks"
 )
 
 func TestTapdBugChangelogDataFlow(t *testing.T) {

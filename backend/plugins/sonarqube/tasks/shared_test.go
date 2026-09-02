@@ -19,8 +19,8 @@ package tasks
 
 import (
 	"crypto/sha256"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/sonarqube/models"
 	"io/ioutil"
 	"net/http"
 	"strings"

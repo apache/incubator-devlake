@@ -24,13 +24,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	gitextractor "github.com/apache/incubator-devlake/plugins/gitextractor/impl"
-	pluginmodels "github.com/apache/incubator-devlake/plugins/pagerduty/models"
-	"github.com/apache/incubator-devlake/test/helper"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	gitextractor "github.com/apache/devlake/plugins/gitextractor/impl"
+	pluginmodels "github.com/apache/devlake/plugins/pagerduty/models"
+	"github.com/apache/devlake/test/helper"
 	"github.com/stretchr/testify/require"
 )
 

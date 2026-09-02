@@ -18,8 +18,8 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/server/services/remote/models/migrationscripts/azuredevops"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/server/services/remote/models/migrationscripts/azuredevops"
 )
 
 var allMigrations = map[string][]plugin.MigrationScript{

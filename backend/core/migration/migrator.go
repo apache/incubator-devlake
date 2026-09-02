@@ -19,10 +19,10 @@ package migration
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	core "github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	core "github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/plugin"
 	"sort"
 	"sync"
 )

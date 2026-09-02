@@ -21,7 +21,7 @@ const gitextractor = [
     {
       plugin: 'gitextractor',
       options: {
-        url: 'https://github.com/apache/incubator-devlake.git',
+        url: 'https://github.com/apache/devlake.git',
         repoId: 'github:GithubRepo:384111310',
       },
     },

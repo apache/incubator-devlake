@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/apache/incubator-devlake/plugins/issue_trace/models"
+	"github.com/apache/devlake/plugins/issue_trace/models"
 )
 
 func Test_buildStatusHistoryRecords(t *testing.T) {

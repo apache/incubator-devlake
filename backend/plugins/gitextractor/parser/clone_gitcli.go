@@ -27,10 +27,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 	giturls "github.com/chainguard-dev/git-urls"
 )
 
@@ -218,7 +218,7 @@ func (g *GitcliCloner) fullClone() errors.Error {
 }
 
 func (g *GitcliCloner) deepen() errors.Error {
-	// deepen the commits by 1 more step to avoid https://github.com/apache/incubator-devlake/issues/7426
+	// deepen the commits by 1 more step to avoid https://github.com/apache/devlake/issues/7426
 	// fixes error described on https://stackoverflow.com/questions/63878612/git-fatal-error-in-object-unshallow-sha-1
 	// It might be caused by the commit which being deepen has multiple parent(e.g. a merge commit), not sure.
 	if err := g.gitCmd("repack", "-d"); err != nil {

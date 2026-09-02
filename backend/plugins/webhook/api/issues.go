@@ -22,16 +22,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/helpers/dbhelper"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/helpers/dbhelper"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/webhook/models"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/webhook/models"
 
 	"github.com/go-playground/validator/v10"
 )

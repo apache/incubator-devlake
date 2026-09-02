@@ -17,7 +17,7 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import "github.com/apache/devlake/core/plugin"
 
 // All returns the ordered list of migration scripts for the Cursor plugin.
 func All() []plugin.MigrationScript {

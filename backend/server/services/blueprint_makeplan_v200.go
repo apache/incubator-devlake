@@ -22,9 +22,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
 )
 
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition

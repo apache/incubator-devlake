@@ -18,14 +18,14 @@ limitations under the License.
 package impl
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/webhook/api"
-	"github.com/apache/incubator-devlake/plugins/webhook/models"
-	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/webhook/api"
+	"github.com/apache/devlake/plugins/webhook/models"
+	"github.com/apache/devlake/plugins/webhook/models/migrationscripts"
 )
 
 // make sure interface is implemented
@@ -69,7 +69,7 @@ func (p Webhook) MakeDataSourcePipelinePlanV200(
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p Webhook) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/webhook"
+	return "github.com/apache/devlake/plugins/webhook"
 }
 
 func (p Webhook) MigrationScripts() []plugin.MigrationScript {

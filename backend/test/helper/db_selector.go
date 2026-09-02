@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/devlake/core/config"
 )
 
 // UseMySQL FIXME

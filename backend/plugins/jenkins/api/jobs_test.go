@@ -24,12 +24,12 @@ import (
 	"net/http"
 	"testing"
 
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/helpers/unithelper"
+	"github.com/apache/devlake/plugins/jenkins/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
