@@ -52,5 +52,6 @@ header:
     - "config-ui/.yarn/**/*"
     - "config-ui/yarn.lock"
     - ".github/ISSUE_TEMPLATE/*.md"
+    - "**/.tool-versions"
 
   comment: on-failure
