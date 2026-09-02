@@ -187,6 +187,12 @@ updates:
         update-types:
           - patch
     ignore:
+      # MySQL 8.4 is the selected LTS line. The registry also exposes unrelated
+      # higher numeric tags (currently 26.7.0), which Dependabot treats as a
+      # valid major upgrade; changing the database major is always manual.
+      - dependency-name: mysql
+        update-types:
+          - version-update:semver-major
       # The build image tracks the active LTS line. Node 26 is not an LTS
       # release, and a trial run confirmed that without this rule Dependabot
       # proposes moving from 24 to 25.
@@ -239,6 +245,11 @@ updates:
           - minor
           - patch
     ignore:
+      # Keep MySQL on the selected 8.4 LTS major; patch/minor updates within
+      # that line remain automated.
+      - dependency-name: mysql
+        update-types:
+          - version-update:semver-major
       - dependency-name: jenkins/jenkins
       - dependency-name: atlassian/jira-software
       - dependency-name: atlassian/bitbucket-server
