@@ -35,4 +35,4 @@ structname: "{{.InterfaceName}}"
 template-data:
   unroll-variadic: false
 packages:
-  github.com/apache/incubator-devlake/core:
+  github.com/apache/devlake/core:

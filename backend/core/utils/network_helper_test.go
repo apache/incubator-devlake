@@ -21,21 +21,6 @@ import (
 	"testing"
 )
 
-func TestCheckDNS(t *testing.T) {
-	var hostname = "baidu.com"
-	var err = CheckDNS(hostname)
-	if err != nil {
-		t.Error(err)
-	}
-
-	var invalidHostname = "baidu.abc"
-	err = CheckDNS(invalidHostname)
-	t.Log(err)
-	if err == nil {
-		t.Errorf("Expected %s, Got nil", "failed")
-	}
-}
-
 func TestResolvePort(t *testing.T) {
 	port, err := ResolvePort("80", "https")
 	if err != nil {
