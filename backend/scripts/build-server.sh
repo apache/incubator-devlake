@@ -27,4 +27,4 @@ if [ -n "$DEVLAKE_DEBUG" ]; then
     EXTRA="-gcflags='all=-N -l'"
 fi
 
-go build $EXTRA -ldflags "-X 'github.com/apache/incubator-devlake/core/version.Version=$VERSION'" -o $ROOT_DIR/bin/lake $ROOT_DIR/server/
+go build $EXTRA -ldflags "-X 'github.com/apache/devlake/core/version.Version=$VERSION'" -o $ROOT_DIR/bin/lake $ROOT_DIR/server/

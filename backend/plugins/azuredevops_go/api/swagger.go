@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/tasks"
+	"github.com/apache/devlake/plugins/azuredevops_go/tasks"
 )
 
 type AzuredevopsTaskOptions tasks.AzuredevopsOptions

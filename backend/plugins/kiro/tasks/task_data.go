@@ -20,7 +20,7 @@ package tasks
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
+	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 // DefaultWorkerCount is how many objects are fetched concurrently.

@@ -17,7 +17,7 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import "github.com/apache/devlake/core/plugin"
 
 type DsRemoteApiScopeListEntry[S plugin.ToolLayerScope] struct {
 	Type     string  `json:"type"`

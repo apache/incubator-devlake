@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // GhCopilotUserDailyMetrics captures per-user daily Copilot usage metrics from enterprise reports.

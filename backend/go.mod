@@ -1,4 +1,4 @@
-module github.com/apache/incubator-devlake
+module github.com/apache/devlake
 
 go 1.26
 

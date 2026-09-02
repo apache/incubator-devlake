@@ -26,10 +26,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	plugin "github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/utils"
 )
 
 // HttpMinStatusRetryCode is which status will retry

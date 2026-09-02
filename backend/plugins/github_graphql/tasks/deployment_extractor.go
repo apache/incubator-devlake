@@ -22,12 +22,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
-	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	githubModels "github.com/apache/devlake/plugins/github/models"
+	githubTasks "github.com/apache/devlake/plugins/github/tasks"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractDeployments

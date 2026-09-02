@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/testmo/tasks"
+	"github.com/apache/devlake/plugins/testmo/tasks"
 )
 
 type TestmoTaskOptions tasks.TestmoOptions

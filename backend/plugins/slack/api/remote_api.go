@@ -23,11 +23,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/apache/incubator-devlake/plugins/slack/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/devlake/plugins/slack/models"
 )
 
 type SlackRemotePagination struct {

@@ -18,8 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/plugins/bitbucket/models"
 	"time"
 )
 

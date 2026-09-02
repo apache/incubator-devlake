@@ -21,7 +21,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/apache/incubator-devlake/plugins/kiro/models/migrationscripts/archived"
+	"github.com/apache/devlake/plugins/kiro/models/migrationscripts/archived"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	mysqlDriver "gorm.io/driver/mysql"

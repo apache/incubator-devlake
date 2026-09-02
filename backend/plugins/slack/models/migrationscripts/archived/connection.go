@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	commonArchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	commonArchived "github.com/apache/devlake/core/models/migrationscripts/archived"
 )
 
 type SlackConnection struct {

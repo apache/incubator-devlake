@@ -20,9 +20,9 @@ package api
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/srvhelper"
 )
 
 var noScopeConfig = reflect.TypeOf(new(srvhelper.NoScopeConfig))

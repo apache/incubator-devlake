@@ -18,13 +18,13 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/teambition/impl"
-	"github.com/apache/incubator-devlake/plugins/teambition/models"
-	"github.com/apache/incubator-devlake/plugins/teambition/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/teambition/impl"
+	"github.com/apache/devlake/plugins/teambition/models"
+	"github.com/apache/devlake/plugins/teambition/tasks"
 	"testing"
 )
 

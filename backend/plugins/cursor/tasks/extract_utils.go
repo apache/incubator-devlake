@@ -18,8 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // cursorExtractorVersion bumps when extract logic changes in a way that requires

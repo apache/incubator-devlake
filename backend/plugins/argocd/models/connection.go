@@ -18,8 +18,8 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/utils"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 type ArgocdConn struct {

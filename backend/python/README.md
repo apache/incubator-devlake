@@ -258,7 +258,7 @@ you write migration code for them. Important: When you write a migration for a c
 to migrate; don't directly use the actual model because that may change over time. Instead, define a model that is a copy of the main one, and use that in the
 migration - this model's code will never change (Hence, it's a snapshot).
 Also, keep in mind, that Python only supports writing schema migrations. If your flow requires data migrations as well, at this time, the code needs to
-be written in Go. See [this Go package](https://github.com/apache/incubator-devlake/tree/main/backend/server/services/remote/models/migrationscripts) for example.
+be written in Go. See [this Go package](https://github.com/apache/devlake/tree/main/backend/server/services/remote/models/migrationscripts) for example.
 
 To declare a new migration script, you decorate a function with the `migration` decorator. The function name should describe what the script does. The `migration` decorator takes a version number that should be a 14 digits timestamp in the format `YYYYMMDDhhmmss`. The function takes a `MigrationScriptBuilder` as a parameter. This builder exposes methods to execute migration operations.
 
@@ -328,7 +328,7 @@ Most of the time, you will convert a tool model into a single domain model, but 
 The `collect` method takes a `state` dictionary and a context object and yields tuples of raw data and new state.
 The last state that the plugin yielded for a given connection will be reused during the next collection.
 The plugin can use this `state` to store information necessary to perform incremental collection of data. This operates
-independently of the way Go manages state, and is tracked by the table `_pydevlake_subtask_runs`. See [this issue](https://github.com/apache/incubator-devlake/issues/4880)
+independently of the way Go manages state, and is tracked by the table `_pydevlake_subtask_runs`. See [this issue](https://github.com/apache/devlake/issues/4880)
 for a proposed improvement to this feature.
 
 The `extract` method takes a raw data object and returns a tool model.

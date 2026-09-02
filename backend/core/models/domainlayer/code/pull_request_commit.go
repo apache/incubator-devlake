@@ -20,7 +20,7 @@ package code
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 type PullRequestCommit struct {

@@ -20,9 +20,9 @@ package tasks
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/plugins/linear/models"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/plugins/linear/models"
 )
 
 // issuesToCollectChildrenClauses builds the cursor clauses that drive per-issue

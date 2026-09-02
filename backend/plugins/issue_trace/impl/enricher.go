@@ -20,16 +20,16 @@ package impl
 import (
 	"encoding/json"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/issue_trace/api"
-	"github.com/apache/incubator-devlake/plugins/issue_trace/models"
-	"github.com/apache/incubator-devlake/plugins/issue_trace/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/issue_trace/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/issue_trace/api"
+	"github.com/apache/devlake/plugins/issue_trace/models"
+	"github.com/apache/devlake/plugins/issue_trace/models/migrationscripts"
+	"github.com/apache/devlake/plugins/issue_trace/tasks"
 	"github.com/go-viper/mapstructure/v2"
 )
 
@@ -131,7 +131,7 @@ func (p IssueTrace) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 }
 
 func (p IssueTrace) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/issue_trace"
+	return "github.com/apache/devlake/plugins/issue_trace"
 }
 
 func (p IssueTrace) MigrationScripts() []plugin.MigrationScript {

@@ -28,9 +28,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/migrationscripts"
+	"github.com/apache/devlake/core/plugin"
 	"github.com/spf13/cobra"
 )
 

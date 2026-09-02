@@ -20,11 +20,11 @@ package migrationscripts
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/migrationhelper"
 	"strings"
 )
 

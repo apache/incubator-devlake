@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 )
 
 // Kiro exports the same logical value in several shapes across its two data

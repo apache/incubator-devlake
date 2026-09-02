@@ -20,7 +20,7 @@ package models
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 	"github.com/stretchr/testify/assert"
 )
 

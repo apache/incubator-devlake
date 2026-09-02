@@ -22,12 +22,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/customize/models"
-	"github.com/apache/incubator-devlake/plugins/customize/service"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/customize/models"
+	"github.com/apache/devlake/plugins/customize/service"
 )
 
 type fieldResponse struct {

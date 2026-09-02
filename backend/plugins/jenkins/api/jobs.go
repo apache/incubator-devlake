@@ -23,11 +23,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/apache/devlake/plugins/jenkins/models"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 func GetJobsPage(apiClient plugin.ApiClient, path string, page int, pageSize int, callback func(job *models.Job) errors.Error) (int, errors.Error) {

@@ -20,7 +20,7 @@ package common
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/devlake/core/dal"
 )
 
 const (

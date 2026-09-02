@@ -20,17 +20,17 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bamboo/api"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/bamboo/api"
+	"github.com/apache/devlake/plugins/bamboo/models"
+	"github.com/apache/devlake/plugins/bamboo/models/migrationscripts"
+	"github.com/apache/devlake/plugins/bamboo/tasks"
 )
 
 // make sure interface is implemented
@@ -194,7 +194,7 @@ func (p Bamboo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p Bamboo) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/bamboo"
+	return "github.com/apache/devlake/plugins/bamboo"
 }
 
 func (p Bamboo) MigrationScripts() []plugin.MigrationScript {

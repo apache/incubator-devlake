@@ -17,7 +17,7 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import "github.com/apache/devlake/core/plugin"
 
 // All return all the migration scripts
 func All() []plugin.MigrationScript {

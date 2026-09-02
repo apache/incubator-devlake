@@ -20,9 +20,9 @@ package api
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	plugin "github.com/apache/devlake/core/plugin"
 )
 
 type StatefulDataConverterArgs[InputType any] struct {

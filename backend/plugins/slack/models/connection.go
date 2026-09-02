@@ -18,8 +18,8 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/utils"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/utils"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // SlackConn holds the essential information to connect to the Slack API

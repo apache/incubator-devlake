@@ -18,10 +18,10 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/apache/incubator-devlake/helpers/utils"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/devlake/helpers/utils"
 )
 
 type DsSearchRemoteScopes[C plugin.ToolLayerApiConnection, S plugin.ToolLayerScope] func(

@@ -24,13 +24,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
+	"github.com/apache/devlake/helpers/pluginhelper/services"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/server/api/blueprints"
-	apiProject "github.com/apache/incubator-devlake/server/api/project"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/server/api/blueprints"
+	apiProject "github.com/apache/devlake/server/api/project"
+	"github.com/apache/devlake/server/api/shared"
 	"github.com/stretchr/testify/require"
 )
 

@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 )
 
 type githubErrorPayload struct {

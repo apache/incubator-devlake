@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/devlake/core/dal"
 )
 
 type CustomizedField struct {

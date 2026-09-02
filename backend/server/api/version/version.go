@@ -18,7 +18,7 @@ limitations under the License.
 package version
 
 import (
-	"github.com/apache/incubator-devlake/core/version"
+	"github.com/apache/devlake/core/version"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

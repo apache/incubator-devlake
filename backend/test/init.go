@@ -18,8 +18,8 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/test/helper"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/test/helper"
 )
 
 func main() {

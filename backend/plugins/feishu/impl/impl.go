@@ -19,16 +19,16 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/feishu/api"
-	"github.com/apache/incubator-devlake/plugins/feishu/models"
-	"github.com/apache/incubator-devlake/plugins/feishu/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/feishu/tasks"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/feishu/api"
+	"github.com/apache/devlake/plugins/feishu/models"
+	"github.com/apache/devlake/plugins/feishu/models/migrationscripts"
+	"github.com/apache/devlake/plugins/feishu/tasks"
 )
 
 var _ interface {
@@ -120,7 +120,7 @@ func (p Feishu) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 }
 
 func (p Feishu) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/feishu"
+	return "github.com/apache/devlake/plugins/feishu"
 }
 
 func (p Feishu) MigrationScripts() []plugin.MigrationScript {

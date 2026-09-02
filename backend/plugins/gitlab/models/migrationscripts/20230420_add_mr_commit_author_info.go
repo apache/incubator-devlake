@@ -20,10 +20,10 @@ package migrationscripts
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/migrationhelper"
 )
 
 var _ plugin.MigrationScript = (*addGitlabCommitAuthorInfo)(nil)

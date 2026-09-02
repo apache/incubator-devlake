@@ -23,9 +23,9 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // RAW_LIST_TABLE holds the raw lists of a scoped folder (GET /folder/{id}/list).

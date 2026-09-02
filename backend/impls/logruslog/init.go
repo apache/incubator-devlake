@@ -23,9 +23,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
 	"github.com/sirupsen/logrus"
 )
 

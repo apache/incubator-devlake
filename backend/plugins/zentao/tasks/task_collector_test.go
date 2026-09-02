@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
+	"github.com/apache/devlake/plugins/zentao/models"
 	"reflect"
 	"testing"
 )

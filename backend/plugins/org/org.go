@@ -18,7 +18,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/plugins/org/impl"
+	"github.com/apache/devlake/plugins/org/impl"
 )
 
 var PluginEntry impl.Org //nolint

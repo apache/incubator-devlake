@@ -18,8 +18,8 @@ limitations under the License.
 package apiv2models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/jira/models"
 )
 
 type Board struct {

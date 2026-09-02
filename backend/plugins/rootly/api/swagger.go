@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/rootly/tasks"
+	"github.com/apache/devlake/plugins/rootly/tasks"
 )
 
 type RootlyTaskOptions tasks.RootlyOptions

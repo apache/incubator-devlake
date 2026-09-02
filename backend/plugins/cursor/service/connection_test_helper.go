@@ -26,10 +26,10 @@ import (
 	"strings"
 	"time"
 
-	corectx "github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/cursor/models"
+	corectx "github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/cursor/models"
 )
 
 const (

@@ -17,7 +17,7 @@ limitations under the License.
 
 package apihelperabstract
 
-import "github.com/apache/incubator-devlake/core/errors"
+import "github.com/apache/devlake/core/errors"
 
 type ComplexValidate interface {
 	Validate() errors.Error

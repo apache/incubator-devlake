@@ -18,14 +18,14 @@ limitations under the License.
 package impl
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/customize/api"
-	"github.com/apache/incubator-devlake/plugins/customize/models"
-	"github.com/apache/incubator-devlake/plugins/customize/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/customize/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/customize/api"
+	"github.com/apache/devlake/plugins/customize/models"
+	"github.com/apache/devlake/plugins/customize/models/migrationscripts"
+	"github.com/apache/devlake/plugins/customize/tasks"
 	"github.com/go-viper/mapstructure/v2"
 )
 
@@ -87,7 +87,7 @@ func (p Customize) MigrationScripts() []plugin.MigrationScript {
 }
 
 func (p Customize) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/customize"
+	return "github.com/apache/devlake/plugins/customize"
 }
 
 func (p Customize) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

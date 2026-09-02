@@ -26,12 +26,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 
-	"github.com/apache/incubator-devlake/core/config"
-	corecontext "github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/impls/logruslog"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/core/config"
+	corecontext "github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/impls/logruslog"
+	"github.com/apache/devlake/server/api/shared"
 )
 
 type proxyAuthTestBasicRes struct {

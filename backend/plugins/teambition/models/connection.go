@@ -19,9 +19,9 @@ package models
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/utils"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/utils"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"time"

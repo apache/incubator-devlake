@@ -21,10 +21,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/customize/impl"
-	"github.com/apache/incubator-devlake/plugins/customize/service"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/customize/impl"
+	"github.com/apache/devlake/plugins/customize/service"
 )
 
 func TestImportIssueCommitDataFlow(t *testing.T) {

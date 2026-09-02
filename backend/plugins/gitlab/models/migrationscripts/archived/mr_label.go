@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/models/migrationscripts/archived"
 )
 
 // Please note that Issue Labels can also apply to Pull Requests.

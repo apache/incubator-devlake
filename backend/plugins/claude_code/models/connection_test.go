@@ -22,7 +22,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/utils"
 )
 
 const (

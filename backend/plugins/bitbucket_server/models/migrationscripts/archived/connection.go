@@ -18,8 +18,8 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 var _ plugin.ApiConnection = (*BitbucketServerConnection)(nil)

@@ -19,8 +19,8 @@ package logruslog
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/models"
 	"os"
 	"path/filepath"
 )

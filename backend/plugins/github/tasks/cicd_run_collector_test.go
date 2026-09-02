@@ -28,13 +28,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	mockapi "github.com/apache/incubator-devlake/mocks/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/unithelper"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
+	mockapi "github.com/apache/devlake/mocks/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/github/models"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -503,7 +503,7 @@ func TestCicdRunRegisterCollectorForLeafWindows_SingleDelete(t *testing.T) {
 		Ctx: mockCtx,
 		Params: GithubApiParams{
 			ConnectionId: 1,
-			Name:         "apache/incubator-devlake",
+			Name:         "apache/devlake",
 		},
 		Table: RAW_RUN_TABLE,
 	})

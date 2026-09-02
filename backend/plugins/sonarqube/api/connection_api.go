@@ -22,11 +22,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/sonarqube/models"
+	"github.com/apache/devlake/server/api/shared"
 )
 
 type validation struct {

@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	plugin "github.com/apache/devlake/core/plugin"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

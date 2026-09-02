@@ -21,8 +21,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/codequality"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/devlake/core/models/domainlayer/codequality"
+	"github.com/apache/devlake/plugins/sonarqube/models"
 	"github.com/stretchr/testify/require"
 )
 

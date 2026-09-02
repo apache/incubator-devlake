@@ -22,8 +22,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
 )
 
 // Allowing plugin to know each other

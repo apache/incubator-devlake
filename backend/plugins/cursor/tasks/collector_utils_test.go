@@ -22,8 +22,8 @@ import (
 	"testing"
 	"time"
 
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/cursor/models"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/cursor/models"
 )
 
 func TestRawParamsFromTaskDataIncludesEndpoint(t *testing.T) {

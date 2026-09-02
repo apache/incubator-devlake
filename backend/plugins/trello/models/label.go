@@ -17,7 +17,7 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import "github.com/apache/devlake/core/models/common"
 
 type TrelloLabel struct {
 	ID      string `gorm:"primaryKey;type:varchar(255)"`

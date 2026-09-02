@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // LinearCycle is a Linear cycle (sprint-equivalent), converted to ticket.Sprint.

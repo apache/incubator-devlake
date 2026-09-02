@@ -24,11 +24,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/impls/dalgorm"
+	"github.com/apache/devlake/impls/dalgorm"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/utils"
 	"gorm.io/datatypes"
 )
 

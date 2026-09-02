@@ -20,8 +20,8 @@ package apiv2models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/plugins/jira/models"
 )
 
 type Changelog struct {

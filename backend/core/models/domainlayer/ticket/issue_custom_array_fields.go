@@ -17,7 +17,7 @@ limitations under the License.
 
 package ticket
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import "github.com/apache/devlake/core/models/common"
 
 type IssueCustomArrayField struct {
 	IssueId    string `gorm:"primaryKey;type:varchar(255)"`

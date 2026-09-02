@@ -24,8 +24,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -171,7 +171,7 @@ func (ma *MultiAuth) ValidateConnection(connection interface{}, v *validator.Val
 					continue
 				}
 				// case 2: embed origin Authenticator, e.g. GithubAppKey from
-				// https://github.com/apache/incubator-devlake/blob/16f97a1a7605d5ce7cf391bbec1270eec7c77b6e/backend/plugins/github/models/connection.go#L41
+				// https://github.com/apache/devlake/blob/16f97a1a7605d5ce7cf391bbec1270eec7c77b6e/backend/plugins/github/models/connection.go#L41
 				// skip the error if the field doesn't belong to the current authMethod
 				shouldInclude := true
 				t := connType

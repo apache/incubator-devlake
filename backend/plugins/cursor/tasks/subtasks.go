@@ -17,7 +17,7 @@ limitations under the License.
 
 package tasks
 
-import "github.com/apache/incubator-devlake/core/plugin"
+import "github.com/apache/devlake/core/plugin"
 
 var CollectUsageEventsMeta = plugin.SubTaskMeta{
 	Name:             "collectUsageEvents",

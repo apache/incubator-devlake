@@ -18,8 +18,8 @@ limitations under the License.
 package main // must be main for plugin entry point
 
 import (
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/impl"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/plugins/azuredevops_go/impl"
 	"github.com/spf13/cobra"
 )
 

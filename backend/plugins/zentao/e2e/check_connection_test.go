@@ -18,11 +18,11 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/core/runner"
+	"github.com/apache/devlake/core/runner"
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/devlake/core/config"
 )
 
 func TestZentaoCheckDbConnection(t *testing.T) {

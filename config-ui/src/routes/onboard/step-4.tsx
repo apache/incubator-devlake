@@ -296,7 +296,7 @@ export const Step4 = () => {
           <div className="tip">
             Please verify your network connection and ensure your token's rate limits have not been exceeded, then
             attempt to collect the data again. Alternatively, you may report the issue by filing a bug on{' '}
-            <ExternalLink link="https://github.com/apache/incubator-devlake/issues/new/choose">GitHub</ExternalLink>.
+            <ExternalLink link="https://github.com/apache/devlake/issues/new/choose">GitHub</ExternalLink>.
           </div>
           <CloseCircleOutlined style={{ fontSize: 120, color: red5 }} />
           <div className="action">

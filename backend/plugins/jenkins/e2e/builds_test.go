@@ -20,12 +20,12 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/jenkins/impl"
+	"github.com/apache/devlake/plugins/jenkins/models"
+	"github.com/apache/devlake/plugins/jenkins/tasks"
 )
 
 func TestJenkinsBuildsDataFlow(t *testing.T) {

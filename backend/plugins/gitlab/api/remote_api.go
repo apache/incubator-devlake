@@ -23,11 +23,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/devlake/plugins/gitlab/models"
 )
 
 const USERS_PREFIX = "user:"

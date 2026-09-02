@@ -20,8 +20,8 @@ package tasks
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/models/common"
 	"github.com/stretchr/testify/assert"
 )
 

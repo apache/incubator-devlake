@@ -18,16 +18,16 @@ limitations under the License.
 package impl
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/cursor/api"
-	"github.com/apache/incubator-devlake/plugins/cursor/models"
-	"github.com/apache/incubator-devlake/plugins/cursor/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/cursor/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/cursor/api"
+	"github.com/apache/devlake/plugins/cursor/models"
+	"github.com/apache/devlake/plugins/cursor/models/migrationscripts"
+	"github.com/apache/devlake/plugins/cursor/tasks"
 )
 
 var _ interface {
@@ -156,7 +156,7 @@ func (p Cursor) MakeDataSourcePipelinePlanV200(
 }
 
 func (p Cursor) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/cursor"
+	return "github.com/apache/devlake/plugins/cursor"
 }
 
 func (p Cursor) MigrationScripts() []plugin.MigrationScript {

@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
+	"github.com/apache/devlake/core/errors"
+	plugin "github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/impls/dalgorm"
 )
 
 type DomainIdGenerator struct {

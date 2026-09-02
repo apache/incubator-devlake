@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
+	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 func listOutput(truncated bool, keys ...string) *s3.ListObjectsV2Output {

@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/asana/tasks"
+	"github.com/apache/devlake/plugins/asana/tasks"
 )
 
 type AsanaTaskOptions tasks.AsanaOptions

@@ -20,15 +20,15 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/ae/api"
-	"github.com/apache/incubator-devlake/plugins/ae/models"
-	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/ae/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/ae/api"
+	"github.com/apache/devlake/plugins/ae/models"
+	"github.com/apache/devlake/plugins/ae/models/migrationscripts"
+	"github.com/apache/devlake/plugins/ae/tasks"
 )
 
 var _ interface {
@@ -118,7 +118,7 @@ func (p AE) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]inter
 }
 
 func (p AE) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/ae"
+	return "github.com/apache/devlake/plugins/ae"
 }
 
 func (p AE) MigrationScripts() []plugin.MigrationScript {

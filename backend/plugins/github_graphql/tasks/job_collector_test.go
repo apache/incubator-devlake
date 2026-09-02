@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 	"github.com/stretchr/testify/assert"
 )
 

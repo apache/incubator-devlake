@@ -46,7 +46,7 @@ In `azure_local_test.go` (or any git-ignorable file) you write your setup.
 ```go
 package azuredevops
 
-import "github.com/apache/incubator-devlake/test/helper"
+import "github.com/apache/devlake/test/helper"
 
 func init() {
 	helper.SetTestConfig(TestConfig{

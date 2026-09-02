@@ -25,12 +25,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/server/services/remote"
-	"github.com/apache/incubator-devlake/server/services/remote/bridge"
-	"github.com/apache/incubator-devlake/server/services/remote/models"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/server/services/remote"
+	"github.com/apache/devlake/server/services/remote/bridge"
+	"github.com/apache/devlake/server/services/remote/models"
 )
 
 // LoadPlugins load plugins from local directory
