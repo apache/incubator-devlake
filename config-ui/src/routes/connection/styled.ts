@@ -82,6 +82,26 @@ export const Wrapper = styled.div`
       border-radius: 8px;
     }
 
+    & > .deprecated {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: ${({ theme }) => theme.colors.textInverse};
+      background-color: ${({ theme }) => theme.colors.error};
+      border-radius: 8px;
+    }
+
+    & > .deprecation-note {
+      margin-top: 4px;
+      padding: 0 8px;
+      font-size: 11px;
+      line-height: 1.4;
+      color: ${({ theme }) => theme.colors.error};
+      text-align: center;
+    }
+
     & > .logo {
       width: 60px;
       height: 60px;
