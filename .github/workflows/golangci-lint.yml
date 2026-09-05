@@ -40,7 +40,7 @@ jobs:
         run: backend/scripts/install-mockery.sh
       - name: Cache golangci-lint
         id: cache-golangci-lint
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: golangci-lint
           key: ${{ runner.os }}-backend-golangci-lint
