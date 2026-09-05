@@ -122,7 +122,7 @@ jobs:
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: /tmp/devlake-build-cache-${{ matrix.platform }}
           key: buildx-devlake-build-cache-${{ github.run_id }}-${{ matrix.platform }}
@@ -174,11 +174,11 @@ jobs:
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: /tmp/devlake-build-cache-amd64
           key: buildx-devlake-build-cache-${{ github.run_id }}-amd64
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: /tmp/devlake-build-cache-arm64
           key: buildx-devlake-build-cache-${{ github.run_id }}-arm64
