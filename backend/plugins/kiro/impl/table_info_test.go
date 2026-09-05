@@ -20,7 +20,7 @@ package impl
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/unithelper"
+	"github.com/apache/devlake/helpers/unithelper"
 )
 
 // The repo-wide plugins/table_info_test.go performs this same check for every

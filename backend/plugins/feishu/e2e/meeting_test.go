@@ -18,10 +18,10 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/feishu/impl"
-	"github.com/apache/incubator-devlake/plugins/feishu/models"
-	"github.com/apache/incubator-devlake/plugins/feishu/tasks"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/feishu/impl"
+	"github.com/apache/devlake/plugins/feishu/models"
+	"github.com/apache/devlake/plugins/feishu/tasks"
 	"testing"
 )
 

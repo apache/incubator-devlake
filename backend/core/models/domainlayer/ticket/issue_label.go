@@ -18,7 +18,7 @@ limitations under the License.
 package ticket
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // Please note that Issue Labels can also apply to Pull Requests.

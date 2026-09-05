@@ -95,8 +95,12 @@ export const Connections = () => {
           return (
             <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
               {pluginConfig.isBeta && <span className="beta">Beta</span>}
+              {pluginConfig.isDeprecated && <span className="deprecated">Deprecated</span>}
               <span className="logo">{pluginConfig.icon({ color: colorPrimary })}</span>
               <span className="name">{pluginConfig.name}</span>
+              {pluginConfig.isDeprecated && pluginConfig.deprecationMessage && (
+                <span className="deprecation-note">{pluginConfig.deprecationMessage}</span>
+              )}
               <span className="count">
                 {connectionCount ? (
                   <Badge color={colorPrimary} text={`${connectionCount} connections`} />
@@ -116,8 +120,12 @@ export const Connections = () => {
           return (
             <li key={plugin} onClick={() => handleShowListDialog(plugin)}>
               {pluginConfig.isBeta && <span className="beta">Beta</span>}
+              {pluginConfig.isDeprecated && <span className="deprecated">Deprecated</span>}
               <span className="logo">{pluginConfig.icon({ color: colorPrimary })}</span>
               <span className="name">{pluginConfig.name}</span>
+              {pluginConfig.isDeprecated && pluginConfig.deprecationMessage && (
+                <span className="deprecation-note">{pluginConfig.deprecationMessage}</span>
+              )}
               <span className="count">
                 {connectionCount ? (
                   <Badge color={colorPrimary} text={`${connectionCount} connections`} />

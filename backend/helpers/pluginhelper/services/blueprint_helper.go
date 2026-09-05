@@ -20,11 +20,11 @@ package services
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/impls/logruslog"
 )
 
 type BlueprintManager struct {

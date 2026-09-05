@@ -20,11 +20,11 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/org/impl"
-	"github.com/apache/incubator-devlake/plugins/org/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/org/impl"
+	"github.com/apache/devlake/plugins/org/tasks"
 )
 
 type scope struct {

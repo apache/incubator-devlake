@@ -22,12 +22,12 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 const DORAGenerateDeploymentCommits = "dora.generateDeploymentCommits"
@@ -35,7 +35,7 @@ const DORAGenerateDeploymentCommits = "dora.generateDeploymentCommits"
 var DeploymentCommitsGeneratorMeta = plugin.SubTaskMeta{
 	Name:             "generateDeploymentCommits",
 	EntryPoint:       GenerateDeploymentCommits,
-	EnabledByDefault: false, // it should be executed before refdiff.calculateDeploymentCommitsDiff, check https://github.com/apache/incubator-devlake/issues/4869 for detail
+	EnabledByDefault: false, // it should be executed before refdiff.calculateDeploymentCommitsDiff, check https://github.com/apache/devlake/issues/4869 for detail
 	Description:      "Generate deployment_commits from cicd_pipeline_commits if cicd_pipeline.type == DEPLOYMENT or any of its cicd_tasks is a deployment task",
 	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 }

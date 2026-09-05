@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket_server/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/bitbucket_server/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/bitbucket_server/api"
+	"github.com/apache/devlake/plugins/bitbucket_server/models"
+	"github.com/apache/devlake/plugins/bitbucket_server/models/migrationscripts"
+	"github.com/apache/devlake/plugins/bitbucket_server/tasks"
 )
 
 var _ interface {
@@ -143,7 +143,7 @@ func (p BitbucketServer) PrepareTaskData(taskCtx plugin.TaskContext, options map
 }
 
 func (p BitbucketServer) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/bitbucket_server/" // the "/" fixes an issue where records from "bitbucket_server" are counted as "bitbucket" records and vice versa
+	return "github.com/apache/devlake/plugins/bitbucket_server/" // the "/" fixes an issue where records from "bitbucket_server" are counted as "bitbucket" records and vice versa
 }
 
 func (p BitbucketServer) MigrationScripts() []plugin.MigrationScript {

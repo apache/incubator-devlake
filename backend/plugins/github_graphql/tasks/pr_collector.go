@@ -23,12 +23,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/github/models"
+	"github.com/apache/devlake/plugins/github/tasks"
 	"github.com/merico-ai/graphql"
 )
 
@@ -72,7 +72,7 @@ type GraphqlQueryPr struct {
 			Name string
 		}
 	} `graphql:"labels(first: 100)"`
-	Author    *GraphqlInlineAccountQuery
+	Author    *GraphqlInlineActorQuery
 	Assignees struct {
 		// FIXME now domain layer just support one assignee
 		Assignees []GraphqlInlineAccountQuery `graphql:"nodes"`
@@ -99,7 +99,7 @@ type GraphqlQueryPr struct {
 	} `graphql:"reviews(first: 100)"`
 	Additions      int
 	Deletions      int
-	MergedBy       *GraphqlInlineAccountQuery
+	MergedBy       *GraphqlInlineActorQuery
 	ReviewRequests struct {
 		Nodes []ReviewRequestNode `graphql:"nodes"`
 	} `graphql:"reviewRequests(first: 10)"`
@@ -128,7 +128,7 @@ type Team struct {
 
 type GraphqlQueryReview struct {
 	Body       string
-	Author     *GraphqlInlineAccountQuery
+	Author     *GraphqlInlineActorQuery
 	State      string `json:"state"`
 	DatabaseId int    `json:"databaseId"`
 	Commit     struct {

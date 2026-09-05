@@ -21,9 +21,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
 )
 
 var _ plugin.MigrationScript = (*addStore)(nil)

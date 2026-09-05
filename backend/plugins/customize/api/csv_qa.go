@@ -20,8 +20,8 @@ package api
 import (
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
 )
 
 // ImportQaApis accepts a CSV file, parses and saves it to the database

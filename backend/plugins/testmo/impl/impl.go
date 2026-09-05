@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	pluginhelper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/testmo/api"
-	"github.com/apache/incubator-devlake/plugins/testmo/models"
-	"github.com/apache/incubator-devlake/plugins/testmo/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/testmo/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	pluginhelper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/testmo/api"
+	"github.com/apache/devlake/plugins/testmo/models"
+	"github.com/apache/devlake/plugins/testmo/models/migrationscripts"
+	"github.com/apache/devlake/plugins/testmo/tasks"
 )
 
 var _ interface {
@@ -133,7 +133,7 @@ func (p Testmo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 }
 
 func (p Testmo) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/testmo"
+	return "github.com/apache/devlake/plugins/testmo"
 }
 
 func (p Testmo) MigrationScripts() []plugin.MigrationScript {

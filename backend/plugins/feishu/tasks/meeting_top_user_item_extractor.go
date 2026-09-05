@@ -19,10 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/feishu/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/feishu/models"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractMeetingTopUserItem

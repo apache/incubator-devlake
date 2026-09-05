@@ -18,10 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	aeModels "github.com/apache/incubator-devlake/plugins/ae/models"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	plugin "github.com/apache/devlake/core/plugin"
+	aeModels "github.com/apache/devlake/plugins/ae/models"
 )
 
 // NOTE: This only works on Commits in the Domain layer. You need to run Github or Gitlab collection and Domain layer enrichemnt first.

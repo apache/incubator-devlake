@@ -18,11 +18,11 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/migrationhelper"
+	"github.com/apache/devlake/plugins/jira/models/migrationscripts/archived"
 )
 
 var _ plugin.MigrationScript = (*expandRemotelinkUrl)(nil)

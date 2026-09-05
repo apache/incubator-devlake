@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 )
 
 // validIdentifierRegex matches valid SQL identifiers: alphanumeric, underscores, and dots (for schema.table)

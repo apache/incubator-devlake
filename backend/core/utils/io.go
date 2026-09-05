@@ -22,7 +22,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 	"github.com/viant/afs"
 	"os"
 	"path/filepath"

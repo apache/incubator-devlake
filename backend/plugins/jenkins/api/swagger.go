@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
+	"github.com/apache/devlake/plugins/jenkins/tasks"
 )
 
 type JenkinsTaskOptions tasks.JenkinsOptions

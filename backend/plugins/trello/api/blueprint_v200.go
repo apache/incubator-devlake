@@ -18,19 +18,19 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
 
-	"github.com/apache/incubator-devlake/plugins/trello/models"
-	"github.com/apache/incubator-devlake/plugins/trello/tasks"
+	"github.com/apache/devlake/plugins/trello/models"
+	"github.com/apache/devlake/plugins/trello/tasks"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/utils"
 
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer/didgen"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/srvhelper"
 )
 
 func MakePipelinePlanV200(

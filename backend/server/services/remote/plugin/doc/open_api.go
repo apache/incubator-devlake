@@ -25,10 +25,10 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/apache/incubator-devlake/core/config"
+	"github.com/apache/devlake/core/config"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/server/services/remote/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/server/services/remote/models"
 )
 
 func GenerateOpenApiSpec(pluginInfo *models.PluginInfo) (*string, errors.Error) {

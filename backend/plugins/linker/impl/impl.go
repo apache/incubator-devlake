@@ -21,12 +21,12 @@ import (
 	"encoding/json"
 	"regexp"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/linker/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/linker/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/linker/models/migrationscripts"
+	"github.com/apache/devlake/plugins/linker/tasks"
 )
 
 // make sure interface is implemented
@@ -96,7 +96,7 @@ func (p Linker) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p Linker) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/linker"
+	return "github.com/apache/devlake/plugins/linker"
 }
 
 func (p Linker) MigrationScripts() []plugin.MigrationScript {

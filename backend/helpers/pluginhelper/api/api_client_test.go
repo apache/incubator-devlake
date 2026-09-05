@@ -20,8 +20,8 @@ package api
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/impls/logruslog"
 	"github.com/stretchr/testify/assert"
 )
 

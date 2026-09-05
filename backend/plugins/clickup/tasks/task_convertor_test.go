@@ -21,7 +21,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
 )
 
 func TestListTypeFor(t *testing.T) {

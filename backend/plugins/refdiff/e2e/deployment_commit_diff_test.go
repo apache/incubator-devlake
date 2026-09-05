@@ -20,13 +20,13 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/refdiff/impl"
-	"github.com/apache/incubator-devlake/plugins/refdiff/models"
-	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/refdiff/impl"
+	"github.com/apache/devlake/plugins/refdiff/models"
+	"github.com/apache/devlake/plugins/refdiff/tasks"
 )
 
 func TestDeploymentCommitDiffDataFlow(t *testing.T) {

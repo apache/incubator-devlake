@@ -22,11 +22,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	plugin "github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/utils"
 )
 
 // MakePipelinePlanSubtasks generates subtasks list based on sub-task meta information and entities wanted by user

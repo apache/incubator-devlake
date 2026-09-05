@@ -20,7 +20,7 @@ package api
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -68,11 +68,11 @@ func Test_applyRegex(t *testing.T) {
 			"test1",
 			args{
 				`https://gitlab.com/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/-/commit/(?P<commit_sha>\w{40})`,
-				"https://gitlab.com/apache/incubator-devlake/-/commit/1234567890123456789012345678901234567890",
+				"https://gitlab.com/apache/devlake/-/commit/1234567890123456789012345678901234567890",
 			},
 			&repo{
 				"apache",
-				"incubator-devlake",
+				"devlake",
 				"1234567890123456789012345678901234567890",
 			},
 			nil,
@@ -102,11 +102,11 @@ func Test_generateThenApplyRegex(t *testing.T) {
 			"test1",
 			args{
 				"https://gitlab.com/{namespace}/{repo_name}/-/commit/{commit_sha}",
-				"https://gitlab.com/apache/incubator-devlake/-/commit/1234567890123456789012345678901234567890",
+				"https://gitlab.com/apache/devlake/-/commit/1234567890123456789012345678901234567890",
 			},
 			&repo{
 				"apache",
-				"incubator-devlake",
+				"devlake",
 				"1234567890123456789012345678901234567890",
 			},
 			nil,
@@ -115,11 +115,11 @@ func Test_generateThenApplyRegex(t *testing.T) {
 			"test2",
 			args{
 				"https://bitbucket.org/{namespace}/{repo_name}/commits/{commit_sha}",
-				"https://bitbucket.org/mynamespace/incubator-devlake/commits/fef8d697fbb9a2b336be6fa2e2848f585c86a622",
+				"https://bitbucket.org/mynamespace/devlake/commits/fef8d697fbb9a2b336be6fa2e2848f585c86a622",
 			},
 			&repo{
 				"mynamespace",
-				"incubator-devlake",
+				"devlake",
 				"fef8d697fbb9a2b336be6fa2e2848f585c86a622",
 			},
 			nil,

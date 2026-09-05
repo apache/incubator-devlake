@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
+	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 // mockS3 records the bucket each call addressed, so tests can prove a request

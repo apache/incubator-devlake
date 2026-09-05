@@ -18,10 +18,10 @@ limitations under the License.
 package helper
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/impls/logruslog"
 )
 
 // InitDB Bootstraps the database by getting rid of all the tables

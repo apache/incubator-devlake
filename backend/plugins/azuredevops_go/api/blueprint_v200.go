@@ -22,18 +22,18 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/utils"
 
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/models/domainlayer/didgen"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/srvhelper"
+	"github.com/apache/devlake/plugins/azuredevops_go/models"
 )
 
 func MakePipelinePlanV200(

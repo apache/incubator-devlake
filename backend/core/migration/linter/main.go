@@ -140,16 +140,16 @@ func main() {
 		"allowed-pkg",
 		"a",
 		[]string{
-			"github.com/apache/incubator-devlake/core/config",
-			"github.com/apache/incubator-devlake/core/context",
-			"github.com/apache/incubator-devlake/core/dal",
-			"github.com/apache/incubator-devlake/core/errors",
-			"github.com/apache/incubator-devlake/helpers/migrationhelper",
-			"github.com/apache/incubator-devlake/core/models/migrationscripts/archived",
-			"github.com/apache/incubator-devlake/core/plugin",
-			"github.com/apache/incubator-devlake/helpers/pluginhelper/api",
+			"github.com/apache/devlake/core/config",
+			"github.com/apache/devlake/core/context",
+			"github.com/apache/devlake/core/dal",
+			"github.com/apache/devlake/core/errors",
+			"github.com/apache/devlake/helpers/migrationhelper",
+			"github.com/apache/devlake/core/models/migrationscripts/archived",
+			"github.com/apache/devlake/core/plugin",
+			"github.com/apache/devlake/helpers/pluginhelper/api",
 		},
-		"package that allowed to be used in a migration script. e.g.: github.com/apache/incubator-devlake/core/context",
+		"package that allowed to be used in a migration script. e.g.: github.com/apache/devlake/core/context",
 	)
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {

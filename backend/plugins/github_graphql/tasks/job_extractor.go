@@ -21,13 +21,13 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/utils"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/github/models"
+	githubTasks "github.com/apache/devlake/plugins/github/tasks"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractAccounts

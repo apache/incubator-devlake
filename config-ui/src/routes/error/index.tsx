@@ -48,7 +48,7 @@ export const Error = () => {
             </Button>
             <Button
               onClick={() =>
-                window.open('https://github.com/apache/incubator-devlake', '_blank', 'noopener,noreferrer')
+                window.open('https://github.com/apache/devlake', '_blank', 'noopener,noreferrer')
               }
             >
               Visit GitHub

@@ -20,8 +20,8 @@ package azuredevops
 import (
 	"bytes"
 	"fmt"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/azuredevops_go/models"
 	"github.com/rogpeppe/go-internal/txtar"
 	"io"
 	"net/http"

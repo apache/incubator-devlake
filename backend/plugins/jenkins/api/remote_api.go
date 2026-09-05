@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"golang.org/x/exp/slices"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/devlake/plugins/jenkins/models"
 )
 
 type JenkinsRemotePagination struct {

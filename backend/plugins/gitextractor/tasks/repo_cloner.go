@@ -20,10 +20,10 @@ package tasks
 import (
 	"os"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/gitextractor/parser"
+	"github.com/apache/devlake/plugins/gitextractor/store"
 )
 
 var CloneGitRepoMeta = plugin.SubTaskMeta{

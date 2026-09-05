@@ -20,52 +20,51 @@ package plugins
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/unithelper"
-	ae "github.com/apache/incubator-devlake/plugins/ae/impl"
-	argocd "github.com/apache/incubator-devlake/plugins/argocd/impl"
-	asana "github.com/apache/incubator-devlake/plugins/asana/impl"
-	azuredevops "github.com/apache/incubator-devlake/plugins/azuredevops_go/impl"
-	bamboo "github.com/apache/incubator-devlake/plugins/bamboo/impl"
-	bitbucket "github.com/apache/incubator-devlake/plugins/bitbucket/impl"
-	bitbucket_server "github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
-	circleci "github.com/apache/incubator-devlake/plugins/circleci/impl"
-	claudeCode "github.com/apache/incubator-devlake/plugins/claude_code/impl"
-	clickup "github.com/apache/incubator-devlake/plugins/clickup/impl"
-	customize "github.com/apache/incubator-devlake/plugins/customize/impl"
-	dbt "github.com/apache/incubator-devlake/plugins/dbt/impl"
-	dora "github.com/apache/incubator-devlake/plugins/dora/impl"
-	feishu "github.com/apache/incubator-devlake/plugins/feishu/impl"
-	copilot "github.com/apache/incubator-devlake/plugins/gh-copilot/impl"
-	gitee "github.com/apache/incubator-devlake/plugins/gitee/impl"
-	gitextractor "github.com/apache/incubator-devlake/plugins/gitextractor/impl"
-	github "github.com/apache/incubator-devlake/plugins/github/impl"
-	githubGraphql "github.com/apache/incubator-devlake/plugins/github_graphql/impl"
-	gitlab "github.com/apache/incubator-devlake/plugins/gitlab/impl"
-	icla "github.com/apache/incubator-devlake/plugins/icla/impl"
-	incidentio "github.com/apache/incubator-devlake/plugins/incidentio/impl"
-	issueTrace "github.com/apache/incubator-devlake/plugins/issue_trace/impl"
-	jenkins "github.com/apache/incubator-devlake/plugins/jenkins/impl"
-	jira "github.com/apache/incubator-devlake/plugins/jira/impl"
-	kiro "github.com/apache/incubator-devlake/plugins/kiro/impl"
-	linear "github.com/apache/incubator-devlake/plugins/linear/impl"
-	linker "github.com/apache/incubator-devlake/plugins/linker/impl"
-	opsgenie "github.com/apache/incubator-devlake/plugins/opsgenie/impl"
-	org "github.com/apache/incubator-devlake/plugins/org/impl"
-	pagerduty "github.com/apache/incubator-devlake/plugins/pagerduty/impl"
-	q_dev "github.com/apache/incubator-devlake/plugins/q_dev/impl"
-	refdiff "github.com/apache/incubator-devlake/plugins/refdiff/impl"
-	rootly "github.com/apache/incubator-devlake/plugins/rootly/impl"
-	slack "github.com/apache/incubator-devlake/plugins/slack/impl"
-	sonarqube "github.com/apache/incubator-devlake/plugins/sonarqube/impl"
-	starrocks "github.com/apache/incubator-devlake/plugins/starrocks/impl"
-	taiga "github.com/apache/incubator-devlake/plugins/taiga/impl"
-	tapd "github.com/apache/incubator-devlake/plugins/tapd/impl"
-	teambition "github.com/apache/incubator-devlake/plugins/teambition/impl"
-	tempo "github.com/apache/incubator-devlake/plugins/tempo/impl"
-	testmo "github.com/apache/incubator-devlake/plugins/testmo/impl"
-	trello "github.com/apache/incubator-devlake/plugins/trello/impl"
-	webhook "github.com/apache/incubator-devlake/plugins/webhook/impl"
-	zentao "github.com/apache/incubator-devlake/plugins/zentao/impl"
+	"github.com/apache/devlake/helpers/unithelper"
+	ae "github.com/apache/devlake/plugins/ae/impl"
+	argocd "github.com/apache/devlake/plugins/argocd/impl"
+	asana "github.com/apache/devlake/plugins/asana/impl"
+	azuredevops "github.com/apache/devlake/plugins/azuredevops_go/impl"
+	bamboo "github.com/apache/devlake/plugins/bamboo/impl"
+	bitbucket "github.com/apache/devlake/plugins/bitbucket/impl"
+	bitbucket_server "github.com/apache/devlake/plugins/bitbucket_server/impl"
+	circleci "github.com/apache/devlake/plugins/circleci/impl"
+	claudeCode "github.com/apache/devlake/plugins/claude_code/impl"
+	clickup "github.com/apache/devlake/plugins/clickup/impl"
+	cursor "github.com/apache/devlake/plugins/cursor/impl"
+	customize "github.com/apache/devlake/plugins/customize/impl"
+	dora "github.com/apache/devlake/plugins/dora/impl"
+	feishu "github.com/apache/devlake/plugins/feishu/impl"
+	copilot "github.com/apache/devlake/plugins/gh-copilot/impl"
+	gitee "github.com/apache/devlake/plugins/gitee/impl"
+	gitextractor "github.com/apache/devlake/plugins/gitextractor/impl"
+	github "github.com/apache/devlake/plugins/github/impl"
+	githubGraphql "github.com/apache/devlake/plugins/github_graphql/impl"
+	gitlab "github.com/apache/devlake/plugins/gitlab/impl"
+	icla "github.com/apache/devlake/plugins/icla/impl"
+	incidentio "github.com/apache/devlake/plugins/incidentio/impl"
+	issueTrace "github.com/apache/devlake/plugins/issue_trace/impl"
+	jenkins "github.com/apache/devlake/plugins/jenkins/impl"
+	jira "github.com/apache/devlake/plugins/jira/impl"
+	kiro "github.com/apache/devlake/plugins/kiro/impl"
+	linear "github.com/apache/devlake/plugins/linear/impl"
+	linker "github.com/apache/devlake/plugins/linker/impl"
+	opsgenie "github.com/apache/devlake/plugins/opsgenie/impl"
+	org "github.com/apache/devlake/plugins/org/impl"
+	pagerduty "github.com/apache/devlake/plugins/pagerduty/impl"
+	refdiff "github.com/apache/devlake/plugins/refdiff/impl"
+	rootly "github.com/apache/devlake/plugins/rootly/impl"
+	slack "github.com/apache/devlake/plugins/slack/impl"
+	sonarqube "github.com/apache/devlake/plugins/sonarqube/impl"
+	starrocks "github.com/apache/devlake/plugins/starrocks/impl"
+	taiga "github.com/apache/devlake/plugins/taiga/impl"
+	tapd "github.com/apache/devlake/plugins/tapd/impl"
+	teambition "github.com/apache/devlake/plugins/teambition/impl"
+	tempo "github.com/apache/devlake/plugins/tempo/impl"
+	testmo "github.com/apache/devlake/plugins/testmo/impl"
+	trello "github.com/apache/devlake/plugins/trello/impl"
+	webhook "github.com/apache/devlake/plugins/webhook/impl"
+	zentao "github.com/apache/devlake/plugins/zentao/impl"
 )
 
 func Test_GetPluginTablesInfo(t *testing.T) {
@@ -81,7 +80,6 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("argocd/models", argocd.ArgoCD{}.GetTablesInfo)
 	checker.FeedIn("asana/models", asana.Asana{}.GetTablesInfo)
 	checker.FeedIn("customize/models", customize.Customize{}.GetTablesInfo)
-	checker.FeedIn("dbt", dbt.Dbt{}.GetTablesInfo)
 	checker.FeedIn("dora/models", dora.Dora{}.GetTablesInfo)
 	checker.FeedIn("feishu/models", feishu.Feishu{}.GetTablesInfo)
 	checker.FeedIn("gitee/models", gitee.Gitee{}.GetTablesInfo)
@@ -110,12 +108,12 @@ func Test_GetPluginTablesInfo(t *testing.T) {
 	checker.FeedIn("webhook/models", webhook.Webhook{}.GetTablesInfo)
 	checker.FeedIn("zentao/models", zentao.Zentao{}.GetTablesInfo)
 	checker.FeedIn("claude_code/models", claudeCode.ClaudeCode{}.GetTablesInfo)
+	checker.FeedIn("cursor/models", cursor.Cursor{}.GetTablesInfo)
 	checker.FeedIn("circleci/models", circleci.Circleci{}.GetTablesInfo)
 	checker.FeedIn("clickup/models", clickup.ClickUp{}.GetTablesInfo)
 	checker.FeedIn("opsgenie/models", opsgenie.Opsgenie{}.GetTablesInfo)
 	checker.FeedIn("linker/models", linker.Linker{}.GetTablesInfo)
 	checker.FeedIn("issue_trace/models", issueTrace.IssueTrace{}.GetTablesInfo)
-	checker.FeedIn("q_dev/models", q_dev.QDev{}.GetTablesInfo)
 	checker.FeedIn("kiro/models", kiro.Kiro{}.GetTablesInfo)
 	checker.FeedIn("gh-copilot/models", copilot.GhCopilot{}.GetTablesInfo)
 	err := checker.Verify()

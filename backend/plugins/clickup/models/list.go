@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // ClickUpList is a list inside a scoped folder. It is NOT itself a scope (the

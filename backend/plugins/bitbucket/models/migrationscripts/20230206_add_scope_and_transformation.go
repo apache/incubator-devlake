@@ -18,11 +18,11 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	archivedModel "github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/helpers/migrationhelper"
+	archivedModel "github.com/apache/devlake/plugins/bitbucket/models/migrationscripts/archived"
 	"time"
 )
 

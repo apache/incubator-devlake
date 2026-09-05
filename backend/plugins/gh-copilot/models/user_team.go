@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // GhCopilotUserTeam maps users to teams per day from the user-teams-1-day report.

@@ -20,7 +20,7 @@ package qa
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer"
 )
 
 // QaApi represents a QA API in the domain layer

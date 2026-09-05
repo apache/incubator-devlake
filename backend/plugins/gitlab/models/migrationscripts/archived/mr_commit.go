@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/models/migrationscripts/archived"
 )
 
 // This Model is intended to save commits that are associated to a merge request

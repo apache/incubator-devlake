@@ -17,7 +17,7 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+import "github.com/apache/devlake/core/models/migrationscripts/archived"
 
 type CircleciAccount struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT"`

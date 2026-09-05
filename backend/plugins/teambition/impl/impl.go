@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/teambition/api"
-	"github.com/apache/incubator-devlake/plugins/teambition/models"
-	"github.com/apache/incubator-devlake/plugins/teambition/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/teambition/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/teambition/api"
+	"github.com/apache/devlake/plugins/teambition/models"
+	"github.com/apache/devlake/plugins/teambition/models/migrationscripts"
+	"github.com/apache/devlake/plugins/teambition/tasks"
 )
 
 // make sure interface is implemented
@@ -159,7 +159,7 @@ func (p Teambition) PrepareTaskData(taskCtx plugin.TaskContext, options map[stri
 
 // RootPkgPath PkgPath information lost when compiled as plugin(.so)
 func (p Teambition) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/teambition"
+	return "github.com/apache/devlake/plugins/teambition"
 }
 
 func (p Teambition) MigrationScripts() []plugin.MigrationScript {

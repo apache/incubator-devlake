@@ -1,0 +1,2 @@
+connection_id,scope_id,user_id,usage_date,email,is_active,completions,premium_requests,agent_requests,chat_requests,composer_requests,tabs_accepted,tabs_shown,usage_based_reqs,subscription_included_reqs,most_used_model,client_version,accepted_lines_added,accepted_lines_deleted,total_lines_added,total_lines_deleted,total_applies,total_accepts,total_rejects,lines_added,lines_deleted
+1,team,user_example123,2026-07-08T00:00:00.000+00:00,user@example.com,1,15,3,5,8,2,42,60,7,6,composer-2.5-fast,0.50.3,120,30,150,35,10,8,2,120,30

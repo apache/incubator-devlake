@@ -20,11 +20,11 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/github/impl"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/github/impl"
+	"github.com/apache/devlake/plugins/github/models"
+	"github.com/apache/devlake/plugins/github/tasks"
 )
 
 // Extraction of issue field values, and the scope config mapping that carries them into the

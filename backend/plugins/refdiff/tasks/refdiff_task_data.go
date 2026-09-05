@@ -24,10 +24,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/plugins/refdiff/models"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/plugins/refdiff/models"
 )
 
 type RefdiffTaskData struct {

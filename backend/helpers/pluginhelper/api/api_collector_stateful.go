@@ -23,8 +23,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
 )
 
 // StatefulApiCollector runs multiple collectors as a single subtask and maintains the state of the collector

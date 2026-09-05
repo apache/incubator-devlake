@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 type TestmoConn struct {

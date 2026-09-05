@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/rootly/api"
-	"github.com/apache/incubator-devlake/plugins/rootly/models"
-	"github.com/apache/incubator-devlake/plugins/rootly/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/rootly/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/rootly/api"
+	"github.com/apache/devlake/plugins/rootly/models"
+	"github.com/apache/devlake/plugins/rootly/models/migrationscripts"
+	"github.com/apache/devlake/plugins/rootly/tasks"
 )
 
 // make sure interface is implemented
@@ -129,7 +129,7 @@ func (p Rootly) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p Rootly) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/rootly"
+	return "github.com/apache/devlake/plugins/rootly"
 }
 
 func (p Rootly) MigrationScripts() []plugin.MigrationScript {

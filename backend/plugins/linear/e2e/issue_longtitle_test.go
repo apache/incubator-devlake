@@ -20,11 +20,11 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/linear/impl"
-	"github.com/apache/incubator-devlake/plugins/linear/models"
-	"github.com/apache/incubator-devlake/plugins/linear/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/linear/impl"
+	"github.com/apache/devlake/plugins/linear/models"
+	"github.com/apache/devlake/plugins/linear/tasks"
 	"github.com/stretchr/testify/assert"
 )
 

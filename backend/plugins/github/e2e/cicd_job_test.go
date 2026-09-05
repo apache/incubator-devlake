@@ -20,14 +20,14 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/models/common"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/github/impl"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/github/impl"
+	"github.com/apache/devlake/plugins/github/models"
+	"github.com/apache/devlake/plugins/github/tasks"
 )
 
 func TestGithubCICDJobDataFlow(t *testing.T) {

@@ -20,7 +20,7 @@ package archived
 import (
 	"time"
 
-	corearchived "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	corearchived "github.com/apache/devlake/core/models/migrationscripts/archived"
 )
 
 type TestmoRun struct {

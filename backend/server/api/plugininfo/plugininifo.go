@@ -19,12 +19,12 @@ package plugininfo
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/domaininfo"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer/domaininfo"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/utils"
+	"github.com/apache/devlake/server/api/shared"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm/schema"
 	"net/http"
@@ -75,8 +75,9 @@ type PluginMetric struct {
 }
 
 type PluginMeta struct {
-	Plugin string       `json:"plugin"`
-	Metric PluginMetric `json:"metric"`
+	Plugin     string       `json:"plugin"`
+	Metric     PluginMetric `json:"metric"`
+	Deprecated bool         `json:"deprecated"`
 }
 
 type PluginMetas []PluginMeta
@@ -205,6 +206,10 @@ func GetPluginMetas(c *gin.Context) {
 	err := plugin.TraversalPlugin(func(name string, p plugin.PluginMeta) errors.Error {
 		pluginMeta := PluginMeta{
 			Plugin: name,
+		}
+
+		if dp, ok := p.(plugin.PluginDeprecation); ok {
+			pluginMeta.Deprecated = dp.DeprecationMessage() != ""
 		}
 
 		// if this plugin has the plugin task info

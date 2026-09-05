@@ -17,7 +17,7 @@ limitations under the License.
 
 package e2e
 
-import "github.com/apache/incubator-devlake/plugins/issue_trace/tasks"
+import "github.com/apache/devlake/plugins/issue_trace/tasks"
 
 var TaskData = &tasks.TaskData{
 	Options: tasks.Options{

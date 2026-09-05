@@ -18,8 +18,8 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/starrocks/impl"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/plugins/starrocks/impl"
 	"github.com/spf13/cobra"
 )
 

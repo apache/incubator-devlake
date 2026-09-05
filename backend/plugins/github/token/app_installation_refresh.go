@@ -20,11 +20,11 @@ package token
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/github/models"
 )
 
 // tokenPrefix returns the first n characters of a token for safe logging.

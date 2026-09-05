@@ -18,10 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/devlake/core/errors"
+	plugin "github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/bitbucket/models"
 )
 
 func CreateApiClient(taskCtx plugin.TaskContext, connection *models.BitbucketConnection) (*api.ApiAsyncClient, errors.Error) {

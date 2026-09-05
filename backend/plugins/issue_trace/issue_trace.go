@@ -20,8 +20,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/issue_trace/impl"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/plugins/issue_trace/impl"
 	"github.com/spf13/cobra"
 )
 

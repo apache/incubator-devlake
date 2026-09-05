@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records

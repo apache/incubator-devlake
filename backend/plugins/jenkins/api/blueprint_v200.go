@@ -20,17 +20,17 @@ package api
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/models/domainlayer/didgen"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/utils"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/srvhelper"
+	"github.com/apache/devlake/plugins/jenkins/models"
+	"github.com/apache/devlake/plugins/jenkins/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(

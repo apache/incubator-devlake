@@ -20,8 +20,8 @@ package dalgorm
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
 )
 
 // DalgormTransaction represents a gorm transaction which using the same underlying

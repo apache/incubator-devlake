@@ -18,10 +18,10 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/helpers/migrationhelper"
+	"github.com/apache/devlake/plugins/gitlab/models/migrationscripts/archived"
 )
 
 type gitlabProject20221125 struct {

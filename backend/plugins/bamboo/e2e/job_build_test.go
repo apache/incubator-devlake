@@ -20,13 +20,13 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bamboo/impl"
-	"github.com/apache/incubator-devlake/plugins/bamboo/models"
-	"github.com/apache/incubator-devlake/plugins/bamboo/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/bamboo/impl"
+	"github.com/apache/devlake/plugins/bamboo/models"
+	"github.com/apache/devlake/plugins/bamboo/tasks"
 )
 
 func TestBambooJobBuildDataFlow(t *testing.T) {

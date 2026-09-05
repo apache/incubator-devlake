@@ -19,9 +19,9 @@ package push
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/server/api/shared"
+	"github.com/apache/devlake/server/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

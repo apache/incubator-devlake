@@ -21,19 +21,19 @@ import (
 	"fmt"
 	"strings"
 
-	coreModels "github.com/apache/incubator-devlake/core/models"
+	coreModels "github.com/apache/devlake/core/models"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jenkins/api"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/jenkins/api"
+	"github.com/apache/devlake/plugins/jenkins/models"
+	"github.com/apache/devlake/plugins/jenkins/models/migrationscripts"
+	"github.com/apache/devlake/plugins/jenkins/tasks"
 )
 
 var _ interface {
@@ -156,7 +156,7 @@ func (p Jenkins) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 }
 
 func (p Jenkins) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/jenkins"
+	return "github.com/apache/devlake/plugins/jenkins"
 }
 
 func (p Jenkins) MigrationScripts() []plugin.MigrationScript {

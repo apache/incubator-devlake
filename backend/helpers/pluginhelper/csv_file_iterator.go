@@ -22,7 +22,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 )
 
 // CsvFileIterator make iterating rows from csv file easier, it reads tuple from csv file and turn it into

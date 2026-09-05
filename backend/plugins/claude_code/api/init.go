@@ -20,10 +20,10 @@ package api
 import (
 	"github.com/go-playground/validator/v10"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/claude_code/models"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/claude_code/models"
 )
 
 var (

@@ -20,8 +20,8 @@ package migrationscripts
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
 )
 
 type circleciWorkflow20260322 struct {

@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
 	"reflect"
 	"regexp"
 	"testing"
@@ -47,7 +47,7 @@ func Test_extractCommitSha(t *testing.T) {
 			"bitbucket cloud",
 			args{
 				repoPatterns: []*regexp.Regexp{regexp.MustCompile(`https://bitbucket.org/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commits/(?P<commit_sha>\w{40})`)},
-				commitUrl:    "https://bitbucket.org/mynamespace/incubator-devlake/commits/fef8d697fbb9a2b336be6fa2e2848f585c86a622",
+				commitUrl:    "https://bitbucket.org/mynamespace/devlake/commits/fef8d697fbb9a2b336be6fa2e2848f585c86a622",
 			},
 			"fef8d697fbb9a2b336be6fa2e2848f585c86a622",
 		},
@@ -55,7 +55,7 @@ func Test_extractCommitSha(t *testing.T) {
 			"GitHub",
 			args{
 				repoPatterns: []*regexp.Regexp{regexp.MustCompile(`https://github.com/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commit/(?P<commit_sha>\w{40})`)},
-				commitUrl:    "https://github.com/apache/incubator-devlake/commit/a7c6550b6a273af36e9850291a52601d3dca367c",
+				commitUrl:    "https://github.com/apache/devlake/commit/a7c6550b6a273af36e9850291a52601d3dca367c",
 			},
 			"a7c6550b6a273af36e9850291a52601d3dca367c",
 		},
@@ -129,15 +129,15 @@ func Test_refineIssueRepoCommit(t *testing.T) {
 			args{
 				item:         &crossdomain.IssueRepoCommit{IssueId: "abc123", CommitSha: "fef8d697fbb9a2b336be6fa2e2848f585c86a622"},
 				repoPatterns: []*regexp.Regexp{regexp.MustCompile(`https://bitbucket.org/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commits/(?P<commit_sha>\w{40})`)},
-				commitUrl:    "https://bitbucket.org/mynamespace/incubator-devlake/commits/fef8d697fbb9a2b336be6fa2e2848f585c86a622",
+				commitUrl:    "https://bitbucket.org/mynamespace/devlake/commits/fef8d697fbb9a2b336be6fa2e2848f585c86a622",
 			},
 			&crossdomain.IssueRepoCommit{
 				IssueId:   "abc123",
 				CommitSha: "fef8d697fbb9a2b336be6fa2e2848f585c86a622",
-				RepoUrl:   "https://bitbucket.org/mynamespace/incubator-devlake.git",
+				RepoUrl:   "https://bitbucket.org/mynamespace/devlake.git",
 				Host:      "bitbucket.org",
 				Namespace: "mynamespace",
-				RepoName:  "incubator-devlake",
+				RepoName:  "devlake",
 			},
 		},
 		{
@@ -145,15 +145,15 @@ func Test_refineIssueRepoCommit(t *testing.T) {
 			args{
 				item:         &crossdomain.IssueRepoCommit{IssueId: "abc123", CommitSha: "a7c6550b6a273af36e9850291a52601d3dca367c"},
 				repoPatterns: []*regexp.Regexp{regexp.MustCompile(`https://github.com/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commit/(?P<commit_sha>\w{40})`)},
-				commitUrl:    "https://github.com/apache/incubator-devlake/commit/a7c6550b6a273af36e9850291a52601d3dca367c",
+				commitUrl:    "https://github.com/apache/devlake/commit/a7c6550b6a273af36e9850291a52601d3dca367c",
 			},
 			&crossdomain.IssueRepoCommit{
 				IssueId:   "abc123",
 				CommitSha: "a7c6550b6a273af36e9850291a52601d3dca367c",
-				RepoUrl:   "https://github.com/apache/incubator-devlake.git",
+				RepoUrl:   "https://github.com/apache/devlake.git",
 				Host:      "github.com",
 				Namespace: "apache",
-				RepoName:  "incubator-devlake",
+				RepoName:  "devlake",
 			},
 		},
 		{

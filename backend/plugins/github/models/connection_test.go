@@ -18,8 +18,8 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 	"testing"
 
 	"github.com/go-playground/validator/v10"

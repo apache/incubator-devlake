@@ -20,8 +20,8 @@ package impl
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/helpers/pluginhelper/subtaskmeta/sorter"
+	"github.com/apache/devlake/plugins/github/tasks"
 )
 
 func Test_genSubtaskList(t *testing.T) {

@@ -22,13 +22,13 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/testmo/impl"
-	pluginmodels "github.com/apache/incubator-devlake/plugins/testmo/models"
-	"github.com/apache/incubator-devlake/test/helper"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/testmo/impl"
+	pluginmodels "github.com/apache/devlake/plugins/testmo/models"
+	"github.com/apache/devlake/test/helper"
 	"github.com/stretchr/testify/require"
 )
 

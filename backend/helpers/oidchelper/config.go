@@ -23,8 +23,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/context"
 )
 
 const (

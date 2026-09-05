@@ -21,11 +21,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
-	mockcontext "github.com/apache/incubator-devlake/mocks/core/context"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/helpers/unithelper"
+	mockcontext "github.com/apache/devlake/mocks/core/context"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

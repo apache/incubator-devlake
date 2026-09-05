@@ -134,11 +134,11 @@ We have covered all the components of a DevLake plugin. Happy coding!
 There are three types of test strategies:
 1. Unit-tests: these are component level tests that mock dependencies. They typically exist next to the source file they're testing.
 2. E2E-tests: these test plugin extractor and convertor subtasks by using faked data to simulate the result of data collection.
-3. Integration-tests: these test the entire DevLake server as a whole. A [Go Client](https://github.com/apache/incubator-devlake/blob/main/backend/test/helper/api.go) ([example initialization](https://github.com/apache/incubator-devlake/blob/main/backend/test/helper/client_factory.go))
+3. Integration-tests: these test the entire DevLake server as a whole. A [Go Client](https://github.com/apache/devlake/blob/main/backend/test/helper/api.go) ([example initialization](https://github.com/apache/devlake/blob/main/backend/test/helper/client_factory.go))
 has been written to either interact with an existing DevLake server (via its APIs) or spin up an in-memory instance of DevLake for the purpose of testing (note you need to have
-a separate database instance running). We have some integration tests written for some of our plugins (see [this](https://github.com/apache/incubator-devlake/tree/main/backend/test/e2e/manual)), which is the best
+a separate database instance running). We have some integration tests written for some of our plugins (see [this](https://github.com/apache/devlake/tree/main/backend/test/e2e/manual)), which is the best
 source to learn how to write these tests and interact with the client. Note that the in-memory DevLake instance directly compiles the
-plugins you specify and in doing so saves a significant amount of time and overhead ([example](https://github.com/apache/incubator-devlake/blob/d717d2aa897742ab4789b9a44e9e5a4c1e28adcf/backend/test/e2e/manual/gitlab/gitlab_test.go#L62)).
+plugins you specify and in doing so saves a significant amount of time and overhead ([example](https://github.com/apache/devlake/blob/d717d2aa897742ab4789b9a44e9e5a4c1e28adcf/backend/test/e2e/manual/gitlab/gitlab_test.go#L62)).
 
 We highly encourage you to leverage the Go client to perform quick tests as you write either framework-level or plugin code.
 

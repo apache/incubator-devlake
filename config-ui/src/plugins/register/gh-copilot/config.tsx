@@ -28,7 +28,7 @@ export const GhCopilotConfig: IPluginConfig = {
   sort: 6.5,
   isBeta: true,
   connection: {
-    docLink: 'https://github.com/apache/incubator-devlake/blob/main/backend/plugins/gh-copilot/README.md',
+    docLink: 'https://github.com/apache/devlake/blob/main/backend/plugins/gh-copilot/README.md',
     initialValues: {
       endpoint: 'https://api.github.com',
       organization: '',

@@ -21,12 +21,12 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/gitextractor/parser"
+	"github.com/apache/devlake/plugins/gitextractor/tasks"
 	giturls "github.com/chainguard-dev/git-urls"
 )
 
@@ -143,7 +143,7 @@ func (p GitExtractor) Close(taskCtx plugin.TaskContext) errors.Error {
 }
 
 func (p GitExtractor) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/gitextractor"
+	return "github.com/apache/devlake/plugins/gitextractor"
 }
 
 func (p GitExtractor) TestConnection(id uint64) errors.Error {

@@ -19,10 +19,10 @@ package impl
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/plugins/dora/tasks"
+	"github.com/apache/devlake/plugins/dora/tasks"
 	"testing"
 
-	coreModels "github.com/apache/incubator-devlake/core/models"
+	coreModels "github.com/apache/devlake/core/models"
 	"github.com/stretchr/testify/assert"
 )
 

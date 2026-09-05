@@ -21,12 +21,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/github/impl"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/github/impl"
+	"github.com/apache/devlake/plugins/github/models"
+	"github.com/apache/devlake/plugins/github/tasks"
 )
 
 func TestPrReviewDataFlow(t *testing.T) {

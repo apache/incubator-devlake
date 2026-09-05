@@ -20,18 +20,18 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/runner"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"github.com/apache/incubator-devlake/plugins/zentao/api"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/runner"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/impls/dalgorm"
+	"github.com/apache/devlake/plugins/zentao/api"
+	"github.com/apache/devlake/plugins/zentao/models"
+	"github.com/apache/devlake/plugins/zentao/models/migrationscripts"
+	"github.com/apache/devlake/plugins/zentao/tasks"
 	"github.com/spf13/viper"
 )
 
@@ -237,7 +237,7 @@ func (p Zentao) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p Zentao) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/zentao"
+	return "github.com/apache/devlake/plugins/zentao"
 }
 
 func (p Zentao) MigrationScripts() []plugin.MigrationScript {

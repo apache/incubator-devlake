@@ -18,7 +18,7 @@ limitations under the License.
 package models
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // TestmoConn holds the essential information to connect to the Testmo API

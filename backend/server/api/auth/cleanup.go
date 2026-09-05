@@ -21,8 +21,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
 )
 
 const (

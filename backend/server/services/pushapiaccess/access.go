@@ -21,7 +21,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 )
 
 var tableNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)

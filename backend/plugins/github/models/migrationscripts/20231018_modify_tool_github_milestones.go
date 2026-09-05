@@ -20,11 +20,11 @@ package migrationscripts
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	githubArchived "github.com/apache/incubator-devlake/plugins/github/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/helpers/migrationhelper"
+	githubArchived "github.com/apache/devlake/plugins/github/models/migrationscripts/archived"
 )
 
 type modifyGithubMilestone struct{}

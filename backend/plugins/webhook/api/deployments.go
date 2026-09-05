@@ -24,20 +24,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/server/services"
 
-	"github.com/apache/incubator-devlake/helpers/dbhelper"
+	"github.com/apache/devlake/helpers/dbhelper"
 	"github.com/go-playground/validator/v10"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	coremodels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/webhook/models"
+	"github.com/apache/devlake/core/errors"
+	coremodels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/webhook/models"
 )
 
 type WebhookDeploymentReq struct {

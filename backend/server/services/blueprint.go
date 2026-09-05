@@ -23,13 +23,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/services"
+	"github.com/apache/devlake/helpers/pluginhelper/services"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/impls/logruslog"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/impls/logruslog"
 	"github.com/robfig/cron/v3"
 )
 

@@ -18,11 +18,11 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	archivedCore "github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	archivedCore "github.com/apache/devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/helpers/migrationhelper"
+	"github.com/apache/devlake/plugins/gitlab/models/migrationscripts/archived"
 )
 
 type addGitlabAssigneeAndReviewerPrimaryKey struct{}

@@ -23,10 +23,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/sonarqube/models"
 )
 
 const RAW_PROJECT_METRICS_HISTORY_TABLE = "sonarqube_api_project_metrics_history"

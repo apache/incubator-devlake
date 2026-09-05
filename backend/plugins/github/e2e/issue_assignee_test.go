@@ -18,14 +18,14 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/devlake/plugins/github/models"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/github/impl"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/github/impl"
+	"github.com/apache/devlake/plugins/github/tasks"
 )
 
 func TestIssueAssigneeDataFlow(t *testing.T) {

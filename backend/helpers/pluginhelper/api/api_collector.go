@@ -28,10 +28,10 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/plugin"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
 )
 
 var _ plugin.SubTask = (*ApiCollector)(nil)
@@ -299,7 +299,7 @@ func (collector *ApiCollector) fetchPagesDetermined(reqData *RequestData) {
 		totalPages, err := collector.args.GetTotalPages(res, collector.args)
 		if err != nil {
 			// Some APIs might or might not return total pages/records based on total number of records
-			// check https://github.com/apache/incubator-devlake/issues/8187 for details
+			// check https://github.com/apache/devlake/issues/8187 for details
 			if err == ErrUndetermined {
 				collector.fetchPagesUndetermined(reqData, true)
 				return nil

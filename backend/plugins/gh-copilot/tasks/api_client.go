@@ -21,11 +21,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/gh-copilot/models"
 )
 
 const gitHubApiVersion = "2026-03-10"

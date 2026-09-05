@@ -20,7 +20,7 @@ package dalgorm
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 	"gorm.io/gorm/schema"
 )
 

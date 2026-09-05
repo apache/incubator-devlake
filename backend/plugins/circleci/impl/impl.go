@@ -20,17 +20,17 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/circleci/api"
-	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"github.com/apache/incubator-devlake/plugins/circleci/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/circleci/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/circleci/api"
+	"github.com/apache/devlake/plugins/circleci/models"
+	"github.com/apache/devlake/plugins/circleci/models/migrationscripts"
+	"github.com/apache/devlake/plugins/circleci/tasks"
 )
 
 // make sure interface is implemented
@@ -159,7 +159,7 @@ func (p Circleci) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 
 // RootPkgPath PkgPath information lost when compiled as plugin(.so)
 func (p Circleci) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/circleci"
+	return "github.com/apache/devlake/plugins/circleci"
 }
 
 func (p Circleci) MigrationScripts() []plugin.MigrationScript {

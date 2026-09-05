@@ -20,10 +20,10 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/jira/impl"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/jira/impl"
+	"github.com/apache/devlake/plugins/jira/models"
+	"github.com/apache/devlake/plugins/jira/tasks"
 )
 
 func TestRemotelinkDataFlow(t *testing.T) {

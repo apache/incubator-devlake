@@ -18,14 +18,14 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/models/domainlayer/didgen"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/github/models"
 )
 
 func init() {
@@ -85,7 +85,7 @@ func ConvertJobs(taskCtx plugin.SubTaskContext) (err errors.Error) {
 			return db.Cursor(clauses...)
 		},
 		Convert: func(line *models.GithubJob) ([]interface{}, errors.Error) {
-			// Skip jobs with no started_at value (workaround for https://github.com/apache/incubator-devlake/issues/8442)
+			// Skip jobs with no started_at value (workaround for https://github.com/apache/devlake/issues/8442)
 			if line.StartedAt == nil {
 				return nil, nil
 			}

@@ -20,15 +20,15 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitee/api"
-	"github.com/apache/incubator-devlake/plugins/gitee/models"
-	"github.com/apache/incubator-devlake/plugins/gitee/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/gitee/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/gitee/api"
+	"github.com/apache/devlake/plugins/gitee/models"
+	"github.com/apache/devlake/plugins/gitee/models/migrationscripts"
+	"github.com/apache/devlake/plugins/gitee/tasks"
 )
 
 var _ interface {
@@ -175,7 +175,7 @@ func (p Gitee) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 }
 
 func (p Gitee) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/gitee"
+	return "github.com/apache/devlake/plugins/gitee"
 }
 
 func (p Gitee) MigrationScripts() []plugin.MigrationScript {

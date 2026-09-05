@@ -22,9 +22,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/plugins/jira/models"
 )
 
 // FlexibleDescription supports both plain text and ADF (Atlassian Document Format) for Jira description field

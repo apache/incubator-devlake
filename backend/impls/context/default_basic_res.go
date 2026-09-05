@@ -18,10 +18,10 @@ limitations under the License.
 package context
 
 import (
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
 )
 
 // DefaultBasicRes offers a common implementation for the  BasisRes interface

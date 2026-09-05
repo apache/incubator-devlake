@@ -18,8 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/tempo/models"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/tempo/models"
 )
 
 const (

@@ -17,7 +17,7 @@ limitations under the License.
 
 package codequality
 
-import "github.com/apache/incubator-devlake/core/models/domainlayer"
+import "github.com/apache/devlake/core/models/domainlayer"
 
 type CqIssueCodeBlock struct {
 	domainlayer.DomainEntity

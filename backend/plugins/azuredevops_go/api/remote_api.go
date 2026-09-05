@@ -18,10 +18,10 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	_ "github.com/apache/incubator-devlake/plugins/azuredevops_go/models" // Keep imports for API docs generation
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	dsmodels "github.com/apache/devlake/helpers/pluginhelper/api/models"
+	_ "github.com/apache/devlake/plugins/azuredevops_go/models" // Keep imports for API docs generation
 )
 
 var _ dsmodels.DsRemoteApiScopeSearchParams // Keep imports for API docs generation

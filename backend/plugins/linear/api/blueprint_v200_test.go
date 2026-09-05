@@ -20,18 +20,18 @@ package api
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/linear/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/srvhelper"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
+	"github.com/apache/devlake/plugins/linear/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func mockLinearPlugin(t *testing.T) {
 	mockMeta := mockplugin.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/linear")
+	mockMeta.On("RootPkgPath").Return("github.com/apache/devlake/plugins/linear")
 	mockMeta.On("Name").Return("linear").Maybe()
 	_ = plugin.RegisterPlugin("linear", mockMeta)
 }

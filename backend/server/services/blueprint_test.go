@@ -20,7 +20,7 @@ package services
 import (
 	"testing"
 
-	coreModels "github.com/apache/incubator-devlake/core/models"
+	coreModels "github.com/apache/devlake/core/models"
 	"github.com/stretchr/testify/assert"
 )
 

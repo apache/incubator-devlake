@@ -18,7 +18,7 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/plugins/github/tasks"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

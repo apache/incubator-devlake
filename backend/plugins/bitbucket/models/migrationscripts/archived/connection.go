@@ -20,7 +20,7 @@ package archived
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/migrationscripts/archived"
+	"github.com/apache/devlake/core/models/migrationscripts/archived"
 )
 
 type BasicAuth struct {
