@@ -38,17 +38,53 @@ build_dir=$(mktemp -d)
 trap 'rm -rf "$build_dir"' EXIT HUP INT TERM
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get install -y --no-install-recommends \
-    ca-certificates \
-    cmake \
-    curl \
-    gcc \
-    libssh2-1-dev \
-    libssl-dev \
-    make \
-    pkg-config \
-    zlib1g-dev
+
+# Debian releases are pulled from security.debian.org/deb.debian.org only
+# while they have active (LTS) support. Once a release goes EOL, its
+# packages move to archive.debian.org and the live mirrors 404. Repoint
+# apt at the archive for releases we know are EOL so this keeps working
+# without depending on the CI image being rebuilt on a newer base.
+eol_codenames="bullseye"
+codename=$(. /etc/os-release && echo "$VERSION_CODENAME")
+case " $eol_codenames " in
+    *" $codename "*)
+        echo "Debian $codename is EOL; repointing apt sources at archive.debian.org"
+        for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do
+            [ -f "$f" ] || continue
+            sed -i \
+                -e "s|http://deb.debian.org/debian|http://archive.debian.org/debian|g" \
+                -e "s|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g" \
+                "$f"
+        done
+        echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
+        ;;
+esac
+
+apt_update_and_install() {
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        cmake \
+        curl \
+        gcc \
+        libssh2-1-dev \
+        libssl-dev \
+        make \
+        pkg-config \
+        zlib1g-dev
+}
+
+n=0
+until apt_update_and_install; do
+    n=$((n + 1))
+    if [ "$n" -ge 3 ]; then
+        echo "apt-get update/install failed after $n attempts" >&2
+        exit 1
+    fi
+    echo "apt-get update/install failed, retrying ($n/3)..." >&2
+    apt-get clean
+    sleep 5
+done
 
 archive="$build_dir/libgit2.tar.gz"
 curl --fail --location --retry 3 "$LIBGIT2_URL" --output "$archive"
