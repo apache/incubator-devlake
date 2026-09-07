@@ -18,7 +18,7 @@ limitations under the License.
 package unithelper
 
 import (
-	mocklog "github.com/apache/incubator-devlake/mocks/core/log"
+	mocklog "github.com/apache/devlake/mocks/core/log"
 	"github.com/stretchr/testify/mock"
 )
 

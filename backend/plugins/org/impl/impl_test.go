@@ -20,7 +20,7 @@ package impl
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/plugin"
 	"github.com/stretchr/testify/assert"
 )
 

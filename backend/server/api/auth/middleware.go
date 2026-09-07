@@ -24,9 +24,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/helpers/oidchelper"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/helpers/oidchelper"
+	"github.com/apache/devlake/server/api/shared"
 )
 
 // publicPaths is the set of routes reachable without authentication.

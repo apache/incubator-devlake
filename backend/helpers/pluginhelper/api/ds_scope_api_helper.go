@@ -20,13 +20,13 @@ package api
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	serviceHelper "github.com/apache/incubator-devlake/helpers/pluginhelper/services"
-	"github.com/apache/incubator-devlake/helpers/srvhelper"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	serviceHelper "github.com/apache/devlake/helpers/pluginhelper/services"
+	"github.com/apache/devlake/helpers/srvhelper"
+	"github.com/apache/devlake/server/api/shared"
 )
 
 type ScopeRefDoc = serviceHelper.BlueprintProjectPairs

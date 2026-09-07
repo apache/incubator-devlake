@@ -20,8 +20,8 @@ package tasks
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/linear/models"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/linear/models"
 )
 
 // LinearOptions are the per-scope options passed to a pipeline task.

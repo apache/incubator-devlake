@@ -21,9 +21,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/bitbucket/models"
+	"github.com/apache/devlake/server/api/shared"
 	"github.com/stretchr/testify/assert"
 )
 

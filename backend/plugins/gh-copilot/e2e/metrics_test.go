@@ -21,14 +21,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gh-copilot/impl"
-	"github.com/apache/incubator-devlake/plugins/gh-copilot/models"
-	"github.com/apache/incubator-devlake/plugins/gh-copilot/tasks"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/gh-copilot/impl"
+	"github.com/apache/devlake/plugins/gh-copilot/models"
+	"github.com/apache/devlake/plugins/gh-copilot/tasks"
 )
 
 func TestCopilotMetricsDataFlow(t *testing.T) {

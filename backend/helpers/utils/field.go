@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // GetTimeFieldFromMap retrieves a time field from a map.

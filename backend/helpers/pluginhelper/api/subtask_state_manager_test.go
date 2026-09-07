@@ -22,10 +22,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

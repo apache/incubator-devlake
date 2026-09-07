@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/trello/api"
-	"github.com/apache/incubator-devlake/plugins/trello/models"
-	"github.com/apache/incubator-devlake/plugins/trello/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/trello/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/trello/api"
+	"github.com/apache/devlake/plugins/trello/models"
+	"github.com/apache/devlake/plugins/trello/models/migrationscripts"
+	"github.com/apache/devlake/plugins/trello/tasks"
 )
 
 var _ interface {
@@ -127,7 +127,7 @@ func (p Trello) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 }
 
 func (p Trello) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/trello"
+	return "github.com/apache/devlake/plugins/trello"
 }
 
 func (p Trello) MigrationScripts() []plugin.MigrationScript {

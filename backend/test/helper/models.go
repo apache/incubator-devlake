@@ -20,10 +20,10 @@ package helper
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/models"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 type (

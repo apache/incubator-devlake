@@ -18,10 +18,10 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/org/impl"
-	"github.com/apache/incubator-devlake/plugins/org/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/org/impl"
+	"github.com/apache/devlake/plugins/org/tasks"
 	"testing"
 )
 

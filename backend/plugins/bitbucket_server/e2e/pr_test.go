@@ -20,11 +20,11 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/bitbucket_server/impl"
-	"github.com/apache/incubator-devlake/plugins/bitbucket_server/models"
-	"github.com/apache/incubator-devlake/plugins/bitbucket_server/tasks"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/bitbucket_server/impl"
+	"github.com/apache/devlake/plugins/bitbucket_server/models"
+	"github.com/apache/devlake/plugins/bitbucket_server/tasks"
 )
 
 func TestPrDataFlow(t *testing.T) {

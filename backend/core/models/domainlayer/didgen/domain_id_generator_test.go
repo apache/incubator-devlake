@@ -19,8 +19,8 @@ package didgen
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -45,7 +45,7 @@ func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- floa
 }
 
 func (f *FooPlugin) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake"
+	return "github.com/apache/devlake"
 }
 
 func (f *FooPlugin) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

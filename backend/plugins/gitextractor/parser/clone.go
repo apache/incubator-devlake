@@ -18,7 +18,7 @@ limitations under the License.
 package parser
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 )
 
 type RepoCloner interface {

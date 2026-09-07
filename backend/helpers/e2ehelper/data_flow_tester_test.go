@@ -18,11 +18,11 @@ limitations under the License.
 package e2ehelper
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/models/common"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/models/common"
+	plugin "github.com/apache/devlake/core/plugin"
+	gitlabModels "github.com/apache/devlake/plugins/gitlab/models"
+	"github.com/apache/devlake/plugins/gitlab/tasks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

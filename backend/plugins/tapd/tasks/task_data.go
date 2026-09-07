@@ -20,9 +20,9 @@ package tasks
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"github.com/apache/devlake/core/errors"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/tapd/models"
 )
 
 type TapdOptions struct {

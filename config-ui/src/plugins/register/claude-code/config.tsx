@@ -28,7 +28,7 @@ export const ClaudeCodeConfig: IPluginConfig = {
   sort: 6.6,
   isBeta: true,
   connection: {
-    docLink: 'https://github.com/apache/incubator-devlake/tree/main/backend/plugins/claude_code',
+    docLink: 'https://github.com/apache/devlake/tree/main/backend/plugins/claude_code',
     initialValues: {
       endpoint: 'https://api.anthropic.com',
       organization: '',

@@ -18,16 +18,16 @@ limitations under the License.
 package impl
 
 import (
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/claude_code/api"
-	"github.com/apache/incubator-devlake/plugins/claude_code/models"
-	"github.com/apache/incubator-devlake/plugins/claude_code/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/claude_code/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/claude_code/api"
+	"github.com/apache/devlake/plugins/claude_code/models"
+	"github.com/apache/devlake/plugins/claude_code/models/migrationscripts"
+	"github.com/apache/devlake/plugins/claude_code/tasks"
 )
 
 var _ interface {
@@ -158,7 +158,7 @@ func (p ClaudeCode) MakeDataSourcePipelinePlanV200(
 }
 
 func (p ClaudeCode) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/claude_code"
+	return "github.com/apache/devlake/plugins/claude_code"
 }
 
 func (p ClaudeCode) MigrationScripts() []plugin.MigrationScript {

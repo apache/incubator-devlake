@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
+	"github.com/apache/devlake/plugins/tapd/tasks"
 )
 
 type TapdTaskOptions tasks.TapdOptions

@@ -21,14 +21,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/config"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	argocdimpl "github.com/apache/incubator-devlake/plugins/argocd/impl"
-	argocdmodels "github.com/apache/incubator-devlake/plugins/argocd/models"
-	"github.com/apache/incubator-devlake/test/helper"
+	"github.com/apache/devlake/core/config"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	argocdimpl "github.com/apache/devlake/plugins/argocd/impl"
+	argocdmodels "github.com/apache/devlake/plugins/argocd/models"
+	"github.com/apache/devlake/test/helper"
 	"github.com/stretchr/testify/require"
 )
 

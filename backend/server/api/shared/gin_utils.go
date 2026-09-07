@@ -21,7 +21,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 	"github.com/gin-gonic/gin"
 )
 

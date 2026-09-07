@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/opsgenie/tasks"
+	"github.com/apache/devlake/plugins/opsgenie/tasks"
 )
 
 type OpsgenieTaskOptions tasks.OpsgenieOptions

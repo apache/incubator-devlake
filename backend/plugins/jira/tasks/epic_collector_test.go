@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/plugins/jira/models"
 )
 
 func TestEpicCollectorBatchSizeLogic(t *testing.T) {

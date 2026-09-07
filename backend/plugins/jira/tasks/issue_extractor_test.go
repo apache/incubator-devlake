@@ -22,9 +22,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/jira/models"
+	"github.com/apache/devlake/plugins/jira/tasks/apiv2models"
 )
 
 func TestExtractIssuesEpicKeyField(t *testing.T) {

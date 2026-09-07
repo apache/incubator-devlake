@@ -19,14 +19,14 @@ package e2e
 
 import (
 	gocontext "context"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/zentao/impl"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/zentao/impl"
+	"github.com/apache/devlake/plugins/zentao/models"
+	"github.com/apache/devlake/plugins/zentao/tasks"
 	"testing"
 	"time"
 )

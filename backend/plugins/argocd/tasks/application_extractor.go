@@ -21,10 +21,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/argocd/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/argocd/models"
 )
 
 var _ plugin.SubTaskEntryPoint = ExtractApplications
@@ -34,6 +34,7 @@ var ExtractApplicationsMeta = plugin.SubTaskMeta{
 	EntryPoint:       ExtractApplications,
 	EnabledByDefault: true,
 	Description:      "Extract applications from raw data",
+	DomainTypes:      []string{plugin.DOMAIN_TYPE_CICD},
 	DependencyTables: []string{RAW_APPLICATION_TABLE},
 	ProductTables:    []string{models.ArgocdApplication{}.TableName()},
 }

@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/pagerduty/api"
-	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
-	"github.com/apache/incubator-devlake/plugins/pagerduty/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/pagerduty/api"
+	"github.com/apache/devlake/plugins/pagerduty/models"
+	"github.com/apache/devlake/plugins/pagerduty/models/migrationscripts"
+	"github.com/apache/devlake/plugins/pagerduty/tasks"
 )
 
 // make sure interface is implemented
@@ -126,7 +126,7 @@ func (p PagerDuty) PrepareTaskData(taskCtx plugin.TaskContext, options map[strin
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p PagerDuty) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/pagerduty"
+	return "github.com/apache/devlake/plugins/pagerduty"
 }
 
 func (p PagerDuty) MigrationScripts() []plugin.MigrationScript {

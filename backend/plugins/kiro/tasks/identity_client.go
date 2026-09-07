@@ -23,7 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/identitystore"
 
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
+	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 // IdentityStoreAPI is the subset of the Identity Store API used here.

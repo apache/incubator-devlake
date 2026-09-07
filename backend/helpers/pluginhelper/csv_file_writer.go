@@ -19,7 +19,7 @@ package pluginhelper
 
 import (
 	"encoding/csv"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 	"os"
 	"path/filepath"
 )

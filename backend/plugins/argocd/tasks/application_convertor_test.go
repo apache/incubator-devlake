@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/argocd/models"
+	"github.com/apache/devlake/plugins/argocd/models"
 	"github.com/stretchr/testify/assert"
 )
 

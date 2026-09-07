@@ -23,9 +23,9 @@ import (
 	"strings"
 	"testing"
 
-	corectx "github.com/apache/incubator-devlake/core/context"
-	contextimpl "github.com/apache/incubator-devlake/impls/context"
-	"github.com/apache/incubator-devlake/impls/logruslog"
+	corectx "github.com/apache/devlake/core/context"
+	contextimpl "github.com/apache/devlake/impls/context"
+	"github.com/apache/devlake/impls/logruslog"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )

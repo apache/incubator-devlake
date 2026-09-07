@@ -35,10 +35,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/helpers/oidchelper"
-	"github.com/apache/incubator-devlake/impls/logruslog"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/helpers/oidchelper"
+	"github.com/apache/devlake/impls/logruslog"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
 )
 
 // fakeIdP is a minimal OIDC provider sufficient for go-oidc discovery,

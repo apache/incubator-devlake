@@ -18,7 +18,7 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/plugin"
 )
 
 // RemotePlugin API supported by plugins running in different/remote processes

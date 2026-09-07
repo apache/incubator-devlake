@@ -25,9 +25,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // reportMaxDays is the maximum historical window the new report API supports (1 year).

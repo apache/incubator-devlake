@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/customize/tasks"
+	"github.com/apache/devlake/plugins/customize/tasks"
 )
 
 // @Summary blueprints setting for customize

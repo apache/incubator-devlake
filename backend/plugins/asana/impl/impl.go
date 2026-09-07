@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/asana/api"
-	"github.com/apache/incubator-devlake/plugins/asana/models"
-	"github.com/apache/incubator-devlake/plugins/asana/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/asana/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/asana/api"
+	"github.com/apache/devlake/plugins/asana/models"
+	"github.com/apache/devlake/plugins/asana/models/migrationscripts"
+	"github.com/apache/devlake/plugins/asana/tasks"
 )
 
 var _ interface {
@@ -140,7 +140,7 @@ func (p Asana) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 }
 
 func (p Asana) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/asana"
+	return "github.com/apache/devlake/plugins/asana"
 }
 
 func (p Asana) MigrationScripts() []plugin.MigrationScript {

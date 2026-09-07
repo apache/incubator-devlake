@@ -22,11 +22,11 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/circleci/impl"
-	"github.com/apache/incubator-devlake/plugins/circleci/models"
-	"github.com/apache/incubator-devlake/plugins/circleci/tasks"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/circleci/impl"
+	"github.com/apache/devlake/plugins/circleci/models"
+	"github.com/apache/devlake/plugins/circleci/tasks"
 	"github.com/stretchr/testify/assert"
 )
 

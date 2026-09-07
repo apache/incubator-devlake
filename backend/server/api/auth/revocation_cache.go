@@ -22,8 +22,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
 )
 
 // revocationRefreshInterval is how often the cache reloads the revoked-jti

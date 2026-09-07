@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 	"github.com/stretchr/testify/require"
 )
 

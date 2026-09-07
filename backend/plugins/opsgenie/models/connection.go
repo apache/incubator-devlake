@@ -19,11 +19,11 @@ package models
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/utils"
+	"github.com/apache/devlake/core/utils"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/errors"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // AccessToken implements HTTP Token Authentication with Access Token

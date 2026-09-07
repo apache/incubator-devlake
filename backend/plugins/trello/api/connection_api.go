@@ -21,12 +21,12 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/server/api/shared"
+	"github.com/apache/devlake/server/api/shared"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/trello/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/trello/models"
 )
 
 type TrelloTestConnResponse struct {

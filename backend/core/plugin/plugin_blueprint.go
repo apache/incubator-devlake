@@ -20,8 +20,8 @@ package plugin
 import (
 	"encoding/json"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
 )
 
 /*
@@ -36,7 +36,7 @@ step 1: blueprint.settings like
 				"plugin": "github",
 				"connectionId": 123,
 				"scopes": [
-					{ "id": null, "name": "apache/incubator-devlake" }
+					{ "id": null, "name": "apache/devlake" }
 				]
 			}
 		]
@@ -44,18 +44,18 @@ step 1: blueprint.settings like
 
 step 2: call plugin PluginBlueprintV200.MakePipelinePlan with
 	[
-		{ "id": "1", "name": "apache/incubator-devlake" }
+		{ "id": "1", "name": "apache/devlake" }
 	]
 	plugin would return PipelinePlan like the following json, and config-ui should use scopeName for displaying
 	[
 		[
-			{ "plugin": "github", "options": { "scopeId": "1", "scopeName": "apache/incubator-devlake" } }
+			{ "plugin": "github", "options": { "scopeId": "1", "scopeName": "apache/devlake" } }
 		]
 	]
 	and []Scope for project_mapping:
 	[
-		&Repo{ "id": "github:GithubRepo:1:1", "name": "apache/incubator-devlake" },
-		&Board{ "id": "github:GithubRepo:1:1", "name": "apache/incubator-devlake" }
+		&Repo{ "id": "github:GithubRepo:1:1", "name": "apache/devlake" },
+		&Board{ "id": "github:GithubRepo:1:1", "name": "apache/devlake" }
 	]
 
 step 3: framework should maintain the project_mapping table based on the []Scope array

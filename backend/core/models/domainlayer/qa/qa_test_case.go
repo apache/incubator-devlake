@@ -20,7 +20,7 @@ package qa
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer"
 )
 
 // QaTestCase represents a QA test case in the domain layer

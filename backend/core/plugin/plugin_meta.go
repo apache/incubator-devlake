@@ -17,7 +17,7 @@ limitations under the License.
 
 package plugin
 
-import "github.com/apache/incubator-devlake/core/dal"
+import "github.com/apache/devlake/core/dal"
 
 // PluginMeta is the Minimal features a plugin should comply, should be implemented by all plugins
 type PluginMeta interface {
@@ -42,6 +42,14 @@ type PluginDashboard interface {
 // PluginIcon return its icon (.svg text)
 type PluginIcon interface {
 	SvgIcon() string
+}
+
+// PluginDeprecation is implemented by plugins that have been deprecated.
+// The DeprecationMessage should describe why the plugin is deprecated and
+// what users should migrate to. Returns an empty string for non-deprecated
+// plugins.
+type PluginDeprecation interface {
+	DeprecationMessage() string
 }
 
 // PluginSource abstracts data sources

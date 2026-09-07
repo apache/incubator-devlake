@@ -19,10 +19,10 @@ package code
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer"
+	"github.com/apache/devlake/core/models/domainlayer"
 )
 
 const (

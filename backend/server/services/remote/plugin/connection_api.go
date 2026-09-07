@@ -22,10 +22,10 @@ import (
 	"fmt"
 	"github.com/spf13/cast"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services/remote/bridge"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/server/api/shared"
+	"github.com/apache/devlake/server/services/remote/bridge"
 	"net/http"
 )
 

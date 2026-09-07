@@ -18,13 +18,13 @@ limitations under the License.
 package migration
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/unithelper"
-	"github.com/apache/incubator-devlake/impls/context"
-	mockdal "github.com/apache/incubator-devlake/mocks/core/dal"
-	mockplugin "github.com/apache/incubator-devlake/mocks/core/plugin"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	plugin "github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/unithelper"
+	"github.com/apache/devlake/impls/context"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
+	mockplugin "github.com/apache/devlake/mocks/core/plugin"
 	"testing"
 	"time"
 

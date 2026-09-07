@@ -20,17 +20,17 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/slack/api"
-	"github.com/apache/incubator-devlake/plugins/slack/models"
-	"github.com/apache/incubator-devlake/plugins/slack/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/slack/tasks"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/slack/api"
+	"github.com/apache/devlake/plugins/slack/models"
+	"github.com/apache/devlake/plugins/slack/models/migrationscripts"
+	"github.com/apache/devlake/plugins/slack/tasks"
 )
 
 var _ interface {
@@ -122,7 +122,7 @@ func (p Slack) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]in
 }
 
 func (p Slack) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/slack"
+	return "github.com/apache/devlake/plugins/slack"
 }
 
 func (p Slack) MigrationScripts() []plugin.MigrationScript {

@@ -23,18 +23,18 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/apache/incubator-devlake/plugins/github_graphql/model/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	githubImpl "github.com/apache/devlake/plugins/github/impl"
+	"github.com/apache/devlake/plugins/github/models"
+	githubTasks "github.com/apache/devlake/plugins/github/tasks"
+	"github.com/apache/devlake/plugins/github_graphql/model/migrationscripts"
+	"github.com/apache/devlake/plugins/github_graphql/tasks"
 	"github.com/merico-ai/graphql"
 )
 
@@ -228,7 +228,7 @@ func (p GithubGraphql) PrepareTaskData(taskCtx plugin.TaskContext, options map[s
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p GithubGraphql) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/githubGraphql"
+	return "github.com/apache/devlake/plugins/githubGraphql"
 }
 
 func (p GithubGraphql) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

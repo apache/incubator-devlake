@@ -20,12 +20,12 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/impl"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/azuredevops_go/impl"
+	"github.com/apache/devlake/plugins/azuredevops_go/models"
+	"github.com/apache/devlake/plugins/azuredevops_go/tasks"
 )
 
 func TestAzuredevopsRrCommitDataFlow(t *testing.T) {

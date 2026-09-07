@@ -20,8 +20,8 @@ package models
 import (
 	"strings"
 
-	"github.com/apache/incubator-devlake/core/utils"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/core/utils"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
 )
 
 // Default S3 prefixes. Kiro's console writes user activity reports and

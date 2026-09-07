@@ -18,7 +18,7 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // ClickUpScopeConfig allows a user to override how ClickUp raw statuses and

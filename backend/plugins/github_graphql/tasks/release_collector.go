@@ -22,11 +22,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/utils"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/core/utils"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	githubTasks "github.com/apache/devlake/plugins/github/tasks"
 	"github.com/merico-ai/graphql"
 )
 

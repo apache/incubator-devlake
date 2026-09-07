@@ -18,8 +18,8 @@ limitations under the License.
 package services
 
 import (
-	jiraModel "github.com/apache/incubator-devlake/plugins/jira/models"
-	tapdModel "github.com/apache/incubator-devlake/plugins/tapd/models"
+	jiraModel "github.com/apache/devlake/plugins/jira/models"
+	tapdModel "github.com/apache/devlake/plugins/tapd/models"
 )
 
 func GetTicketBoardModel(plugin string) interface{} {

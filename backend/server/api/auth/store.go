@@ -20,8 +20,8 @@ package auth
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
 )
 
 // AuthSession is the persisted record backing one signed session JWT. It is

@@ -24,11 +24,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
-	"github.com/apache/incubator-devlake/plugins/kiro/tasks"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/kiro/models"
+	"github.com/apache/devlake/plugins/kiro/tasks"
 )
 
 // TestConnection validates a connection that has not been saved yet.
@@ -95,6 +95,11 @@ func TestExistingConnection(input *plugin.ApiResourceInput) (*plugin.ApiResource
 // discovered accounts and per-stream object counts makes the difference visible
 // before any scope is created.
 type ConnectionReport struct {
+	// Success and Message satisfy the shared Config UI connection-test contract.
+	// The detailed fields below remain available to explain an empty export.
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+
 	ReportBucket    string `json:"reportBucket"`
 	PromptLogBucket string `json:"promptLogBucket"`
 	// Accounts are the AWS account ids found under the report prefix. An empty
@@ -111,18 +116,24 @@ type ConnectionReport struct {
 // verifying a path - only whether it is zero.
 const connectionReportCountLimit = 500
 
+func newConnectionReport(connection *models.KiroConnection) *ConnectionReport {
+	return &ConnectionReport{
+		Success:         true,
+		Message:         "success",
+		ReportBucket:    connection.Bucket,
+		PromptLogBucket: connection.GetPromptLogBucket(),
+		Accounts:        []string{},
+		Streams:         []tasks.StreamCount{},
+	}
+}
+
 // buildConnectionReport probes the layout and summarizes what was found.
 //
 // Errors are folded into the report rather than returned: the connection itself
 // is already known to work at this point, and a discovery failure is more useful
 // shown as an empty result with a hint than as a failed request.
 func buildConnectionReport(connection *models.KiroConnection) *ConnectionReport {
-	report := &ConnectionReport{
-		ReportBucket:    connection.Bucket,
-		PromptLogBucket: connection.GetPromptLogBucket(),
-		Accounts:        []string{},
-		Streams:         []tasks.StreamCount{},
-	}
+	report := newConnectionReport(connection)
 
 	discovery, err := tasks.NewDiscovery(connection)
 	if err != nil {

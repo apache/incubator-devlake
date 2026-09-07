@@ -21,16 +21,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/tapd/api"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/tapd/api"
+	"github.com/apache/devlake/plugins/tapd/models"
+	"github.com/apache/devlake/plugins/tapd/models/migrationscripts"
+	"github.com/apache/devlake/plugins/tapd/tasks"
 )
 
 var _ interface {
@@ -255,7 +255,7 @@ func (p Tapd) MakeDataSourcePipelinePlanV200(
 }
 
 func (p Tapd) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/tapd"
+	return "github.com/apache/devlake/plugins/tapd"
 }
 
 func (p Tapd) MigrationScripts() []plugin.MigrationScript {

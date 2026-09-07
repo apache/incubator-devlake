@@ -20,12 +20,12 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/ticket"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/taiga/impl"
-	"github.com/apache/incubator-devlake/plugins/taiga/models"
-	"github.com/apache/incubator-devlake/plugins/taiga/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/ticket"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/taiga/impl"
+	"github.com/apache/devlake/plugins/taiga/models"
+	"github.com/apache/devlake/plugins/taiga/tasks"
 )
 
 // TestTaigaProjectDataFlow verifies the full extract → convert pipeline for

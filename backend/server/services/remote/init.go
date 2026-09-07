@@ -20,11 +20,11 @@ package remote
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/errors"
-	pluginCore "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/server/services/remote/models"
-	remote "github.com/apache/incubator-devlake/server/services/remote/plugin"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/errors"
+	pluginCore "github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/server/services/remote/models"
+	remote "github.com/apache/devlake/server/services/remote/plugin"
 )
 
 var (

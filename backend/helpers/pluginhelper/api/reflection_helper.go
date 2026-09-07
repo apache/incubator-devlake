@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/devlake/core/models"
 	"reflect"
 )
 

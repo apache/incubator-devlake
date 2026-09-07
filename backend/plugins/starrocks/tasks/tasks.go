@@ -31,11 +31,11 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/impls/dalgorm"
-	"github.com/apache/incubator-devlake/plugins/starrocks/utils"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/impls/dalgorm"
+	"github.com/apache/devlake/plugins/starrocks/utils"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"gorm.io/driver/mysql"

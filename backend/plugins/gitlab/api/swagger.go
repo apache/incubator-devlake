@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+	"github.com/apache/devlake/plugins/gitlab/tasks"
 )
 
 type GitlabTaskOptions tasks.GitlabOptions

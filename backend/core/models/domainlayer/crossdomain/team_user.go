@@ -18,7 +18,7 @@ limitations under the License.
 package crossdomain
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 type TeamUser struct {

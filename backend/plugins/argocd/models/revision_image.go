@@ -17,7 +17,7 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/core/models/common"
+import "github.com/apache/devlake/core/models/common"
 
 // ArgocdRevisionImage captures the container images observed for a given
 // Argo CD application revision. It enables historical lookups so that

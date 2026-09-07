@@ -18,12 +18,12 @@ limitations under the License.
 package impl
 
 import (
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/refdiff/models"
-	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/refdiff/models"
+	"github.com/apache/devlake/plugins/refdiff/tasks"
 )
 
 // make sure interface is implemented
@@ -104,7 +104,7 @@ func (p RefDiff) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p RefDiff) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/refdiff"
+	return "github.com/apache/devlake/plugins/refdiff"
 }
 
 func (p RefDiff) ApiResources() map[string]map[string]plugin.ApiResourceHandler {

@@ -25,9 +25,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/log"
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/log"
+	"github.com/apache/devlake/core/plugin"
 )
 
 // DsRemoteApiProxyHelper is a helper to proxy api request to remote servers

@@ -18,11 +18,11 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helperapi "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/slack/tasks"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helperapi "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/slack/tasks"
 )
 
 func MakeDataSourcePipelinePlanV200(

@@ -18,10 +18,10 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/ae/impl"
-	"github.com/apache/incubator-devlake/plugins/ae/models"
-	"github.com/apache/incubator-devlake/plugins/ae/tasks"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/ae/impl"
+	"github.com/apache/devlake/plugins/ae/models"
+	"github.com/apache/devlake/plugins/ae/tasks"
 	"testing"
 )
 

@@ -20,8 +20,8 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/plugins/kiro/impl"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/plugins/kiro/impl"
 )
 
 var PluginEntry impl.Kiro

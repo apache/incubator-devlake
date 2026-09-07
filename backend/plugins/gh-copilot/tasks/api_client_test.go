@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/log"
 	"github.com/stretchr/testify/require"
 )
 

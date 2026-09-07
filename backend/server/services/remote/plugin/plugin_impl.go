@@ -20,16 +20,16 @@ package plugin
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/server/services/remote/bridge"
-	"github.com/apache/incubator-devlake/server/services/remote/models"
-	"github.com/apache/incubator-devlake/server/services/remote/models/migrationscripts"
-	"github.com/apache/incubator-devlake/server/services/remote/plugin/doc"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/server/services/remote/bridge"
+	"github.com/apache/devlake/server/services/remote/models"
+	"github.com/apache/devlake/server/services/remote/models/migrationscripts"
+	"github.com/apache/devlake/server/services/remote/plugin/doc"
 )
 
 type (
@@ -223,7 +223,7 @@ func (p *remotePluginImpl) RootPkgPath() string {
 	// Indeed, DomainIdGenerator uses FindPluginNameBySubPkgPath that returns the name of the first plugin
 	// whose RootPkgPath is a prefix of the type package path.
 	// So we forge a fake package path that is not a prefix of any go plugin package path.
-	return "github.com/apache/incubator-devlake/services/remote/fakepackages/" + p.name
+	return "github.com/apache/devlake/services/remote/fakepackages/" + p.name
 }
 
 func (p *remotePluginImpl) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
@@ -236,6 +236,18 @@ func (p *remotePluginImpl) OpenApiSpec() string {
 
 func (p *remotePluginImpl) MigrationScripts() []plugin.MigrationScript {
 	return append(p.migrationScripts, migrationscripts.All(p.name)...)
+}
+
+// DeprecationMessage implements plugin.PluginDeprecation. All remote (Python)
+// plugins are deprecated and scheduled for removal in 3 months per the
+// deprecation plan in issue #9092.
+func (p *remotePluginImpl) DeprecationMessage() string {
+	return fmt.Sprintf(
+		"This Python plugin (%s) is DEPRECATED and will be removed in 3 months. "+
+			"Please migrate to the Go-based equivalent. "+
+			"See https://github.com/apache/devlake/issues/9092 for the deprecation plan and migration guide.",
+		p.name,
+	)
 }
 
 var _ models.RemotePlugin = (*remotePluginImpl)(nil)

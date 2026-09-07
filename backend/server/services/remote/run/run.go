@@ -21,10 +21,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/runner"
-	"github.com/apache/incubator-devlake/server/services/remote"
-	"github.com/apache/incubator-devlake/server/services/remote/bridge"
-	"github.com/apache/incubator-devlake/server/services/remote/models"
+	"github.com/apache/devlake/core/runner"
+	"github.com/apache/devlake/server/services/remote"
+	"github.com/apache/devlake/server/services/remote/bridge"
+	"github.com/apache/devlake/server/services/remote/models"
 	"github.com/spf13/cobra"
 )
 

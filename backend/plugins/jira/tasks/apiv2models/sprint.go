@@ -20,7 +20,7 @@ package apiv2models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/plugins/jira/models"
 )
 
 type Sprint struct {

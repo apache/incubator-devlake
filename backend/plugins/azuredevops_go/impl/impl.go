@@ -21,20 +21,20 @@ import (
 	"fmt"
 	"time"
 
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/tasks"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/helpers/pluginhelper/subtaskmeta/sorter"
+	"github.com/apache/devlake/plugins/azuredevops_go/tasks"
 
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/api"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models/migrationscripts"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/azuredevops_go/api"
+	"github.com/apache/devlake/plugins/azuredevops_go/models"
+	"github.com/apache/devlake/plugins/azuredevops_go/models/migrationscripts"
 )
 
 var _ interface {
@@ -193,7 +193,7 @@ func (p Azuredevops) PrepareTaskData(taskCtx plugin.TaskContext, options map[str
 }
 
 func (p Azuredevops) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/azuredevops"
+	return "github.com/apache/devlake/plugins/azuredevops"
 }
 
 func (p Azuredevops) MigrationScripts() []plugin.MigrationScript {

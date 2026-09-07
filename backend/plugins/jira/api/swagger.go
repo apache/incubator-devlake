@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
+	"github.com/apache/devlake/plugins/jira/tasks"
 )
 
 type JiraTaskOptions tasks.JiraOptions

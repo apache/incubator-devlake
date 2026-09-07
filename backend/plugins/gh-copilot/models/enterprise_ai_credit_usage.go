@@ -18,7 +18,7 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // GhCopilotEnterpriseAiCreditUsage tracks AI credit consumption at the enterprise level.

@@ -20,16 +20,16 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/taiga/api"
-	"github.com/apache/incubator-devlake/plugins/taiga/models"
-	"github.com/apache/incubator-devlake/plugins/taiga/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/taiga/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/taiga/api"
+	"github.com/apache/devlake/plugins/taiga/models"
+	"github.com/apache/devlake/plugins/taiga/models/migrationscripts"
+	"github.com/apache/devlake/plugins/taiga/tasks"
 )
 
 var _ interface {
@@ -190,7 +190,7 @@ func (p Taiga) MakeDataSourcePipelinePlanV200(
 }
 
 func (p Taiga) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/taiga"
+	return "github.com/apache/devlake/plugins/taiga"
 }
 
 func (p Taiga) MigrationScripts() []plugin.MigrationScript {

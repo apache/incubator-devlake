@@ -20,7 +20,7 @@ package apiv2models
 import (
 	"encoding/json"
 
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/plugins/jira/models"
 )
 
 type RemoteLink struct {

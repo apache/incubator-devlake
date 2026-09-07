@@ -23,10 +23,10 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/apache/incubator-devlake/core/config"
-	corectx "github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/log"
+	"github.com/apache/devlake/core/config"
+	corectx "github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/log"
 )
 
 func TestParseScopes(t *testing.T) {

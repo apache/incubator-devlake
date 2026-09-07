@@ -42,7 +42,7 @@ const general = [
     {
       plugin: 'github',
       options: {
-        repo: 'incubator-devlake',
+        repo: 'devlake',
         owner: 'apache',
         connectionId: 1,
       },

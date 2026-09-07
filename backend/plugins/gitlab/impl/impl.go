@@ -20,19 +20,19 @@ package impl
 import (
 	"fmt"
 
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/subtaskmeta/sorter"
+	"github.com/apache/devlake/helpers/pluginhelper/subtaskmeta/sorter"
 
-	"github.com/apache/incubator-devlake/core/context"
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/core/plugin"
-	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/api"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
+	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/core/plugin"
+	helper "github.com/apache/devlake/helpers/pluginhelper/api"
+	"github.com/apache/devlake/plugins/gitlab/api"
+	"github.com/apache/devlake/plugins/gitlab/models"
+	"github.com/apache/devlake/plugins/gitlab/models/migrationscripts"
+	"github.com/apache/devlake/plugins/gitlab/tasks"
 )
 
 var _ interface {
@@ -222,7 +222,7 @@ func (p Gitlab) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]i
 }
 
 func (p Gitlab) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/gitlab"
+	return "github.com/apache/devlake/plugins/gitlab"
 }
 
 func (p Gitlab) MigrationScripts() []plugin.MigrationScript {

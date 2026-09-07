@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/plugin"
 )
 
 var CollectOrgMetricsMeta = plugin.SubTaskMeta{

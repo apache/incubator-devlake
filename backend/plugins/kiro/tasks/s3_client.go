@@ -27,8 +27,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/kiro/models"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 // S3API is the subset of the S3 API this plugin uses, declared as an interface

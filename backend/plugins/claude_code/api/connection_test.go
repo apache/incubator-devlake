@@ -22,7 +22,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/apache/incubator-devlake/plugins/claude_code/models"
+	"github.com/apache/devlake/plugins/claude_code/models"
 )
 
 const (

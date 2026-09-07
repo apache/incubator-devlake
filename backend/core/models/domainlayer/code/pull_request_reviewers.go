@@ -18,7 +18,7 @@ limitations under the License.
 package code
 
 import (
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 type PullRequestReviewer struct {

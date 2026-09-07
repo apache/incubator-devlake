@@ -23,8 +23,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/core/errors"
-	plugin "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/devlake/core/errors"
+	plugin "github.com/apache/devlake/core/plugin"
 )
 
 // RawData is raw data structure in DB storage

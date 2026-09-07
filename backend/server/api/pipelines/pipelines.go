@@ -18,10 +18,10 @@ limitations under the License.
 package pipelines
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/server/api/shared"
-	"github.com/apache/incubator-devlake/server/services"
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/server/api/shared"
+	"github.com/apache/devlake/server/services"
 	"net/http"
 	"os"
 	"path/filepath"

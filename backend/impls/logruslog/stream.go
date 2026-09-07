@@ -18,7 +18,7 @@ limitations under the License.
 package logruslog
 
 import (
-	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/devlake/core/errors"
 	"io"
 	"os"
 	"path/filepath"

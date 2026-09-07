@@ -20,17 +20,18 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
-	dsmodels "github.com/apache/incubator-devlake/helpers/pluginhelper/api/models"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/api/azuredevops"
-	"github.com/apache/incubator-devlake/plugins/azuredevops_go/models"
-	"golang.org/x/exp/slices"
-	"golang.org/x/sync/errgroup"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/apache/devlake/core/errors"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/helpers/pluginhelper/api"
+	dsmodels "github.com/apache/devlake/helpers/pluginhelper/api/models"
+	"github.com/apache/devlake/plugins/azuredevops_go/api/azuredevops"
+	"github.com/apache/devlake/plugins/azuredevops_go/models"
+	"golang.org/x/exp/slices"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -254,8 +255,8 @@ func listRemoteRepos(
 		isPrivate, _ := strconv.ParseBool(v.Properties.IsPrivate)
 
 		// IDs must not contain URL reserved characters (e.g., "/"), as this breaks the routing in the scope API.
-		// Accessing /plugins/azuredevops_go/connections/<id>/apache/incubator-devlake results in a 404 error, where
-		// "apache/incubator-devlake" is the repository ID returned by ADOs sourceProviders API.
+		// Accessing /plugins/azuredevops_go/connections/<id>/apache/devlake results in a 404 error, where
+		// "apache/devlake" is the repository ID returned by ADOs sourceProviders API.
 		// Therefore, we are creating our own ID, by combining the Service Connection and the External ID
 		remoteId := fmt.Sprintf("%s-%s", v.Properties.ConnectedServiceId, v.Properties.ExternalId)
 

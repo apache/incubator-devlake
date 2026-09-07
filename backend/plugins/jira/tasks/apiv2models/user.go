@@ -18,7 +18,7 @@ limitations under the License.
 package apiv2models
 
 import (
-	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/devlake/plugins/jira/models"
 )
 
 type Account struct {

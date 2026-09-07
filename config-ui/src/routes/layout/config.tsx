@@ -110,7 +110,7 @@ export const headerItems = [
     icon: <ApiOutlined />,
   },
   {
-    link: 'https://github.com/apache/incubator-devlake',
+    link: 'https://github.com/apache/devlake',
     label: 'GitHub',
     icon: <GithubOutlined />,
   },
