@@ -34,19 +34,24 @@ services:
     build:
       context: grafana/
     ports:
-      - 3002:3000
+      - ${GRAFANA_HOST_PORT:-3002}:3000
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./grafana/dashboards/postgresql:/etc/grafana/dashboards:ro
     environment:
-      GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
+      GF_SERVER_ROOT_URL: "${GRAFANA_ROOT_URL:-http://localhost:4000/grafana}"
       GF_USERS_DEFAULT_THEME: "light"
-      DATABASE_TYPE: postgresql
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: lake
-      DATABASE_USER: merico
-      DATABASE_PASSWORD: merico
+      DATABASE_TYPE: "${GRAFANA_DATABASE_TYPE:-postgresql}"
+      DATABASE_HOST: "${GRAFANA_DATABASE_HOST:-postgres}"
+      DATABASE_PORT: "${GRAFANA_DATABASE_PORT:-5432}"
+      DATABASE_NAME: "${GRAFANA_DATABASE_NAME:-lake}"
+      DATABASE_USER: "${GRAFANA_DATABASE_USER:-merico}"
+      DATABASE_PASSWORD: "${GRAFANA_DATABASE_PASSWORD:-merico}"
+      # Legacy vars for older dashboard images; kept in sync with generic vars above.
+      POSTGRES_URL: "${GRAFANA_DATABASE_HOST:-postgres}:${GRAFANA_DATABASE_PORT:-5432}"
+      POSTGRES_DATABASE: "${GRAFANA_DATABASE_NAME:-lake}"
+      POSTGRES_USER: "${GRAFANA_DATABASE_USER:-merico}"
+      POSTGRES_PASSWORD: "${GRAFANA_DATABASE_PASSWORD:-merico}"
       TZ: UTC
     restart: always
     depends_on:
