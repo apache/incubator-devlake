@@ -51,21 +51,36 @@ RUN go install github.com/vektra/mockery/v3@v3.8.1
 RUN go install github.com/swaggo/swag/cmd/swag@v1.16.6
 
 WORKDIR /app
+
+# Cache Go module downloads in a separate layer (only re-runs when go.mod/go.sum change)
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+# Now copy the rest of the source
 COPY . /app
 ENV GOBIN=/app/bin
 
 ARG TAG=
 ARG SHA=
 
-# Generate mocks and swagger
-RUN make mock
-RUN make swag
+# Generate mocks and swagger (use build cache to speed up swag)
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    make mock
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    make swag
 
-# Build plugins
-RUN make build-plugin
+# Build plugins (parallel, with persistent Go build cache)
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    make build-plugin
 
 # Build server
-RUN VERSION=${TAG}@${SHA} make build-server
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    VERSION=${TAG}@${SHA} make build-server
 
 FROM debian:bookworm-slim
 
