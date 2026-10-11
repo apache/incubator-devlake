@@ -1,0 +1,5 @@
+project_name,table,row_id
+monorepo,cicd_scopes,cicd1
+monorepo,repos,repo1
+other,cicd_scopes,cicd2
+other,repos,repo2

@@ -969,7 +969,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "-- The PR/MR statuses are standardized to 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1\n",
+          "rawSql": "-- The PR/MR statuses are standardized to 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field `original_status`\nSELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  COALESCE(sub_project, 'All') as sub_project,\n  count(distinct case when status = 'CLOSED' then id else null end)/count(distinct case when status in ('CLOSED', 'MERGED') then id else null end) as ratio\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in (${repo_id})\ngroup by 1, 2",
           "refId": "A",
           "select": [
             [

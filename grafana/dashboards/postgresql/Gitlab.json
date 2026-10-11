@@ -969,7 +969,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "/* The PR/MR statuses are standardized to 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field \"original_status\" */ SELECT CAST(created_date AS DATE) + INTERVAL '1 DAY' * (-CASE WHEN '$interval' = 'DAYOFMONTH' THEN EXTRACT(DAY FROM CAST(created_date AS DATE)) ELSE (EXTRACT(ISODOW FROM CAST(created_date AS DATE)) - 1) END + 1) AS time, CAST(COUNT(DISTINCT CASE WHEN status = 'CLOSED' THEN id ELSE NULL END) AS NUMERIC) / NULLIF(COUNT(DISTINCT CASE WHEN status IN ('CLOSED', 'MERGED') THEN id ELSE NULL END), 0) AS ratio FROM pull_requests WHERE $__timeFilter(created_date) AND ('${repo_id:csv}' = '' OR base_repo_id::text = ANY(ARRAY[${repo_id:singlequote}]::text[])) GROUP BY 1",
+          "rawSql": "/* The PR/MR statuses are standardized to 'OPEN', 'MERGED' and 'CLOSED'. You can check out the original status from the field \"original_status\" */ SELECT CAST(created_date AS DATE) + INTERVAL '1 DAY' * (-CASE WHEN '$interval' = 'DAYOFMONTH' THEN EXTRACT(DAY FROM CAST(created_date AS DATE)) ELSE (EXTRACT(ISODOW FROM CAST(created_date AS DATE)) - 1) END + 1) AS time, COALESCE(sub_project, 'All') AS sub_project, CAST(COUNT(DISTINCT CASE WHEN status = 'CLOSED' THEN id ELSE NULL END) AS NUMERIC) / NULLIF(COUNT(DISTINCT CASE WHEN status IN ('CLOSED', 'MERGED') THEN id ELSE NULL END), 0) AS ratio FROM pull_requests WHERE $__timeFilter(created_date) AND ('${repo_id:csv}' = '' OR base_repo_id::text = ANY(ARRAY[${repo_id:singlequote}]::text[])) GROUP BY 1, 2",
           "refId": "A",
           "select": [
             [

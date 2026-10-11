@@ -1,0 +1,8 @@
+project_name,sub_project,cicd_deployment_id,commit_sha,job_name,result,environment,finished_date
+monorepo,serviceA,pipeline1,commitA1,deploy-serviceA,SUCCESS,PRODUCTION,2026-08-01T10:00:00.000+00:00
+monorepo,serviceB,pipeline2,commitB1,deploy-serviceB,SUCCESS,PRODUCTION,2026-08-01T12:00:00.000+00:00
+monorepo,serviceA,pipeline3,commitAB,deploy-serviceA,SUCCESS,PRODUCTION,2026-08-02T10:00:00.000+00:00
+monorepo,serviceB,pipeline3,commitAB,deploy-serviceB,SUCCESS,PRODUCTION,2026-08-02T10:00:00.000+00:00
+monorepo,serviceA,pipeline6,commitFail,deploy-serviceA,FAILURE,PRODUCTION,2026-08-01T09:30:00.000+00:00
+monorepo,serviceA,pipeline7,commitStg,deploy-serviceA,SUCCESS,STAGING,2026-08-01T09:45:00.000+00:00
+monorepo,unattributed,pipeline8,commitUnknown,deploy-unknown,SUCCESS,PRODUCTION,2026-08-01T14:00:00.000+00:00

@@ -1,0 +1,340 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "datasource", "uid": "grafana" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Per-sub-project DORA metrics for a monorepo, produced by the monorepo plugin. Deployments are attributed by CI job name, pull requests by label.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "datasource", "uid": "grafana" },
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "## Monorepo Sub-Projects\n\nEach **sub-project** is a logical project inside a single Git repository. Deployments are attributed by **CI job name**, pull requests by **label**. Only Deployment Frequency and Lead Time for Changes are available — Change Failure Rate and Time to Restore require incident data, which this plugin does not attribute.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.1.0",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+      "description": "Number of successful production deployments per sub-project in the selected time range. A sub-project showing zero usually means its deployJobPattern matches no CI job.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisLabel": "deployments",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 3 },
+      "id": 1,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(ds.sub_project, 'All') AS 'Sub-Project', COUNT(DISTINCT dc.cicd_deployment_id) AS 'Deployments'\nFROM cicd_deployment_commits dc\nJOIN project_mapping pm ON (pm.`table` = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)\nLEFT JOIN cicd_deployment_subprojects ds\n  ON ds.cicd_deployment_id = dc.cicd_deployment_id AND ds.project_name = pm.project_name\nWHERE dc.result = 'SUCCESS'\n  AND dc.environment = 'PRODUCTION'\n  AND ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(dc.finished_date)\nGROUP BY 1\nORDER BY 2 DESC",
+          "refId": "A",
+          "sql": { "columns": [{ "parameters": [], "type": "function" }], "groupBy": [{ "property": { "type": "string" }, "type": "groupBy" }], "limit": 50 }
+        }
+      ],
+      "title": "Deployment Count by Sub-Project",
+      "type": "barchart"
+    },
+    {
+      "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+      "description": "Successful production deployments over time, one series per sub-project. This is the metric that a plain DevLake setup cannot separate: without attribution every sub-project shows the whole repository's deployment count.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisLabel": "deployments",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 3 },
+      "id": 2,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE(dc.finished_date) AS time,\n  COALESCE(ds.sub_project, 'All') AS metric,\n  COUNT(DISTINCT dc.cicd_deployment_id) AS value\nFROM cicd_deployment_commits dc\nJOIN project_mapping pm ON (pm.`table` = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)\nLEFT JOIN cicd_deployment_subprojects ds\n  ON ds.cicd_deployment_id = dc.cicd_deployment_id AND ds.project_name = pm.project_name\nWHERE dc.result = 'SUCCESS'\n  AND dc.environment = 'PRODUCTION'\n  AND ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(dc.finished_date)\nGROUP BY 1, 2\nORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Deployment Frequency over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+      "description": "Average change lead time per sub-project, broken into its stages. Coding, pickup and review come from DORA unchanged; the deploy leg is recomputed against this sub-project's own deployments. All values in hours.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "-",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Cycle Time (h)" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+              { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 12 },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COALESCE(sub_project, 'All') AS 'Sub-Project',\n  COUNT(*) AS 'PRs',\n  ROUND(AVG(pr_coding_time) / 60, 1) AS 'Coding (h)',\n  ROUND(AVG(pr_pickup_time) / 60, 1) AS 'Pickup (h)',\n  ROUND(AVG(pr_review_time) / 60, 1) AS 'Review (h)',\n  ROUND(AVG(pr_deploy_time) / 60, 1) AS 'Deploy (h)',\n  ROUND(AVG(pr_cycle_time) / 60, 1) AS 'Cycle Time (h)'\nFROM project_pr_metrics\nWHERE ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr_merged_date)\nGROUP BY 1\nORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Change Lead Time Breakdown by Sub-Project",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+      "description": "Merged pull requests carrying none of the configured sub-project labels. These are invisible to every metric on this dashboard. A rising number means labelling discipline is slipping, not that the code is wrong.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "#EAB839", "value": 1 },
+              { "color": "red", "value": 10 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 12 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS 'Unattributed merged PRs'\nFROM pull_requests pr\nJOIN project_mapping pm ON (pm.`table` = 'repos' AND pm.row_id = pr.base_repo_id)\nWHERE pr.merged_date IS NOT NULL\n  AND pr.sub_project = 'unattributed'\n  AND ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr.merged_date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Unattributed PRs",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+      "description": "Merged pull requests that have been attributed to a sub-project but that no deployment has shipped yet, or whose shipping deployment could not be identified.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 12 },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS 'Merged, not yet deployed'\nFROM project_pr_metrics\nWHERE (deployment_commit_id = '' OR deployment_commit_id IS NULL)\n  AND sub_project IS NOT NULL\n  AND ('${project:csv}' = '' OR project_name IN (${project:singlequote}))\n  AND $__timeFilter(pr_merged_date)",
+          "refId": "A"
+        }
+      ],
+      "title": "Awaiting Deployment",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+      "description": "Every attributed deployment, newest first, sourced from cicd_deployment_commits joined through the core cicd_deployment_subprojects mapping table.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "filterable": true, "inspect": false },
+          "mappings": [],
+          "noValue": "-",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Result" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+              {
+                "id": "mappings",
+                "value": [
+                  { "options": { "SUCCESS": { "color": "green", "index": 0 } }, "type": "value" },
+                  { "options": { "FAILURE": { "color": "red", "index": 1 } }, "type": "value" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 21 },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Finished" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  dc.finished_date AS 'Finished',\n  COALESCE(ds.sub_project, 'All') AS 'Sub-Project',\n  dc.environment AS 'Environment',\n  dc.result AS 'Result',\n  dc.cicd_deployment_id AS 'Deployment',\n  dc.commit_sha AS 'Commit'\nFROM cicd_deployment_commits dc\nJOIN project_mapping pm ON (pm.`table` = 'cicd_scopes' AND pm.row_id = dc.cicd_scope_id)\nLEFT JOIN cicd_deployment_subprojects ds\n  ON ds.cicd_deployment_id = dc.cicd_deployment_id AND ds.project_name = pm.project_name\nWHERE ('${project:csv}' = '' OR pm.project_name IN (${project:singlequote}))\n  AND $__timeFilter(dc.finished_date)\nORDER BY dc.finished_date DESC\nLIMIT 200",
+          "refId": "A"
+        }
+      ],
+      "title": "Attributed Deployments",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["monorepo", "dora"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": ["All"], "value": ["$__all"] },
+        "datasource": { "type": "mysql", "uid": "devlake-mysql-api" },
+        "definition": "select distinct name from projects",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Project",
+        "multi": true,
+        "name": "project",
+        "options": [],
+        "query": "select distinct name from projects",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-90d", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Monorepo Sub-Projects",
+  "uid": "monorepo-subprojects",
+  "version": 1,
+  "weekStart": ""
+}
