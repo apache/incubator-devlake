@@ -35,6 +35,7 @@ import {
   Pipelines,
   Pipeline,
   ApiKeys,
+  Team,
   NotFound,
 } from '@/routes';
 
@@ -111,6 +112,10 @@ export const router = createBrowserRouter([
             element: <Pipeline />,
           },
         ],
+      },
+      {
+        path: 'teams',
+        element: <Team />,
       },
       {
         path: 'keys',

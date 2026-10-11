@@ -21,6 +21,7 @@ import {
   ProjectOutlined,
   ExperimentOutlined,
   KeyOutlined,
+  TeamOutlined,
   DashboardOutlined,
   FileSearchOutlined,
   ApiOutlined,
@@ -65,6 +66,11 @@ export const menuItems: MenuItem[] = [
         label: 'Pipelines',
       },
     ],
+  },
+  {
+    key: `${PATH_PREFIX}/teams`,
+    label: 'Teams',
+    icon: <TeamOutlined />,
   },
   {
     key: `${PATH_PREFIX}/keys`,
