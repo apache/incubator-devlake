@@ -20,14 +20,14 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/core/models/common"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/core/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/plugins/monorepo/impl"
-	"github.com/apache/incubator-devlake/plugins/monorepo/models"
-	"github.com/apache/incubator-devlake/plugins/monorepo/tasks"
+	"github.com/apache/devlake/core/models/common"
+	"github.com/apache/devlake/core/models/domainlayer/code"
+	"github.com/apache/devlake/core/models/domainlayer/crossdomain"
+	"github.com/apache/devlake/core/models/domainlayer/devops"
+	"github.com/apache/devlake/helpers/e2ehelper"
+	"github.com/apache/devlake/plugins/monorepo/impl"
+	"github.com/apache/devlake/plugins/monorepo/models"
+	"github.com/apache/devlake/plugins/monorepo/tasks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

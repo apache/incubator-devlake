@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // SubProjectDeployment attributes a deployment to a single sub-project of a monorepo,

@@ -20,7 +20,7 @@ package models
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/core/models/common"
+	"github.com/apache/devlake/core/models/common"
 )
 
 // SubProjectPrMetric holds the change-lead-time breakdown for a merged pull request,

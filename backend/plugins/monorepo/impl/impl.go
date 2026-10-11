@@ -20,13 +20,13 @@ package impl
 import (
 	"encoding/json"
 
-	"github.com/apache/incubator-devlake/core/dal"
-	"github.com/apache/incubator-devlake/core/errors"
-	coreModels "github.com/apache/incubator-devlake/core/models"
-	"github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/monorepo/models"
-	"github.com/apache/incubator-devlake/plugins/monorepo/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/monorepo/tasks"
+	"github.com/apache/devlake/core/dal"
+	"github.com/apache/devlake/core/errors"
+	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/core/plugin"
+	"github.com/apache/devlake/plugins/monorepo/models"
+	"github.com/apache/devlake/plugins/monorepo/models/migrationscripts"
+	"github.com/apache/devlake/plugins/monorepo/tasks"
 )
 
 // make sure interface is implemented
@@ -126,7 +126,7 @@ func (p Monorepo) PrepareTaskData(taskCtx plugin.TaskContext, options map[string
 
 // RootPkgPath information lost when compiled as plugin(.so)
 func (p Monorepo) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/monorepo"
+	return "github.com/apache/devlake/plugins/monorepo"
 }
 
 func (p Monorepo) MigrationScripts() []plugin.MigrationScript {
