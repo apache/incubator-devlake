@@ -245,7 +245,15 @@ linters:
       - linters:
           - staticcheck
         path: plugins/kiro/
-        text: 'SA1019: "github.com/aws/aws-sdk-go/'
+        text: 'SA1019: "?github.com/aws/aws-sdk-go/'
+      # RawDataSubTaskArgs.Params is deprecated in favour of Options, but it is
+      # JSON-encoded into _raw_data_params of every raw table. Migrating a
+      # plugin changes that key and orphans existing raw data, so this needs a
+      # per-plugin migration rather than a mechanical rewrite. Reported since
+      # golangci-lint v2.14.0 (staticcheck v0.8.1).
+      - linters:
+          - staticcheck
+        text: 'SA1019: .*RawDataSubTaskArgs\)\.Params is deprecated'
     paths:
       - third_party$
       - builtin$

@@ -41,7 +41,7 @@ func GenJobID() {
 	connectionId := uint64(1)
 	runId := 1
 	lineId := 1
-	fmt.Sprintf("GithubJob:%d:%d:%d", connectionId, runId, lineId)
+	_ = fmt.Sprintf("GithubJob:%d:%d:%d", connectionId, runId, lineId)
 }
 
 func BenchmarkGenJobIDWithReflect(b *testing.B) {

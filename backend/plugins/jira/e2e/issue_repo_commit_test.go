@@ -38,9 +38,9 @@ func TestConvertIssueRepoCommitsDataFlow(t *testing.T) {
 			ScopeConfig: &models.JiraScopeConfig{
 				RemotelinkCommitShaPattern: `.*/commit/(.*)`,
 				RemotelinkRepoPattern: []models.CommitUrlPattern{
-					{"", `https://bitbucket.org/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commits/(?P<commit_sha>\w{40})`},
-					{"", `https://gitlab.com/(?P<namespace>\S+)/(?P<repo_name>\S+)/-/commit/(?P<commit_sha>\w{40})`},
-					{"", `https://github.com/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commit/(?P<commit_sha>\w{40})`},
+					{Pattern: "", Regex: `https://bitbucket.org/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commits/(?P<commit_sha>\w{40})`},
+					{Pattern: "", Regex: `https://gitlab.com/(?P<namespace>\S+)/(?P<repo_name>\S+)/-/commit/(?P<commit_sha>\w{40})`},
+					{Pattern: "", Regex: `https://github.com/(?P<namespace>[^/]+)/(?P<repo_name>[^/]+)/commit/(?P<commit_sha>\w{40})`},
 				},
 			},
 		},
