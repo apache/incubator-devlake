@@ -17,7 +17,7 @@
 
 set -eu
 
-MOCKERY_VERSION=3.7.4
+MOCKERY_VERSION=3.8.1
 INSTALL_DIR=/opt/mockery/$MOCKERY_VERSION
 MOCKERY_BIN=$INSTALL_DIR/mockery
 
@@ -61,11 +61,11 @@ fi
 case "$(uname -m)" in
     x86_64|amd64)
         archive_name=mockery_${MOCKERY_VERSION}_Linux_x86_64.tar.gz
-        archive_sha256=d5eef52e238a4262b78ab5a93811826a8bfcff7b0128133c6597e3bf2f0f7337
+        archive_sha256=953c7d38b58dd6398b1c595f27caf8bbf27e9b733b49c404d2e124e86d2ae72a
         ;;
     aarch64|arm64)
         archive_name=mockery_${MOCKERY_VERSION}_Linux_arm64.tar.gz
-        archive_sha256=fe591f9ef5ada76c3dee4b8f451aad6748d002e9713fab4bad26b194ff826c4b
+        archive_sha256=d1f481f3a6e9868dd3ad65da265238ee109ab3a5dd7508958d5811953696f452
         ;;
     *)
         echo "unsupported architecture: $(uname -m)" >&2

@@ -22,7 +22,7 @@ TAG ?= $(shell if [ -d .git ]; then git tag --points-at HEAD; else echo "local_b
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 PYTHON_DIR ?= "./python"
-MOCKERY_VERSION ?= v3.7.4
+MOCKERY_VERSION ?= v3.8.1
 # Always resolve mockery through the module cache instead of relying on whatever
 # `mockery` happens to be on the PATH: the CI builder image ships mockery v2,
 # which cannot read the v3 YAML configuration.
