@@ -38,19 +38,24 @@ services:
     build:
       context: grafana/
     ports:
-      - 3001:3000
+      - ${GRAFANA_HOST_PORT:-3001}:3000
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./grafana/dashboards/mysql:/etc/grafana/dashboards:ro
     environment:
-      GF_SERVER_ROOT_URL: "http://localhost:4001/grafana"
+      GF_SERVER_ROOT_URL: "${GRAFANA_ROOT_URL:-http://localhost:4001/grafana}"
       GF_USERS_DEFAULT_THEME: "light"
-      DATABASE_TYPE: mysql
-      DATABASE_HOST: mysql
-      DATABASE_PORT: 3306
-      DATABASE_NAME: lake
-      DATABASE_USER: merico
-      DATABASE_PASSWORD: merico
+      DATABASE_TYPE: "${GRAFANA_DATABASE_TYPE:-mysql}"
+      DATABASE_HOST: "${GRAFANA_DATABASE_HOST:-mysql}"
+      DATABASE_PORT: "${GRAFANA_DATABASE_PORT:-3306}"
+      DATABASE_NAME: "${GRAFANA_DATABASE_NAME:-lake}"
+      DATABASE_USER: "${GRAFANA_DATABASE_USER:-merico}"
+      DATABASE_PASSWORD: "${GRAFANA_DATABASE_PASSWORD:-merico}"
+      # Legacy vars for older dashboard images; kept in sync with generic vars above.
+      MYSQL_URL: "${GRAFANA_DATABASE_HOST:-mysql}:${GRAFANA_DATABASE_PORT:-3306}"
+      MYSQL_DATABASE: "${GRAFANA_DATABASE_NAME:-lake}"
+      MYSQL_USER: "${GRAFANA_DATABASE_USER:-merico}"
+      MYSQL_PASSWORD: "${GRAFANA_DATABASE_PASSWORD:-merico}"
       TZ: UTC
     restart: always
     depends_on:
