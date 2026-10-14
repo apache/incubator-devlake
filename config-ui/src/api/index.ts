@@ -22,6 +22,7 @@ import * as apiKey from './api-key';
 import * as auth from './auth';
 import * as blueprint from './blueprint';
 import * as connection from './connection';
+import * as org from './org';
 import * as pipeline from './pipeline';
 import plugin from './plugin';
 import * as project from './project';
@@ -39,6 +40,7 @@ export const API = {
   auth,
   blueprint,
   connection,
+  org,
   pipeline,
   plugin,
   project,
