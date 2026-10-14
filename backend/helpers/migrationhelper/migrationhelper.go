@@ -53,6 +53,19 @@ func ChangeColumnsType[D any](
 	columns []string,
 	update func(tmpColumnParams []interface{}) errors.Error,
 ) (err errors.Error) {
+	return changeColumnsTypeWithHook[D](basicRes, script, tableName, columns, update, nil)
+}
+
+// changeColumnsTypeWithHook is ChangeColumnsType with an optional afterUpdate hook that
+// runs once the data is copied, while the old columns still exist
+func changeColumnsTypeWithHook[D any](
+	basicRes context.BasicRes,
+	script plugin.MigrationScript,
+	tableName string,
+	columns []string,
+	update func(tmpColumnParams []interface{}) errors.Error,
+	afterUpdate func() errors.Error,
+) (err errors.Error) {
 	db := basicRes.GetDal()
 	tmpColumnsNames := make([]string, len(columns))
 	for i, v := range columns {
@@ -110,6 +123,13 @@ func ChangeColumnsType[D any](
 		return err
 	}
 
+	if afterUpdate != nil {
+		err = afterUpdate()
+		if err != nil {
+			return err
+		}
+	}
+
 	err = db.DropColumns(tableName, tmpColumnsNames...)
 	if err != nil {
 		return err
@@ -118,7 +138,7 @@ func ChangeColumnsType[D any](
 	return nil
 }
 
-// ChangeColumnsType change the type of specified columns for the table
+// ChangePrimaryKeyColumnsType change the type of the primary key columns for the table
 func ChangePrimaryKeyColumnsType[D any](
 	basicRes context.BasicRes,
 	script plugin.MigrationScript,
@@ -135,68 +155,29 @@ func ChangePrimaryKeyColumnsType[D any](
 	if errParse != nil {
 		return errors.Convert(errParse)
 	}
-	// Delete the primary key
+	dropPrimaryKey := fmt.Sprintf("DROP CONSTRAINT %s_pkey", tableName)
 	if u.Scheme == "mysql" {
-		sql := fmt.Sprintf("ALTER TABLE %s DROP PRIMARY KEY", tableName)
-		if err := db.Exec(sql); err != nil {
-			return err
-		}
-	} else {
-		sql := fmt.Sprintf("ALTER TABLE %s DROP CONSTRAINT %s_pkey", tableName, tableName)
-		if err := db.Exec(sql); err != nil {
-			return err
-		}
+		dropPrimaryKey = "DROP PRIMARY KEY"
 	}
-	// Change the type of the primary key
-	err = ChangeColumnsType[D](basicRes, script, tableName, TargetPriColumns, update)
-	if err != nil {
-		return err
-	}
+	addPrimaryKey := fmt.Sprintf("ADD PRIMARY KEY (%s)", strings.Join(TargetPriColumns, ","))
 
-	// Some GORM dialects recreate the primary key while AutoMigrate changes the
-	// column type, so adding it unconditionally would fail with a duplicate key.
+	// Earlier versions of this helper dropped the primary key first and could
+	// leave the table without one on failure, restore it before copying data
 	primaryKeyColumns, err := dal.GetPrimarykeyColumns(db, dal.DefaultTabler{Name: tableName})
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("failed to check primary key on table [%s]", tableName))
 	}
-	if len(primaryKeyColumns) == len(TargetPriColumns) {
-		existingPrimaryKeyColumns := make(map[string]struct{}, len(primaryKeyColumns))
-		for _, column := range primaryKeyColumns {
-			existingPrimaryKeyColumns[column.Name()] = struct{}{}
-		}
-		allColumnsPresent := true
-		for _, column := range TargetPriColumns {
-			if _, ok := existingPrimaryKeyColumns[column]; !ok {
-				allColumnsPresent = false
-				break
-			}
-		}
-		if allColumnsPresent {
-			return nil
+	if len(primaryKeyColumns) == 0 {
+		if err := db.Exec(fmt.Sprintf("ALTER TABLE %s %s", tableName, addPrimaryKey)); err != nil {
+			return err
 		}
 	}
 
-	if len(primaryKeyColumns) > 0 {
-		if u.Scheme == "mysql" {
-			sql := fmt.Sprintf("ALTER TABLE %s DROP PRIMARY KEY", tableName)
-			if err := db.Exec(sql); err != nil {
-				return err
-			}
-		} else {
-			sql := fmt.Sprintf("ALTER TABLE %s DROP CONSTRAINT %s_pkey", tableName, tableName)
-			if err := db.Exec(sql); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Add the primary key
-	sql := fmt.Sprintf("ALTER TABLE %s ADD PRIMARY KEY (%s)", tableName, strings.Join(TargetPriColumns, ","))
-	if err := db.Exec(sql); err != nil {
-		return err
-	}
-
-	return nil
+	return changeColumnsTypeWithHook[D](basicRes, script, tableName, TargetPriColumns, update, func() errors.Error {
+		// Move the primary key from the renamed columns to the new ones in a
+		// single statement, so the table is never left without one
+		return db.Exec(fmt.Sprintf("ALTER TABLE %s %s, %s", tableName, dropPrimaryKey, addPrimaryKey))
+	})
 }
 
 // TransformColumns change the type of specified columns for the table and transform data one by one
