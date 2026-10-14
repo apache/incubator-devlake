@@ -218,9 +218,9 @@ export const SettingsPanel = ({ project, onRefresh }: Props) => {
             }
             description={
               <span>
-                DORA metrics are four widely-adopted metrics for measuring software delivery performance. Only count
-                pull requests whose source branch matches this regex as changes for Lead Time for Changes and the PR
-                cycle time metrics. Leave empty to count all merged pull requests.
+                DORA metrics are four widely-adopted metrics for measuring software delivery performance. Optionally,
+                only count pull requests whose source branch matches this regex as changes for Lead Time for Changes and
+                the PR cycle time metrics. Leave empty to count all merged pull requests.
                 <HelpTooltip
                   overlayInnerStyle={{ width: 500 }}
                   content={
