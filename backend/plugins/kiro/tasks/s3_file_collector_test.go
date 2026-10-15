@@ -22,8 +22,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -31,10 +32,10 @@ import (
 )
 
 func listOutput(truncated bool, keys ...string) *s3.ListObjectsV2Output {
-	contents := make([]*s3.Object, 0, len(keys))
+	contents := make([]types.Object, 0, len(keys))
 	for _, k := range keys {
 		key := k
-		contents = append(contents, &s3.Object{Key: &key})
+		contents = append(contents, types.Object{Key: &key})
 	}
 	return &s3.ListObjectsV2Output{
 		Contents:    contents,
@@ -88,7 +89,7 @@ func TestCollectCandidates_FileFiltering(t *testing.T) {
 
 	t.Run("nil key is skipped", func(t *testing.T) {
 		output := &s3.ListObjectsV2Output{
-			Contents:    []*s3.Object{{Key: nil}, {Key: aws.String("p/a.csv")}},
+			Contents:    []types.Object{{Key: nil}, {Key: aws.String("p/a.csv")}},
 			IsTruncated: aws.Bool(false),
 		}
 		candidates := collectCandidates(output, "bkt", spec, options)

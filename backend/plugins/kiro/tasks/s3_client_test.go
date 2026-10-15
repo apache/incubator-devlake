@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/identitystore"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/identitystore"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -43,7 +44,7 @@ type mockS3 struct {
 	seenGetKeys     []string
 }
 
-func (m *mockS3) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error) {
+func (m *mockS3) GetObject(_ context.Context, input *s3.GetObjectInput, _ ...func(*s3.Options)) (*s3.GetObjectOutput, error) {
 	m.seenGetBuckets = append(m.seenGetBuckets, *input.Bucket)
 	m.seenGetKeys = append(m.seenGetKeys, *input.Key)
 	if m.getObjectErr != nil {
@@ -54,7 +55,7 @@ func (m *mockS3) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error
 	}, nil
 }
 
-func (m *mockS3) ListObjectsV2(input *s3.ListObjectsV2Input) (*s3.ListObjectsV2Output, error) {
+func (m *mockS3) ListObjectsV2(_ context.Context, input *s3.ListObjectsV2Input, _ ...func(*s3.Options)) (*s3.ListObjectsV2Output, error) {
 	m.seenListBuckets = append(m.seenListBuckets, *input.Bucket)
 	if m.listCallIdx >= len(m.listOutputs) {
 		return &s3.ListObjectsV2Output{}, nil
@@ -162,7 +163,7 @@ type mockIdentityStore struct {
 	err         error
 }
 
-func (m *mockIdentityStore) DescribeUser(*identitystore.DescribeUserInput) (*identitystore.DescribeUserOutput, error) {
+func (m *mockIdentityStore) DescribeUser(context.Context, *identitystore.DescribeUserInput, ...func(*identitystore.Options)) (*identitystore.DescribeUserOutput, error) {
 	if m.err != nil {
 		return nil, m.err
 	}

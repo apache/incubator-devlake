@@ -18,14 +18,15 @@ limitations under the License.
 package tasks
 
 import (
+	"context"
 	"io"
 	"sort"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/apache/devlake/core/errors"
 	"github.com/apache/devlake/plugins/kiro/models"
@@ -34,8 +35,8 @@ import (
 // S3API is the subset of the S3 API this plugin uses, declared as an interface
 // so collectors and extractors can be tested without AWS.
 type S3API interface {
-	ListObjectsV2(input *s3.ListObjectsV2Input) (*s3.ListObjectsV2Output, error)
-	GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error)
+	ListObjectsV2(ctx context.Context, params *s3.ListObjectsV2Input, optFns ...func(*s3.Options)) (*s3.ListObjectsV2Output, error)
+	GetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 }
 
 // KiroS3Client is bound to exactly one bucket.
@@ -60,17 +61,17 @@ type KiroS3Clients struct {
 
 // NewKiroS3Clients builds the client pair for a connection.
 func NewKiroS3Clients(connection *models.KiroConnection) (*KiroS3Clients, errors.Error) {
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(connection.Region),
-		Credentials: credentials.NewStaticCredentials(connection.AccessKeyId, connection.SecretAccessKey, ""),
-	})
+	cfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(connection.Region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(connection.AccessKeyId, connection.SecretAccessKey, "")),
+	)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
 
 	// A single S3 service client can address both buckets; the split is at the
 	// KiroS3Client level, which pins the bucket name.
-	svc := s3.New(sess)
+	svc := s3.NewFromConfig(cfg)
 
 	return &KiroS3Clients{
 		Report:    &KiroS3Client{S3: svc, Bucket: connection.Bucket},
@@ -113,7 +114,7 @@ func (c *KiroS3Client) ListSubPrefixes(prefix string) ([]string, errors.Error) {
 	var names []string
 	var continuationToken *string
 	for {
-		output, err := c.S3.ListObjectsV2(&s3.ListObjectsV2Input{
+		output, err := c.S3.ListObjectsV2(context.Background(), &s3.ListObjectsV2Input{
 			Bucket:            aws.String(c.Bucket),
 			Prefix:            aws.String(prefix),
 			Delimiter:         aws.String("/"),
@@ -161,7 +162,7 @@ func (c *KiroS3Client) CountObjects(prefix string, limit int) (int, bool, errors
 	count := 0
 	var continuationToken *string
 	for {
-		output, err := c.S3.ListObjectsV2(&s3.ListObjectsV2Input{
+		output, err := c.S3.ListObjectsV2(context.Background(), &s3.ListObjectsV2Input{
 			Bucket:            aws.String(c.Bucket),
 			Prefix:            aws.String(prefix),
 			ContinuationToken: continuationToken,
@@ -200,7 +201,7 @@ func (c *KiroS3Client) CountObjects(prefix string, limit int) (int, bool, errors
 // completion log, and under 1 KB for a report CSV - so streaming would add
 // complexity without saving memory.
 func (c *KiroS3Client) GetObjectBytes(key string) ([]byte, errors.Error) {
-	output, err := c.S3.GetObject(&s3.GetObjectInput{
+	output, err := c.S3.GetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: aws.String(c.Bucket),
 		Key:    aws.String(key),
 	})

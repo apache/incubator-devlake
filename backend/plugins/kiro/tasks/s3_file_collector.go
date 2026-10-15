@@ -21,8 +21,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/apache/devlake/core/dal"
 	"github.com/apache/devlake/core/errors"
@@ -65,7 +65,7 @@ func CollectKiroS3Files(taskCtx plugin.SubTaskContext) errors.Error {
 
 		var continuationToken *string
 		for {
-			output, listErr := client.S3.ListObjectsV2(&s3.ListObjectsV2Input{
+			output, listErr := client.S3.ListObjectsV2(taskCtx.GetContext(), &s3.ListObjectsV2Input{
 				Bucket:            aws.String(client.Bucket),
 				Prefix:            aws.String(prefix),
 				ContinuationToken: continuationToken,

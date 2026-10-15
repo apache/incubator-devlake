@@ -18,10 +18,12 @@ limitations under the License.
 package tasks
 
 import (
+	"context"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -39,7 +41,7 @@ type prefixMockS3 struct {
 	seenPrefix    []string
 }
 
-func (m *prefixMockS3) ListObjectsV2(input *s3.ListObjectsV2Input) (*s3.ListObjectsV2Output, error) {
+func (m *prefixMockS3) ListObjectsV2(_ context.Context, input *s3.ListObjectsV2Input, _ ...func(*s3.Options)) (*s3.ListObjectsV2Output, error) {
 	prefix := ""
 	if input.Prefix != nil {
 		prefix = *input.Prefix
@@ -54,15 +56,15 @@ func (m *prefixMockS3) ListObjectsV2(input *s3.ListObjectsV2Input) (*s3.ListObje
 	out := &s3.ListObjectsV2Output{IsTruncated: aws.Bool(false)}
 	for _, child := range m.commonPrefixes[prefix] {
 		full := prefix + child + "/"
-		out.CommonPrefixes = append(out.CommonPrefixes, &s3.CommonPrefix{Prefix: aws.String(full)})
+		out.CommonPrefixes = append(out.CommonPrefixes, types.CommonPrefix{Prefix: aws.String(full)})
 	}
 	for _, key := range m.objects[prefix] {
-		out.Contents = append(out.Contents, &s3.Object{Key: aws.String(prefix + key)})
+		out.Contents = append(out.Contents, types.Object{Key: aws.String(prefix + key)})
 	}
 	return out, nil
 }
 
-func (m *prefixMockS3) GetObject(*s3.GetObjectInput) (*s3.GetObjectOutput, error) {
+func (m *prefixMockS3) GetObject(context.Context, *s3.GetObjectInput, ...func(*s3.Options)) (*s3.GetObjectOutput, error) {
 	return nil, nil
 }
 

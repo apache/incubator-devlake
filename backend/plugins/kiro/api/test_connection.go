@@ -18,11 +18,12 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/apache/devlake/core/errors"
 	"github.com/apache/devlake/core/plugin"
@@ -203,9 +204,9 @@ func testConnection(connection *models.KiroConnection) errors.Error {
 		if bucket == clients.PromptLog.Bucket {
 			client = clients.PromptLog
 		}
-		if _, listErr := client.S3.ListObjectsV2(&s3.ListObjectsV2Input{
+		if _, listErr := client.S3.ListObjectsV2(context.Background(), &s3.ListObjectsV2Input{
 			Bucket:  aws.String(bucket),
-			MaxKeys: aws.Int64(1),
+			MaxKeys: aws.Int32(1),
 		}); listErr != nil {
 			return errors.BadInput.Wrap(listErr, "cannot access s3 bucket "+bucket)
 		}
