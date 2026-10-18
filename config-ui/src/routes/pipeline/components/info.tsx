@@ -111,12 +111,15 @@ export const PipelineInfo = ({ id }: Props) => {
           {[IPipelineStatus.ACTIVE, IPipelineStatus.RUNNING, IPipelineStatus.RERUN].includes(status) && (
             <Button loading={operating} icon={<StopOutlined />} onClick={handleCancel} />
           )}
-          {[
-            IPipelineStatus.COMPLETED,
-            IPipelineStatus.PARTIAL,
-            IPipelineStatus.FAILED,
-            IPipelineStatus.CANCELLED,
-          ].includes(status) && <Button loading={operating} icon={<RedoOutlined />} onClick={handleRerun} />}
+          {totalTasks > 0 &&
+            [
+              IPipelineStatus.COMPLETED,
+              IPipelineStatus.PARTIAL,
+              IPipelineStatus.FAILED,
+              IPipelineStatus.CANCELLED,
+            ].includes(status) && (
+              <Button aria-label="Rerun pipeline" loading={operating} icon={<RedoOutlined />} onClick={handleRerun} />
+            )}
         </li>
       </ul>
       {IPipelineStatus.FAILED === status && <p className="'message'">{message}</p>}
