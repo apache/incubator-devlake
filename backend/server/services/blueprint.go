@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/apache/devlake/helpers/pluginhelper/services"
 
@@ -54,7 +55,7 @@ type BlueprintJob struct {
 
 func (bj BlueprintJob) Run() {
 	blueprint := bj.Blueprint
-	pipeline, err := createPipelineByBlueprint(blueprint, &blueprint.SyncPolicy)
+	pipeline, err := createPipelineByBlueprint(blueprint, &blueprint.SyncPolicy, true)
 	if err == ErrEmptyPlan {
 		blueprintLog.Info("Empty plan, blueprint id:[%d] blueprint name:[%s]", blueprint.ID, blueprint.Name)
 		return
@@ -309,13 +310,24 @@ func reloadBlueprint(blueprint *models.Blueprint) errors.Error {
 	return nil
 }
 
-func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPolicy) (*models.Pipeline, errors.Error) {
+func createPipelineByBlueprint(blueprint *models.Blueprint, syncPolicy *models.SyncPolicy, recordPlanFailure bool) (*models.Pipeline, errors.Error) {
 	var plan models.PipelinePlan
 	var err errors.Error
+	beganAt := time.Now()
 	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		plan, err = MakePlanForBlueprint(blueprint, syncPolicy)
 		if err != nil {
 			blueprintLog.Error(err, fmt.Sprintf("failed to MakePlanForBlueprint on blueprint:[%d][%s]", blueprint.ID, blueprint.Name))
+			// Manual triggers return the error to their caller. Scheduled attempts
+			// need a terminal record because no pipeline has been created yet.
+			if recordPlanFailure && err != ErrEmptyPlan {
+				failed, saveErr := createFailedBlueprintPipeline(blueprint, beganAt, err)
+				if saveErr != nil {
+					blueprintLog.Error(saveErr, "failed to record planning failure for blueprint #%d", blueprint.ID)
+				} else if notifyErr := NotifyExternal(failed.ID); notifyErr != nil {
+					blueprintLog.Error(notifyErr, "failed to send planning failure notification for pipeline #%d", failed.ID)
+				}
+			}
 			return nil, err
 		}
 	} else {
@@ -427,7 +439,7 @@ func TriggerBlueprint(id uint64, triggerSyncPolicy *models.TriggerSyncPolicy, sh
 		SkipOnFail:        false,
 		TimeAfter:         nil,
 		TriggerSyncPolicy: *triggerSyncPolicy,
-	})
+	}, false)
 	if err != nil {
 		return nil, err
 	}
