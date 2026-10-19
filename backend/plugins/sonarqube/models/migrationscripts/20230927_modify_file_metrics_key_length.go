@@ -49,12 +49,23 @@ func (script *modifyFileMetricsKeyLength) Up(basicRes context.BasicRes) errors.E
 	if err1 != nil {
 		return errors.Convert(err1)
 	}
+	// Drop the primary key only if it still exists, so the script can be re-run
+	// after an interrupted attempt that already dropped it.
 	if u.Scheme == "mysql" {
-		if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY"); err != nil {
+		pkCount, err := db.Count(
+			dal.From("information_schema.table_constraints"),
+			dal.Where("table_schema = DATABASE() AND table_name = ? AND constraint_type = 'PRIMARY KEY'", "_tool_sonarqube_file_metrics"),
+		)
+		if err != nil {
 			return err
 		}
+		if pkCount > 0 {
+			if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP PRIMARY KEY"); err != nil {
+				return err
+			}
+		}
 	} else {
-		if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP CONSTRAINT _tool_sonarqube_file_metrics_pkey"); err != nil {
+		if err := db.Exec("ALTER TABLE _tool_sonarqube_file_metrics DROP CONSTRAINT IF EXISTS _tool_sonarqube_file_metrics_pkey"); err != nil {
 			return err
 		}
 	}
