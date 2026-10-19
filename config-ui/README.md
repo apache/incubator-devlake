@@ -67,3 +67,16 @@ $ yarn preview
 ```
 
 For actual production use, the **Docker Image** for Config-UI should be used as outlined in the main project README.md
+
+### Grafana in the Docker image
+
+The image serves Grafana under `/grafana/` (runtime variables, read by `nginx.sh`):
+
+- `GRAFANA_ENDPOINT` (`host:port`) and `GRAFANA_ENDPOINT_PROTO` (default `http`): Grafana is proxied under `/grafana/`.
+- `USE_EXTERNAL_GRAFANA=true`: `/grafana/` is not proxied but redirected (302) to `GRAFANA_ENDPOINT`, which is then
+  the full base URL of the external Grafana, e.g. `https://grafana.example.com` or `https://example.com/grafana`.
+  The path and query after `/grafana` are kept, so `/grafana/d/<uid>/<slug>?orgId=1` redirects to
+  `<GRAFANA_ENDPOINT>/d/<uid>/<slug>?orgId=1`. A trailing slash in `GRAFANA_ENDPOINT` is ignored.
+
+The external Grafana needs the DevLake dashboards with the same UIDs (MySQL: e.g. `KXWvOFQnz`; PostgreSQL: the same UID
+with a `-pg` suffix).

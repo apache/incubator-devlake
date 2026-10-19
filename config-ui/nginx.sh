@@ -45,6 +45,9 @@ export DNS=$(awk 'BEGIN{ORS=" "} $1=="nameserver" {if ($2 ~ ":") {print "["$2"]"
 export DNS_VALID=${DNS_VALID:-300s}
 export DEVLAKE_ENDPOINT_PROTO=${DEVLAKE_ENDPOINT_PROTO:-http}
 export GRAFANA_ENDPOINT_PROTO=${GRAFANA_ENDPOINT_PROTO:-http}
+# The external Grafana redirect appends the path after /grafana (starting
+# with "/"), so drop a trailing slash to avoid "//" in the target URL.
+export GRAFANA_ENDPOINT="${GRAFANA_ENDPOINT%/}"
 envsubst '${LISTENER} ${DEVLAKE_ENDPOINT} ${DEVLAKE_ENDPOINT_PROTO} ${GRAFANA_ENDPOINT} ${GRAFANA_ENDPOINT_PROTO} ${USE_EXTERNAL_GRAFANA} ${SERVER_CONF} ${DNS} ${DNS_VALID}' \
     < /etc/nginx/conf.d/default.conf.tpl \
     > /etc/nginx/conf.d/default.conf
