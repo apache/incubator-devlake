@@ -21,8 +21,71 @@ import (
 	"testing"
 
 	coreModels "github.com/apache/devlake/core/models"
+	"github.com/apache/devlake/impls/logruslog"
+	mockdal "github.com/apache/devlake/mocks/core/dal"
+	"github.com/robfig/cron/v3"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
+
+const (
+	testGitUrl       = "https://git:secret-token@example.com/group/repo.git"
+	testMaskedGitUrl = "https://git:************@example.com/group/repo.git"
+)
+
+func TestSanitizeBlueprintLeavesTheSourcePlanUnchanged(t *testing.T) {
+	bp := &coreModels.Blueprint{
+		Plan: coreModels.PipelinePlan{{
+			{Plugin: "gitextractor", Options: map[string]interface{}{"url": testGitUrl, "name": "group/repo"}},
+		}},
+	}
+
+	sanitized := *bp
+	require.NoError(t, SanitizeBlueprint(&sanitized))
+
+	assert.Equal(t, map[string]interface{}{"url": testMaskedGitUrl, "name": "group/repo"}, sanitized.Plan[0][0].Options)
+	assert.Equal(t, map[string]interface{}{"url": testGitUrl, "name": "group/repo"}, bp.Plan[0][0].Options)
+}
+
+func TestPatchBlueprintKeepsTheScheduledPlanUnsanitized(t *testing.T) {
+	withProjectTestValidator(t)
+	testDB := mockdal.NewDal(t)
+	withProjectTestDatabase(t, testDB)
+	previousLogger, previousCron, previousCronIds := logger, cronManager, bpCronIdMap
+	logger, cronManager, bpCronIdMap = logruslog.Global, cron.New(), map[uint64]cron.EntryID{}
+	t.Cleanup(func() {
+		logger, cronManager, bpCronIdMap = previousLogger, previousCron, previousCronIds
+	})
+
+	testDB.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		bp := args.Get(0).(*coreModels.Blueprint)
+		bp.ID = 9
+		bp.Name = "advanced"
+		bp.Mode = coreModels.BLUEPRINT_MODE_ADVANCED
+		bp.Enable = true
+		bp.CronConfig = "0 0 * * *"
+		bp.Plan = coreModels.PipelinePlan{{
+			{Plugin: "gitextractor", Options: map[string]interface{}{"url": testGitUrl}},
+		}}
+	}).Return(nil).Once()
+	testDB.On("Pluck", "name", mock.Anything, mock.Anything).Return(nil).Once()
+	testDB.On("All", mock.Anything, mock.Anything).Return(nil).Once()
+	testDB.On("Update", mock.Anything).Return(nil).Once()
+	testDB.On("Delete", mock.Anything, mock.Anything).Return(nil).Times(3)
+
+	patched, err := PatchBlueprint(9, map[string]interface{}{"cronConfig": "*/5 * * * *"})
+	require.NoError(t, err)
+	assert.Equal(t, testMaskedGitUrl, patched.Plan[0][0].Options["url"])
+
+	// the cron job must still run the stored plan, not the one sanitized for the response
+	entries := cronManager.Entries()
+	require.Len(t, entries, 1)
+	job, ok := entries[0].Job.(*BlueprintJob)
+	require.True(t, ok)
+	assert.Equal(t, "*/5 * * * *", job.Blueprint.CronConfig)
+	assert.Equal(t, testGitUrl, job.Blueprint.Plan[0][0].Options["url"])
+}
 
 func TestParallelizePipelineTasks(t *testing.T) {
 	plan1 := coreModels.PipelinePlan{

@@ -230,10 +230,12 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
-	if err := SanitizeBlueprint(blueprint); err != nil {
+	// the cron job registered by saveBlueprint holds this blueprint, so sanitize a copy for the response
+	sanitized := *blueprint
+	if err := SanitizeBlueprint(&sanitized); err != nil {
 		return nil, errors.Convert(err)
 	}
-	return blueprint, nil
+	return &sanitized, nil
 }
 
 // DeleteBlueprint FIXME ...

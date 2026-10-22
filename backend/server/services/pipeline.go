@@ -20,9 +20,11 @@ package services
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -44,6 +46,10 @@ import (
 
 var defaultNotificationService *DefaultPipelineNotificationService
 var globalPipelineLog = logruslog.Global.Nested("pipeline service")
+
+// pluginOptionSanitizers mask secrets in plugin options. Each one receives a
+// shallow copy of the options, so it may replace top-level values but must not
+// modify nested maps or slices in place.
 var pluginOptionSanitizers = map[string]func(map[string]interface{}){
 	"gitextractor": func(options map[string]interface{}) {
 		if v, ok := options["url"]; ok {
@@ -144,45 +150,59 @@ func CreatePipeline(newPipeline *models.NewPipeline, shouldSanitize bool) (*mode
 	return pipeline, nil
 }
 
+// SanitizeBlueprint replaces blueprint.Plan with a sanitized copy. The original
+// plan is left untouched because it may be shared, e.g. with a scheduled job.
 func SanitizeBlueprint(blueprint *models.Blueprint) error {
-	for planStageIdx, pipelineStage := range blueprint.Plan {
-		for planTaskIdx := range pipelineStage {
-			pipelineTask, err := SanitizeTask(blueprint.Plan[planStageIdx][planTaskIdx])
-			if err != nil {
-				return err
-			}
-			blueprint.Plan[planStageIdx][planTaskIdx] = pipelineTask
-		}
+	plan, err := sanitizePlan(blueprint.Plan)
+	if err != nil {
+		return err
 	}
+	blueprint.Plan = plan
 	return nil
 }
 
+// SanitizePipeline replaces pipeline.Plan with a sanitized copy.
 func SanitizePipeline(pipeline *models.Pipeline) error {
-	for planStageIdx, pipelineStage := range pipeline.Plan {
-		for planTaskIdx := range pipelineStage {
-			task := pipeline.Plan[planStageIdx][planTaskIdx]
+	plan, err := sanitizePlan(pipeline.Plan)
+	if err != nil {
+		return err
+	}
+	pipeline.Plan = plan
+	return nil
+}
+
+func sanitizePlan(plan models.PipelinePlan) (models.PipelinePlan, error) {
+	sanitized := slices.Clone(plan)
+	for planStageIdx, pipelineStage := range plan {
+		sanitized[planStageIdx] = slices.Clone(pipelineStage)
+		for planTaskIdx, task := range pipelineStage {
 			pipelineTask, err := SanitizeTask(task)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			pipeline.Plan[planStageIdx][planTaskIdx] = pipelineTask
+			sanitized[planStageIdx][planTaskIdx] = pipelineTask
 		}
 	}
-	return nil
+	return sanitized, nil
 }
 
+// SanitizeTask returns a copy of the task with sanitized options.
 func SanitizeTask(pipelineTask *models.PipelineTask) (*models.PipelineTask, error) {
 	pluginName := pipelineTask.Plugin
 	options, err := SanitizePluginOption(pluginName, pipelineTask.Options)
 	if err != nil {
 		return pipelineTask, err
 	}
-	pipelineTask.Options = options
-	return pipelineTask, nil
+	sanitized := *pipelineTask
+	sanitized.Options = options
+	return &sanitized, nil
 }
 
+// SanitizePluginOption returns the sanitized options. The sanitizer works on a
+// shallow copy, so the given map is never modified.
 func SanitizePluginOption(pluginName string, option map[string]interface{}) (map[string]interface{}, error) {
 	if sanitizer, ok := pluginOptionSanitizers[pluginName]; ok {
+		option = maps.Clone(option)
 		sanitizer(option)
 	}
 	return option, nil
