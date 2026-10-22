@@ -18,17 +18,19 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/identitystore"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/identitystore"
 
 	"github.com/apache/devlake/plugins/kiro/models"
 )
 
 // IdentityStoreAPI is the subset of the Identity Store API used here.
 type IdentityStoreAPI interface {
-	DescribeUser(input *identitystore.DescribeUserInput) (*identitystore.DescribeUserOutput, error)
+	DescribeUser(ctx context.Context, params *identitystore.DescribeUserInput, optFns ...func(*identitystore.Options)) (*identitystore.DescribeUserOutput, error)
 }
 
 // KiroIdentityClient resolves user ids to human-readable display names.
@@ -48,20 +50,20 @@ func NewKiroIdentityClient(connection *models.KiroConnection) (*KiroIdentityClie
 		return nil, nil
 	}
 
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(connection.IdentityStoreRegion),
-		Credentials: credentials.NewStaticCredentials(
+	cfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(connection.IdentityStoreRegion),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
 			connection.AccessKeyId,
 			connection.SecretAccessKey,
 			"",
-		),
-	})
+		)),
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &KiroIdentityClient{
-		IdentityStore: identitystore.New(sess),
+		IdentityStore: identitystore.NewFromConfig(cfg),
 		StoreId:       connection.IdentityStoreId,
 	}, nil
 }
@@ -76,7 +78,7 @@ func (client *KiroIdentityClient) ResolveDisplayName(userId string) (*string, er
 		return nil, nil
 	}
 
-	result, err := client.IdentityStore.DescribeUser(&identitystore.DescribeUserInput{
+	result, err := client.IdentityStore.DescribeUser(context.Background(), &identitystore.DescribeUserInput{
 		IdentityStoreId: aws.String(client.StoreId),
 		UserId:          aws.String(userId),
 	})
