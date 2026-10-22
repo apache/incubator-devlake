@@ -105,14 +105,8 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		CollectUnfinishedDetails: &helper.FinalizableApiCollectorDetailArgs{
 			BuildInputIterator: func() (helper.Iterator, errors.Error) {
-				// select pull id from database
 				cursor, err := db.Cursor(
-					dal.Select("number"),
-					dal.From(&models.GithubPullRequest{}),
-					dal.Where(
-						"repo_id = ? AND connection_id = ? AND (state != 'closed' OR merged = false)",
-						data.Options.GithubId, data.Options.ConnectionId,
-					),
+					UnfinishedPullRequestsClauses(data.Options.GithubId, data.Options.ConnectionId)...,
 				)
 				if err != nil {
 					return nil, err
@@ -139,4 +133,24 @@ func CollectApiPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 
 	return collector.Execute()
+}
+
+// UnfinishedPullRequestsClauses selects the pull requests whose details the "Collect Pull
+// Requests" subtask re-collects one by one on an incremental run: the ones that are still
+// open, plus the ones whose detail-only fields have never been collected.
+//
+// `repos/{owner}/{repo}/pulls` does not return `merged`, `commits`, `additions`,
+// `deletions`, `review_comments` or `merged_by`, so a pull request that was only ever seen
+// in a list page is stored with `commits = 0`. Every pull request has at least one commit,
+// which makes `commits = 0` the marker for "details not collected yet", and the condition
+// stops matching as soon as the details are in.
+func UnfinishedPullRequestsClauses(repoId int, connectionId uint64) []dal.Clause {
+	return []dal.Clause{
+		dal.Select("number"),
+		dal.From(&models.GithubPullRequest{}),
+		dal.Where(
+			"repo_id = ? AND connection_id = ? AND (state != 'closed' OR commits = 0)",
+			repoId, connectionId,
+		),
+	}
 }
