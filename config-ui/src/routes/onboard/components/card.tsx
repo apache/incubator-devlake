@@ -25,7 +25,7 @@ import API from '@/api';
 import { useRefreshData, useAutoRefresh } from '@/hooks';
 import { operator } from '@/utils';
 
-import { DashboardURLMap } from '../step-4';
+import { getDashboardURL } from '../dashboard-url';
 
 interface Props {
   style?: React.CSSProperties;
@@ -157,7 +157,7 @@ export const OnboardCard = ({ style }: Props) => {
         )}
         {status === 'success' && (
           <Space>
-            <Button type="primary" onClick={() => window.open(DashboardURLMap[data.plugin])}>
+            <Button type="primary" onClick={() => window.open(getDashboardURL(data.plugin))}>
               Check Dashboard
             </Button>
             <Button onClick={handleClose}>Finish</Button>
@@ -168,7 +168,7 @@ export const OnboardCard = ({ style }: Props) => {
             <Button type="primary" onClick={() => navigate('/onboard')}>
               Details
             </Button>
-            <Button onClick={() => window.open(DashboardURLMap[data.plugin])}>Check Dashboard</Button>
+            <Button onClick={() => window.open(getDashboardURL(data.plugin))}>Check Dashboard</Button>
           </Space>
         )}
       </Flex>

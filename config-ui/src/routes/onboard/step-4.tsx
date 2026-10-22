@@ -29,6 +29,7 @@ import { operator } from '@/utils';
 
 import { Logs } from './components';
 import { Context } from './context';
+import { getDashboardURL } from './dashboard-url';
 
 const Wrapper = styled.div`
   margin-top: 150px;
@@ -76,14 +77,6 @@ const Wrapper = styled.div`
     }
   }
 `;
-
-export const DashboardURLMap: Record<string, string> = {
-  github: import.meta.env.DEVLAKE_DASHBOARD_URL_GITHUB,
-  gitlab: import.meta.env.DEVLAKE_DASHBOARD_URL_GITLAB,
-  bitbucket: import.meta.env.DEVLAKE_DASHBOARD_URL_BITBUCKET,
-  azuredevops: import.meta.env.DEVLAKE_DASHBOARD_URL_AZUREDEVOPS,
-  asana: import.meta.env.DEVLAKE_DASHBOARD_URL_ASANA,
-};
 
 const getStatus = (data: any) => {
   if (!data) {
@@ -264,7 +257,7 @@ export const Step4 = () => {
           <CheckCircleOutlined style={{ fontSize: 120, color: green5 }} />
           <div className="action">
             <Space direction="vertical">
-              <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
+              <Button type="primary" onClick={() => window.open(getDashboardURL(plugin))}>
                 Check Dashboard
               </Button>
               <Button loading={operating} onClick={handleFinish}>
@@ -283,7 +276,7 @@ export const Step4 = () => {
               <Button type="primary" onClick={handleRecollectData}>
                 Re-collect Data
               </Button>
-              <Button type="primary" onClick={() => window.open(DashboardURLMap[plugin])}>
+              <Button type="primary" onClick={() => window.open(getDashboardURL(plugin))}>
                 Check Dashboard
               </Button>
             </Space>
