@@ -76,6 +76,9 @@ Note the documentation structure of the functions in these example: that's the s
    This is where we also define the logic used by the server to run the plugin based on the constraints set by a blueprint (the user's configuration); that is,
 a "pipeline plan", which defines what input data to feed into the plugin, which subtasks (see `tasks` package) to execute, and which other plugins to run after this plugin's execution and the input to each of them (typically "helper" plugins).
 See [this](https://github.com/apache/incubator-DevLake/blob/main/backend/plugins/gitlab/api/blueprint_v200.go) for reference.
+
+   If plan generation returns an error during a scheduled blueprint run, DevLake records a failed pipeline with the planning error, start/end timestamps, and blueprint labels, then invokes the configured pipeline-status notification service after the record is committed. This pipeline has no tasks because planning did not complete. Fix the blueprint or connection and trigger a new run; rerunning tasks from this failed record cannot regenerate its plan. Manual triggers continue to return planning errors directly to the caller without creating a pipeline. If saving the failed record or sending its notification fails, check the lake logs for the additional error.
+
 * `e2e`: This package contains "pseudo-integration-tests" for plugins; tests that use mocked data and test the plugin's extraction and conversion logic of that data against an actual database. The test data is formatted in CSV files structured based on the expected database table structures.
 * `impl`: This package is where the plugin is actually defined, and is the "entrypoint": it is the implementation of multiple interfaces. See [this](https://github.com/apache/incubator-DevLake/tree/main/backend/plugins/gitlab/impl) for example.
   * At a minimum, a plugin must implement [PluginMeta](https://github.com/apache/incubator-DevLake/blob/main/backend/core/plugin/plugin_meta.go).

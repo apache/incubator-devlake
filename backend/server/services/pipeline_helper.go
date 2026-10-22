@@ -122,6 +122,54 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (pipeline *models.Pipelin
 	return dbPipeline, nil
 }
 
+// createFailedBlueprintPipeline records a scheduled attempt that could not make
+// a plan. Insert the terminal status and labels atomically: it must never enter
+// the execution queue, and no synthetic task should be dispatched.
+func createFailedBlueprintPipeline(blueprint *models.Blueprint, beganAt time.Time, planErr errors.Error) (*models.Pipeline, errors.Error) {
+	finishedAt := time.Now()
+	failure := errors.Default.Wrap(planErr, "Failed to generate pipeline plan; fix the blueprint and trigger a new run")
+	pipeline := &models.Pipeline{
+		Name:         blueprint.Name,
+		BlueprintId:  blueprint.ID,
+		Plan:         models.PipelinePlan{},
+		Status:       models.TASK_FAILED,
+		BeganAt:      &beganAt,
+		FinishedAt:   &finishedAt,
+		SpentSeconds: int(finishedAt.Sub(beganAt).Seconds()),
+		Message:      failure.Error(),
+		ErrorName:    failure.Messages().Format(),
+		Priority:     blueprint.Priority,
+		SyncPolicy:   blueprint.SyncPolicy,
+		Labels:       append([]string(nil), blueprint.Labels...),
+	}
+	tx := db.Begin()
+	committed := false
+	defer func() {
+		if !committed {
+			if err := tx.Rollback(); err != nil {
+				globalPipelineLog.Error(err, "failed to roll back planning failure for blueprint #%d", blueprint.ID)
+			}
+		}
+	}()
+	if err := tx.Create(pipeline); err != nil {
+		return nil, err
+	}
+	if len(pipeline.Labels) > 0 {
+		labels := make([]models.DbPipelineLabel, 0, len(pipeline.Labels))
+		for _, label := range pipeline.Labels {
+			labels = append(labels, models.DbPipelineLabel{PipelineId: pipeline.ID, Name: label})
+		}
+		if err := tx.Create(&labels); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	committed = true
+	return pipeline, nil
+}
+
 // GetDbPipelines by query
 func GetDbPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error) {
 	// process query parameters
