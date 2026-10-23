@@ -88,7 +88,7 @@ func ConvertIssues(taskCtx plugin.SubTaskContext) errors.Error {
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
 				if since != nil {
-					clauses = append(clauses, dal.Where("github_updated_at >= ?", since))
+					clauses = append(clauses, dal.Where("updated_at >= ?", since))
 				}
 			}
 			return db.Cursor(clauses...)

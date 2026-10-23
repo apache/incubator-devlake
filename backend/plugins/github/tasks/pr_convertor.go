@@ -72,7 +72,11 @@ func ConvertPullRequests(taskCtx plugin.SubTaskContext) errors.Error {
 			if stateManager.IsIncremental() {
 				since := stateManager.GetSince()
 				if since != nil {
-					clauses = append(clauses, dal.Where("github_updated_at >= ?", since))
+					// `since` is when the previous run of this subtask started, so the filter has to
+					// select the records DevLake wrote after it, not the ones GitHub changed after it:
+					// a record whose `github_updated_at` is older than `since` still has to be
+					// converted when a later collection rewrote it.
+					clauses = append(clauses, dal.Where("updated_at >= ?", since))
 				}
 			}
 			return db.Cursor(clauses...)
